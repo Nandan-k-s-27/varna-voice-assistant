@@ -1,6 +1,6 @@
-# VARNA v1.4 — Full Command List
+# VARNA v1.5 — Full Command List
 
-All commands supported by VARNA v1.4, organized by category.
+All commands supported by VARNA v1.5, organized by category.
 
 ---
 
@@ -233,6 +233,39 @@ Say multiple commands in one sentence:
 - "open edge **and** search React hooks" → opens Edge, then searches
 - "open notepad **then** type hello world" → opens Notepad, then types
 
+## 19. Universal App Manager — 🆕 v1.5
+
+### Open ANY Installed App
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 104 | open `{any app}` | "open whatsapp" | Scans index → launches .exe or UWP |
+| 105 | open `{misspelled}` | "open watsapp" | Fuzzy match → finds WhatsApp |
+| 106 | open `{store app}` | "open spotify" | UWP protocol launch |
+
+### Close ANY Running App
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 107 | close `{any app}` | "close whatsapp" | psutil → finds & terminates process |
+| 108 | close `{any app}` | "close spotify" | Works for any running process |
+
+### App Management
+
+| # | Command | Action |
+|---|---------|--------|
+| 109 | scan apps | Scans PC for installed apps → builds/rebuilds index |
+| 110 | refresh app list | Same as scan apps |
+| 111 | list installed apps | Shows all indexed apps |
+| 112 | list apps | Same as list installed apps |
+
+**How It Works:**
+1. At startup, scans Start Menu shortcuts, Program Files, AppData, and UWP Store apps
+2. Builds searchable index cached in `apps.json`
+3. Fuzzy matches spoken names (handles speech errors like "watsapp" → "WhatsApp")
+4. If multiple similar matches found → asks user to be specific
+5. Say "scan apps" to rebuild the index if you install new applications
+
 ---
 
 ## Legend
@@ -263,4 +296,5 @@ Say multiple commands in one sentence:
 | Voice Typing | 3+ | v1.4 |
 | NLP + Smart Search | auto | v1.4 |
 | Natural Chains | auto | v1.4 |
-| **Total** | **~107+** | |
+| **Universal App** 🆕 | **9+** | **v1.5** |
+| **Total** | **~115+** | |

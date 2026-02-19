@@ -1,35 +1,33 @@
 """
-VARNA v1.4 - Command Parser
+VARNA v1.5 - Command Parser
 Maps spoken text to safe, whitelisted PowerShell commands.
 
-v1.4 additions:
-  - NLP preprocessing (filler removal + fuzzy matching + intent extraction)
-  - Window control commands (switch, minimize, maximize, restore)
-  - Voice typing ("type hello world")
-  - Tab control (close tab, new tab, next/prev tab)
-  - Smart search routing (search in current tab if browser active)
-  - Smart open (via WindowManager — restore/focus instead of re-launch)
+v1.5 additions:
+  - Universal app scan / list / dynamic close
+  - All v1.4 features (NLP, window, typing, tabs, smart search)
 
 Matching strategy (in order):
   1. Context — pronoun resolution
   2. Exact match — static / developer / system
   3. Clipboard
-  4. Tab control (v1.4)
-  5. Window commands (v1.4)
-  6. Macro list/delete
-  7. Scheduler
-  8. Monitor
-  9. Smart screenshot
- 10. File search
- 11. Voice typing (v1.4)
- 12. Macro record
- 13. Parameterized (browser-aware)
- 14. Chain match
- 15. Smart open/close (v1.4) — detected via intent parser
- 16. Keyword/substring fallback
- 17. Fuzzy match fallback (v1.4)
- 18. Intent-based fallback (v1.4)
- 19. Macro trigger fallback
+  4. App scan / list commands (v1.5)
+  5. Tab control (v1.4)
+  6. Window commands (v1.4)
+  7. Dynamic close (v1.5)
+  8. Macro list/delete
+  9. Scheduler
+ 10. Monitor
+ 11. Smart screenshot
+ 12. File search
+ 13. Voice typing (v1.4)
+ 14. Macro record
+ 15. Parameterized (browser-aware)
+ 16. Chain match
+ 17. Smart open/close — via WindowManager + AppManager
+ 18. Keyword/substring fallback
+ 19. Fuzzy match fallback (v1.4)
+ 20. Intent-based fallback (v1.4)
+ 21. Macro trigger fallback
 """
 
 import json
@@ -84,6 +82,11 @@ class ParseResult:
     tab_action: str | None = None          # "close" | "new" | "next" | "prev" | "reopen"
     is_in_tab_search: bool = False         # search in current tab
     search_query: str | None = None        # query for in-tab search
+    # v1.5
+    is_app_scan: bool = False              # scan / refresh / list installed apps
+    app_scan_action: str | None = None     # "scan" | "list"
+    is_dynamic_close: bool = False         # close any app via psutil
+    close_target: str | None = None        # app name to close
 
     @property
     def matched(self) -> bool:
@@ -192,6 +195,12 @@ class Parser:
         if text in self.clipboard_cmds:
             return ParseResult(matched_key=text, is_clipboard=True)
 
+        # 5.5 App scan / list (v1.5)
+        if text in ("scan apps", "refresh app list", "refresh apps", "rescan apps"):
+            return ParseResult(matched_key=text, is_app_scan=True, app_scan_action="scan")
+        if text in ("list installed apps", "list apps", "show installed apps", "what apps do i have"):
+            return ParseResult(matched_key=text, is_app_scan=True, app_scan_action="list")
+
         # 6. Tab control (v1.4)
         result = self._match_tab(text)
         if result.matched:
@@ -201,6 +210,18 @@ class Parser:
         result = self._match_window(text)
         if result.matched:
             return result
+
+        # 7.5 Dynamic close (v1.5) — "close X" for any app
+        m = re.match(r"^close\s+(?:the\s+)?(.+)$", text)
+        if m:
+            target = m.group(1).strip()
+            # Skip if it's a known static command (e.g. "close tab")
+            if target not in ("tab", "this tab", "the tab", "current tab"):
+                # Check if it's in static commands first
+                if f"close {target}" not in self.static:
+                    return ParseResult(matched_key=f"close {target}",
+                                       is_dynamic_close=True, close_target=target)
+
 
         # 8. Macro list/delete
         if text in self.macro_cmds:
@@ -439,12 +460,10 @@ class Parser:
                 window_action="smart_open", window_target=obj,
             )
 
-        # close / quit / kill / terminate
+        # close / quit / kill / terminate — use dynamic close (v1.5)
         if intent == "close" and obj:
-            from context import _APP_PROCESS_MAP
-            process = _APP_PROCESS_MAP.get(obj, obj)
-            cmd = f"Stop-Process -Name {process} -Force -ErrorAction SilentlyContinue"
-            return ParseResult(matched_key=f"close {obj}", commands=[cmd])
+            return ParseResult(matched_key=f"close {obj}",
+                               is_dynamic_close=True, close_target=obj)
 
         # search
         if intent == "search" and param:

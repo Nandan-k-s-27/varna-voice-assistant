@@ -1,12 +1,13 @@
 """
-VARNA v1.4 - Window Manager
-Smart application control using pygetwindow.
+VARNA v1.5 - Window Manager
+Smart application control using pygetwindow + AppManager fallback.
 
 Provides:
   - Smart open  (restore if minimized, focus if running, launch if not)
   - Minimize / Maximize / Restore / Switch-to
   - Show Desktop  (Win+D)
   - Active window detection
+  - Fallback to AppManager for unknown apps
 """
 
 import subprocess
@@ -14,6 +15,14 @@ import time
 from utils.logger import get_logger
 
 log = get_logger(__name__)
+
+# Lazy-loaded AppManager reference (set by main.py)
+_app_manager = None
+
+def set_app_manager(mgr):
+    """Set the AppManager instance for fallback lookups."""
+    global _app_manager
+    _app_manager = mgr
 
 try:
     import pygetwindow as gw
@@ -122,17 +131,40 @@ class WindowManager:
                     log.warning("Could not activate window '%s': %s", win.title, exc)
                     # Fall through to launch
 
-        # Not running — launch
-        exec_name = _LAUNCH_MAP.get(app_lower, app_lower)
+        # Not running — try hardcoded launch map first
+        if app_lower in _LAUNCH_MAP:
+            exec_name = _LAUNCH_MAP[app_lower]
+            try:
+                subprocess.Popen(
+                    ["powershell", "-Command", f"Start-Process {exec_name}"],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                )
+                log.info("Launched (hardcoded): '%s'", exec_name)
+                return "launched", f"Opened {app_name}"
+            except Exception as exc:
+                log.error("Failed to launch '%s': %s", exec_name, exc)
+                return "error", f"Could not open {app_name}: {exc}"
+
+        # Fallback — use AppManager for dynamic apps
+        if _app_manager:
+            action, msg = _app_manager.launch(app_lower)
+            if action == "launched":
+                return action, msg
+            if action == "suggest":
+                return "suggest", msg  # Suggestions list (comma-separated)
+            if action == "not_found":
+                return "not_found", msg
+
+        # Last resort — try Start-Process with the raw name
         try:
             subprocess.Popen(
-                ["powershell", "-Command", f"Start-Process {exec_name}"],
+                ["powershell", "-Command", f"Start-Process {app_lower}"],
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
             )
-            log.info("Launched new instance: '%s'", exec_name)
+            log.info("Launched (raw): '%s'", app_lower)
             return "launched", f"Opened {app_name}"
         except Exception as exc:
-            log.error("Failed to launch '%s': %s", exec_name, exc)
+            log.error("Failed to launch '%s': %s", app_lower, exc)
             return "error", f"Could not open {app_name}: {exc}"
 
     # ------------------------------------------------------------------ #

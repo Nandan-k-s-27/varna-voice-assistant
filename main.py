@@ -1,18 +1,16 @@
 """
-VARNA v1.4 — Voice-Activated Resource & Navigation Assistant
+VARNA v1.5 — Voice-Activated Resource & Navigation Assistant
 Main entry point.
 
 Pipeline:
   🎤 Always Listening  →  🧹 NLP Clean  →  🧠 Parser  →  🛡 Whitelist
-  →  ⚡ Executor / Window Manager / PyAutoGUI  →  🔊 TTS Response
+  →  ⚡ Executor / Window Manager / AppManager / PyAutoGUI  →  🔊 TTS Response
 
-v1.4 additions:
-  • Window intelligence (smart open/minimize/maximize/switch/restore)
-  • Voice typing      ("type hello world" in active app)
-  • Tab control       ("close tab", "new tab", "next tab", "previous tab")
-  • Flexible NLP      (filler removal + fuzzy match + intent fallback)
-  • Smart search      (search in current tab if browser active)
-  • Natural chains    ("open edge and search React hooks" split + sequential)
+v1.5 additions:
+  • Universal App Manager (open/close ANY installed app)
+  • App scanning & indexing (Start Menu, Program Files, UWP)
+  • Dynamic close via psutil
+  • All v1.4 features (window, typing, tabs, NLP, search, chains)
 """
 
 import sys
@@ -27,12 +25,13 @@ from context import SessionContext
 from monitor import ProcessMonitor
 from macros import MacroManager
 from tray import TrayUI
-from window_manager import WindowManager
+from window_manager import WindowManager, set_app_manager
+from app_manager import AppManager
 from utils.logger import get_logger
 
 log = get_logger("VARNA")
 
-VERSION = "1.4"
+VERSION = "1.5"
 
 EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
 
@@ -64,6 +63,8 @@ def main() -> None:
         macros = MacroManager()
         tray = TrayUI()
         win_mgr = WindowManager()
+        app_mgr = AppManager(auto_scan=True)  # v1.5: scan installed apps
+        set_app_manager(app_mgr)  # Wire into WindowManager
     except Exception as exc:
         log.critical("Initialisation failed: %s", exc)
         print(f"\n[FATAL] {exc}")
@@ -135,13 +136,13 @@ def main() -> None:
                         continue
                     print(f"   ⛓ Step {i}: {part}")
                     _process_single(part, parser, executor, context, monitor,
-                                    macros, win_mgr, speaker, tray, listener)
+                                    macros, win_mgr, app_mgr, speaker, tray, listener)
                     time.sleep(0.8)  # Small delay between steps
                 continue
 
         # Single command
         _process_single(text, parser, executor, context, monitor,
-                        macros, win_mgr, speaker, tray, listener)
+                        macros, win_mgr, app_mgr, speaker, tray, listener)
 
     log.info("VARNA v%s shut down cleanly.", VERSION)
     print(f"\n👋  VARNA v{VERSION} has shut down.\n")
@@ -164,6 +165,7 @@ def _should_split(text: str) -> bool:
 def _process_single(text: str, parser: Parser, executor: Executor,
                     context: SessionContext, monitor: ProcessMonitor,
                     macros: MacroManager, win_mgr: WindowManager,
+                    app_mgr: AppManager,
                     speaker: Speaker, tray: TrayUI, listener: Listener) -> None:
     """Process a single command."""
 
@@ -192,7 +194,17 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         _handle_tab(result, speaker, tray)
         return
 
-    # --- Window intelligence (v1.4) ---
+    # --- App scan / list (v1.5) ---
+    if result.is_app_scan:
+        _handle_app_scan(result, app_mgr, speaker, tray)
+        return
+
+    # --- Dynamic close (v1.5) ---
+    if result.is_dynamic_close:
+        _handle_dynamic_close(result, app_mgr, speaker, tray)
+        return
+
+    # --- Window intelligence (v1.4 + v1.5 AppManager fallback) ---
     if result.is_window:
         _handle_window(result, win_mgr, context, speaker, tray)
         return
@@ -352,6 +364,46 @@ def _replace_symbols(text: str) -> str:
 # Handler functions
 # ====================================================================== #
 
+def _handle_app_scan(result: ParseResult, app_mgr: AppManager,
+                     speaker: Speaker, tray: TrayUI):
+    """Handle scan / list installed apps commands."""
+    if result.app_scan_action == "scan":
+        speaker.say("Scanning installed applications. This may take a moment.")
+        tray.update_result("🔍 Scanning …")
+        count = app_mgr.scan()
+        speaker.say(f"Scan complete. Found {count} applications.")
+        tray.update_result(f"📦 {count} apps indexed")
+    elif result.app_scan_action == "list":
+        apps = app_mgr.list_apps()
+        if apps:
+            # Show first 10
+            shown = apps[:10]
+            more = len(apps) - 10 if len(apps) > 10 else 0
+            names = ", ".join(shown)
+            print(f"   📦 Installed apps ({len(apps)} total): {names}{'...' if more else ''}")
+            speaker.say(f"You have {len(apps)} apps indexed. Some include: {names}.")
+            tray.update_result(f"📦 {len(apps)} apps")
+        else:
+            speaker.say("No apps indexed yet. Say 'scan apps' to build the list.")
+            tray.update_result("📦 No apps")
+
+
+def _handle_dynamic_close(result: ParseResult, app_mgr: AppManager,
+                          speaker: Speaker, tray: TrayUI):
+    """Close any running application dynamically via psutil."""
+    target = result.close_target
+    if not target:
+        speaker.say("Which application should I close?")
+        return
+
+    msg = app_mgr.close(target)
+    speaker.say(msg)
+    if "not running" in msg.lower():
+        tray.update_result(f"❌ {target} not running")
+    else:
+        tray.update_result(f"🚫 Closed {target}")
+
+
 def _handle_window(result: ParseResult, win_mgr: WindowManager,
                    context: SessionContext, speaker: Speaker, tray: TrayUI):
     """Handle window intelligence commands."""
@@ -380,6 +432,15 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
 
     if action == "smart_open":
         act, msg = win_mgr.smart_open(target)
+        if act == "suggest":
+            # Multiple similar apps found — ask user to be specific
+            speaker.say(f"I found similar apps: {msg}. Which one did you mean?")
+            tray.update_result(f"❓ Similar: {msg}")
+            return
+        if act == "not_found":
+            speaker.say(msg)
+            tray.update_result(f"❌ {target} not found")
+            return
         speaker.say(msg)
         context.update_after_command(f"open {target}", f"Start-Process {target}")
         tray.update_result(f"🪟 {act}: {target}")

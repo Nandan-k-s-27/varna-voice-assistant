@@ -30,6 +30,16 @@
 - **File Search**: `"find PDF downloaded yesterday"` with type + date filters.
 - **System Tray UI**: Floating overlay showing mic status, last command, result.
 
+### v1.5 — Universal App Control
+- **Open ANY App**: `"open whatsapp"` / `"open spotify"` / `"open telegram"` — scans your entire PC.
+  - Scans Start Menu shortcuts, Program Files, AppData, and UWP Store apps.
+  - Auto-builds searchable index cached in `apps.json`.
+  - Fuzzy matches speech errors: `"open watsapp"` → finds WhatsApp.
+  - If multiple matches → suggests similar apps.
+- **Close ANY App**: `"close whatsapp"` → finds running process via `psutil` and terminates.
+- **App Management**: `"scan apps"` to rebuild index. `"list installed apps"` to see all.
+- **No hardcoding**: Works with any installed .exe or UWP app.
+
 ### v1.4 — Smart Application Control + Natural Parsing
 - **Window Intelligence**: Smart open (restores if minimized, focuses if running, launches if not).
   - `"switch to chrome"` / `"minimize edge"` / `"maximize vscode"` / `"show desktop"`.
@@ -84,7 +94,7 @@ Speak commands naturally — VARNA now understands flexible language.
 | **Macros** | "whenever I say dev mode do open vscode and open chrome" | Saves macro |
 | **System** | "shutdown system" | Shuts down (with confirmation) |
 
-For the full list of **107+ commands**, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **115+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
@@ -99,8 +109,10 @@ For the full list of **107+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | `monitor.py` | Background process monitoring |
 | `macros.py` | Custom macro manager |
 | `tray.py` | System tray icon + floating overlay |
-| `window_manager.py` | Smart window control (pygetwindow) 🆕 |
-| `nlp.py` | Rule-based NLP — filler removal, fuzzy match, intent extract 🆕 |
+| `window_manager.py` | Smart window control (pygetwindow) + AppManager fallback |
+| `nlp.py` | Rule-based NLP — filler removal, fuzzy match, intent extract |
+| `app_manager.py` | Universal app scan, index, fuzzy match, launch, close 🆕 |
+| `apps.json` | Auto-generated installed app cache 🆕 |
 | `commands.json` | Structured command whitelist |
 | `macros.json` | User-defined macros storage |
 
@@ -114,6 +126,10 @@ For the full list of **107+ commands**, see [`COMMANDS.md`](COMMANDS.md).
              🪟 WindowManager              ⚡ PowerShell              ⌨️ PyAutoGUI
           (smart open/switch/             (safe execution)          (type/tab/search)
            minimize/maximize)
+                    ↓
+              📦 AppManager
+           (scan / fuzzy match /
+            launch / close)
                     ↓                               ↓                       ↓
                     └───────────────────────────────┼───────────────────────┘
                                                     ↓
@@ -130,3 +146,4 @@ For the full list of **107+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.2 | Context tracking, confirmation, scheduler, monitoring |
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
 | v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |
+| v1.5 | **Universal App Manager** — open/close ANY installed app, auto-scan, fuzzy match, UWP support |
