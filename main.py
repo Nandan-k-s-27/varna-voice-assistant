@@ -3,18 +3,16 @@ VARNA v1.2 — Voice-Activated Resource & Navigation Assistant
 Main entry point.
 
 Pipeline:
-  🎤 Always Listening  →  🔑 "VARNA" keyword detection  →  📝 Extract command
-  →  🧠 Parser  →  🛡 Whitelist  →  ⚡ PowerShell Executor  →  🔊 TTS Response
+  🎤 Always Listening  →  📝 Speech-to-Text  →  🧠 Parser  →  🛡 Whitelist
+  →  ⚡ PowerShell Executor  →  🔊 TTS Response
 
 Behaviour:
-  • VARNA listens continuously to everything.
-  • Only when the user says "varna" somewhere in the phrase does it
-    treat the rest as a command.  E.g. "varna search html elements".
-  • All other speech is silently ignored.
+  • VARNA listens continuously and processes ALL recognised speech.
+  • Context tracking remembers last app, last browser, last project.
+  • Dangerous commands require voice confirmation ("Are you sure?").
 """
 
 import sys
-import re
 from listener import Listener
 from parser import Parser, ParseResult
 from executor import Executor
@@ -29,31 +27,6 @@ VERSION = "1.2"
 
 # Exit phrases (user says any of these to quit)
 EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
-
-# Pattern to detect and strip the wake keyword from spoken text.
-# Google Speech API frequently misrecognises "varna" as "verna",
-# "warna", "barna", etc.  The pattern covers all known variants.
-_VARNA_VARIANTS = r"(?:varna|verna|warna|barna|vana|verna|varuna|verona|varnah|vana)"
-_WAKE_PATTERN = re.compile(
-    rf"\b(?:hey\s+{_VARNA_VARIANTS}|hi\s+{_VARNA_VARIANTS}|hello\s+{_VARNA_VARIANTS}|ok\s+{_VARNA_VARIANTS}|{_VARNA_VARIANTS})\b",
-    re.IGNORECASE,
-)
-
-
-def _extract_command(text: str) -> str | None:
-    """
-    If the text contains the keyword 'varna', strip it out and return
-    the remaining text as the intended command.
-    Returns None if 'varna' is not present in the text.
-    """
-    if not _WAKE_PATTERN.search(text):
-        return None
-
-    # Remove the wake-word and clean up
-    command = _WAKE_PATTERN.sub("", text).strip()
-    # Collapse multiple spaces
-    command = re.sub(r"\s{2,}", " ", command)
-    return command if command else None
 
 
 def main() -> None:
@@ -84,67 +57,45 @@ def main() -> None:
     speaker.greet()
 
     # --- Main loop -------------------------------------------------------
-    log.info("Entering main loop. Say 'varna <command>' to interact.")
-    print(f"\n🎤  VARNA v{VERSION} is listening. Say 'VARNA <command>' to interact.\n")
+    log.info("Entering main loop. Say 'exit' to quit.")
+    print(f"\n🎤  VARNA v{VERSION} is listening. Say a command (or 'exit' to quit).\n")
 
     while True:
-        # Always listen for speech
         text = listener.listen(timeout=7, phrase_time_limit=10)
 
         if text is None:
             # No speech detected — silently loop
             continue
 
-        # --- Exit phrases always work (no wake word needed) ------
-        if text.strip().lower() in EXIT_PHRASES:
-            log.info("Exit phrase detected (no wake word): '%s'", text)
-            if monitor.is_running:
-                monitor.stop()
-            speaker.goodbye()
-            break
-
-        # --- Check if the user said "varna" somewhere --------------------
-        command = _extract_command(text)
-
-        if command is None:
-            # "varna" was NOT in the speech — ignore completely
-            log.debug("Ignored (no wake keyword): '%s'", text)
-            continue
-
-        # If user ONLY said "varna" with no command
-        if not command:
-            speaker.say("Yes? What can I do for you?")
-            continue
-
-        print(f'   You said: "{command}"')
+        print(f'   You said: "{text}"')
 
         # Check for exit intent
-        if command in EXIT_PHRASES:
-            log.info("Exit phrase detected: '%s'", command)
+        if text in EXIT_PHRASES:
+            log.info("Exit phrase detected: '%s'", text)
             if monitor.is_running:
                 monitor.stop()
             speaker.goodbye()
             break
 
         # Check for "help" / "list commands"
-        if command in {"help", "list commands", "what can you do"}:
+        if text in {"help", "list commands", "what can you do"}:
             cmds = parser.list_commands()
             summary = ", ".join(cmds[:10])
             speaker.say(f"I can do things like: {summary}, and more.")
             continue
 
         # Check for "developer commands" / "dev help"
-        if command in {"developer commands", "dev commands", "dev help"}:
+        if text in {"developer commands", "dev commands", "dev help"}:
             dev_cmds = parser.list_developer_commands()
             summary = ", ".join(dev_cmds[:8])
             speaker.say(f"Developer commands include: {summary}.")
             continue
 
-        # Parse the spoken command (with context for browser-awareness etc.)
-        result: ParseResult = parser.parse(command, context=context)
+        # Parse the spoken text (with context for browser-awareness etc.)
+        result: ParseResult = parser.parse(text, context=context)
 
         if not result.matched:
-            speaker.say(f"Sorry, I don't recognise the command: {command}")
+            speaker.say(f"Sorry, I don't recognise the command: {text}")
             continue
 
         # --- Info response (no execution needed) -----------------------
