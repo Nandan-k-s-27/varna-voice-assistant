@@ -102,5 +102,58 @@
         "show node processes": "Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id, CPU, WorkingSet",
         "kill all node": "Stop-Process -Name node -Force -ErrorAction SilentlyContinue",
         "open terminal here": "Start-Process powershell -ArgumentList '-NoExit'"
+    },
+    "dangerous": [
+        "shutdown system",
+        "restart system",
+        "log off",
+        "empty recycle bin",
+        "kill all node"
+    ],
+    "system": {
+        "shutdown system": "Stop-Computer -Force",
+        "restart system": "Restart-Computer -Force",
+        "log off": "shutdown /l",
+        "cancel scheduled shutdown": "schtasks /Delete /TN 'VARNA_Shutdown' /F",
+        "cancel scheduled restart": "schtasks /Delete /TN 'VARNA_Restart' /F",
+        "show scheduled tasks": "schtasks /Query /TN 'VARNA_*' /FO LIST 2>$null; if ($LASTEXITCODE -ne 0) { Write-Output 'No VARNA scheduled tasks found.' }"
+    },
+    "scheduler": {
+        "schedule shutdown": {
+            "description": "Schedule a system shutdown at a specific time",
+            "type": "shutdown",
+            "extract_after": "schedule shutdown"
+        },
+        "schedule restart": {
+            "description": "Schedule a system restart at a specific time",
+            "type": "restart",
+            "extract_after": "schedule restart"
+        }
+    },
+    "monitoring": {
+        "monitor": {
+            "description": "Monitor a process memory usage in background",
+            "extract_after": "monitor"
+        },
+        "stop monitoring": {
+            "description": "Stop the background process monitor",
+            "action": "stop"
+        },
+        "check process": {
+            "description": "One-shot check of a process status",
+            "extract_after": "check process"
+        }
+    },
+    "context": {
+        "close it": "Closes the last opened/closed application",
+        "close that": "Closes the last opened/closed application",
+        "open it again": "Re-opens the last application",
+        "reopen it": "Re-opens the last application",
+        "open it": "Re-opens the last application",
+        "go back": "Opens the last accessed project/folder",
+        "open last project": "Opens the last accessed project/folder",
+        "open last folder": "Opens the last accessed project/folder",
+        "what was my last app": "Reports the last used application",
+        "session status": "Reports the full session context"
     }
 }

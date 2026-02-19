@@ -1,15 +1,18 @@
 """
-VARNA v1.1 — Voice-Activated Resource & Navigation Assistant
+VARNA v1.2 — Voice-Activated Resource & Navigation Assistant
 Main entry point.
 
 Pipeline:
-  🎤 Microphone  →  📝 Speech-to-Text  →  🧠 Parser  →  🛡 Whitelist
+  🎤 Wake Word  →  📝 Speech-to-Text  →  🧠 Parser  →  🛡 Whitelist
   →  ⚡ PowerShell Executor  →  🔊 TTS Response
 
-v1.1 additions:
-  • Parameterized commands  (e.g. "search React hooks")
-  • Multi-step command chains (e.g. "start my backend")
-  • Developer-mode commands  (e.g. "kill port 3000")
+v1.2 additions:
+  • Wake-word activation   ("hey varna" triggers, everything else is ignored)
+  • Context / state tracking (remembers last app, project, cwd)
+  • Pronoun resolution      ("close it" → close last app)
+  • Confirmation layer      (dangerous commands ask "Are you sure?")
+  • Task Scheduler          ("schedule shutdown at 10 PM")
+  • Process Monitoring      ("monitor chrome memory usage")
 """
 
 import sys
@@ -17,11 +20,13 @@ from listener import Listener
 from parser import Parser, ParseResult
 from executor import Executor
 from speaker import Speaker
+from context import SessionContext
+from monitor import ProcessMonitor
 from utils.logger import get_logger
 
 log = get_logger("VARNA")
 
-VERSION = "1.1"
+VERSION = "1.2"
 
 # Exit phrases (user says any of these to quit)
 EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
@@ -40,6 +45,8 @@ def main() -> None:
         listener = Listener()
         parser = Parser()
         executor = Executor()
+        context = SessionContext()
+        monitor = ProcessMonitor(speaker=speaker)
     except Exception as exc:
         log.critical("Initialisation failed: %s", exc)
         print(f"\n[FATAL] {exc}")
@@ -50,17 +57,32 @@ def main() -> None:
     listener.calibrate(duration=2.0)
 
     # --- Greet the user --------------------------------------------------
-    speaker.greet()
+    speaker.say("VARNA online. Say 'hey VARNA' to activate me.")
 
     # --- Main loop -------------------------------------------------------
-    log.info("Entering main loop. Say 'exit' to quit.")
-    print(f"\n🎤  VARNA v{VERSION} is listening. Say a command (or 'exit' to quit).\n")
+    log.info("Entering main loop. Waiting for wake word …")
+    print(f"\n🎤  VARNA v{VERSION} is ready. Say 'hey VARNA' to activate.\n")
 
     while True:
+        # ============================================================== #
+        # PHASE 1: IDLE — Wait for wake word
+        # ============================================================== #
+        wake_detected = listener.listen_for_wake_word(timeout=3, phrase_time_limit=4)
+
+        if not wake_detected:
+            continue
+
+        # Wake word detected — enter active mode
+        print("   ✨ Wake word detected! Listening for command …")
+        speaker.say("Yes?")
+
+        # ============================================================== #
+        # PHASE 2: ACTIVE — Listen for actual command
+        # ============================================================== #
         text = listener.listen(timeout=7, phrase_time_limit=10)
 
         if text is None:
-            # No speech detected — silently loop
+            speaker.say("I didn't catch that. Say 'hey VARNA' again.")
             continue
 
         print(f'   You said: "{text}"')
@@ -68,6 +90,9 @@ def main() -> None:
         # Check for exit intent
         if text in EXIT_PHRASES:
             log.info("Exit phrase detected: '%s'", text)
+            # Stop monitor if running
+            if monitor.is_running:
+                monitor.stop()
             speaker.goodbye()
             break
 
@@ -85,14 +110,43 @@ def main() -> None:
             speaker.say(f"Developer commands include: {summary}.")
             continue
 
-        # Parse the spoken text
-        result: ParseResult = parser.parse(text)
+        # Parse the spoken text (with context)
+        result: ParseResult = parser.parse(text, context=context)
 
         if not result.matched:
             speaker.say(f"Sorry, I don't recognise the command: {text}")
             continue
 
-        # --- Execute -------------------------------------------------------
+        # --- Info response (no execution needed) -----------------------
+        if result.is_info:
+            speaker.say(result.info_text or "No information available.")
+            continue
+
+        # --- Monitor commands ------------------------------------------
+        if result.is_monitor:
+            _handle_monitor(result, monitor, speaker)
+            continue
+
+        # --- Confirmation layer ----------------------------------------
+        if result.needs_confirmation:
+            speaker.say(f"Are you sure you want to {result.matched_key}?")
+            print(f"   ⚠️  Dangerous command: {result.matched_key} — waiting for confirmation …")
+
+            confirmed = listener.ask_yes_no(timeout=6)
+
+            if confirmed is True:
+                speaker.say("Confirmed. Proceeding.")
+                log.info("User confirmed dangerous command: '%s'", result.matched_key)
+            elif confirmed is False:
+                speaker.say("Command cancelled.")
+                log.info("User cancelled dangerous command: '%s'", result.matched_key)
+                continue
+            else:
+                speaker.say("No response. Command cancelled for safety.")
+                log.info("Confirmation timed out for: '%s'", result.matched_key)
+                continue
+
+        # --- Execute ---------------------------------------------------
         if result.is_chain:
             # Multi-step command chain
             speaker.say(f"Running chain: {result.matched_key}")
@@ -101,6 +155,7 @@ def main() -> None:
             success, output = executor.run_chain(result.commands)
 
             if success:
+                context.update_after_command(result.matched_key, result.commands[-1])
                 if output and output != "All steps completed successfully.":
                     short = output[:300] if len(output) > 300 else output
                     print(f"   📋 Output:\n{short}\n")
@@ -118,6 +173,7 @@ def main() -> None:
             success, output = executor.run(ps_command)
 
             if success:
+                context.update_after_command(result.matched_key, ps_command)
                 if output and output != "Command executed successfully.":
                     short = output[:300] if len(output) > 300 else output
                     print(f"   📋 Output:\n{short}\n")
@@ -129,6 +185,29 @@ def main() -> None:
 
     log.info("VARNA v%s shut down cleanly.", VERSION)
     print(f"\n👋  VARNA v{VERSION} has shut down.\n")
+
+
+# ====================================================================== #
+def _handle_monitor(result: ParseResult, monitor: ProcessMonitor, speaker: Speaker):
+    """Handle monitor start / stop / check commands."""
+    if result.monitor_action == "start" and result.monitor_process:
+        msg = monitor.start(result.monitor_process)
+        speaker.say(msg)
+        print(f"   📊 {msg}")
+
+    elif result.monitor_action == "stop":
+        msg = monitor.stop()
+        speaker.say(msg)
+        print(f"   📊 {msg}")
+
+    elif result.monitor_action == "check" and result.monitor_process:
+        status = monitor.get_status(result.monitor_process)
+        print(f"   📊 {status}")
+        # Summarise for TTS
+        if "not running" in status.lower():
+            speaker.say(f"{result.monitor_process} is not running.")
+        else:
+            speaker.say(f"Here is the status of {result.monitor_process}.")
 
 
 # ====================================================================== #
