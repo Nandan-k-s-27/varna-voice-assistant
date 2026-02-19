@@ -1,116 +1,107 @@
 # VARNA Voice Assistant
 
-**VARNA (Voice Activated Responsive Network Assistant)** is a secure, offline Windows desktop voice assistant. It utilizes OpenAI Whisper for high-accuracy speech recognition and pyttsx3 for text-to-speech feedback, featuring a robust whitelist-based execution system for security.
+**VARNA (Voice Activated Responsive Network Assistant)** is a secure, fully offline Windows desktop voice assistant. It uses speech recognition for high-accuracy STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system.
 
 ## Features
 
 ### v1.0 — Core Assistant
-- **Offline STT**: Uses OpenAI Whisper (local) for reliable speech-to-text.
-- **Offline TTS**: Uses pyttsx3 for immediate voice response.
-- **Command Whitelist**: Ensures only safe, predefined PowerShell/System commands are executed.
-- **Customizable**: Easily extendable command set via `commands.json`.
+- **Offline STT**: Speech recognition for reliable speech-to-text.
+- **Offline TTS**: pyttsx3 for immediate voice response.
+- **Command Whitelist**: Only safe, predefined commands are executed.
+- **Customizable**: Extend via `commands.json`.
 
-### v1.1 — Smarter Commands (No LLM)
-- **Parameterized Commands**: Dynamic queries injected into templates.
-  - `"search React hooks"` → Opens Google search for "React hooks"
-  - `"search youtube Python tutorials"` → Opens YouTube search
-  - `"open website github.com"` → Opens any website
-- **Multi-Step Command Chains**: Sequential execution pipelines.
-  - `"start my backend"` → Navigates to project folder and runs `npm start`
-  - `"start full stack"` → Launches both backend and frontend servers
-- **Developer Mode**: Productivity shortcuts for developers.
-  - `"kill port 3000"` → Kills process on port 3000
-  - `"show running ports"` → Lists all listening ports
-  - `"pull latest from git"` → Runs `git pull origin main`
-  - `"git status"` → Shows current git status
-  - `"open git bash"` → Opens Git Bash terminal
-  - `"run npm start"` / `"run npm install"`
+### v1.1 — Smarter Commands
+- **Parameterized Commands**: `"search React hooks"` → Google search.
+- **Multi-Step Chains**: `"start full stack"` → launches backend + frontend.
+- **Developer Mode**: `"kill port 3000"`, `"git status"`, `"show running ports"`.
 
-### v1.2 — Context Awareness + System Expansion (No LLM)
-- **Wake Word Activation**: VARNA only listens after hearing "hey VARNA" / "hi VARNA".
-  - Ignores all ambient speech until the wake word is detected.
-  - Plays an audio acknowledgement ("Yes?") before listening for commands.
-- **Context / State Tracking**: Remembers session state for smart command resolution.
-  - Tracks last opened app, last project, and current working directory.
-  - `"close it"` → Closes the last opened application.
-  - `"open it again"` → Re-opens the last app.
-  - `"go back"` → Opens the last accessed project folder.
-  - `"session status"` → Reports full context state.
-- **Confirmation Layer**: Safety mechanism for dangerous commands.
-  - `"shutdown system"` → VARNA asks **"Are you sure?"** before executing.
-  - Supports voice confirmation (yes/no) with timeout auto-cancel.
-  - Protects: shutdown, restart, log off, empty recycle bin, kill all node.
-- **Task Scheduler Integration**: OS-level automation via Windows Task Scheduler.
-  - `"schedule shutdown at 10 PM"` → Creates a scheduled shutdown task.
-  - `"schedule restart in 30 minutes"` → Schedules restart with relative time.
-  - `"cancel scheduled shutdown"` → Removes the scheduled task.
-  - `"show scheduled tasks"` → Lists VARNA-created tasks.
-- **Process Monitoring**: Background memory monitoring with alerts.
-  - `"monitor chrome memory usage"` → Polls Chrome every 5s in background.
-  - Alerts via TTS when memory exceeds threshold (default 500 MB).
-  - `"stop monitoring"` → Stops the background monitor.
-  - `"check process node"` → One-shot process status report.
+### v1.2 — Context Awareness + System Expansion
+- **Context Tracking**: Remembers last app, project, and browser.
+  - `"close it"` → closes last app. `"go back"` → opens last folder.
+  - **Browser-aware**: search commands use the last-opened browser.
+- **Confirmation Layer**: Dangerous commands ask "Are you sure?".
+- **Task Scheduler**: `"schedule shutdown at 10 PM"` via Windows Task Scheduler.
+- **Process Monitoring**: `"monitor chrome memory usage"` with background alerts.
+
+### v1.3 — Personalization + Interface Upgrade
+- **Custom Macros (Command Learning)**: Define personal automation sequences.
+  - `"whenever I say focus mode do open vscode and open chrome"` → saves macro.
+  - `"focus mode"` → replays the saved sequence.
+  - `"list macros"` / `"delete macro focus mode"`.
+- **Clipboard Intelligence**: Read clipboard contents aloud.
+  - `"read clipboard"` / `"what did I copy"` → speaks clipboard text.
+- **Smart Screenshot**: Take screenshots with custom filenames.
+  - `"screenshot as ReactBug"` → saves `ReactBug.png` to Desktop.
+- **File Search**: Find files by name, type, or date.
+  - `"find PDF downloaded yesterday"` → searches Desktop, Downloads, Documents.
+  - Supports type filters (PDF, docx, png, etc.) and time filters (today, yesterday, this week).
+- **System Tray UI**: Floating overlay widget showing:
+  - 🎤 Mic status, last speech, last command, result.
+  - System tray icon with Show/Hide/Exit menu.
 
 ## Requirements
 
 - Python 3.8+
-- Requirements listed in `requirements.txt`
+- Windows 10/11
+- Microphone
 
 ## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git
-   cd varna-voice-assistant
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+```bash
+git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git
+cd varna-voice-assistant
+pip install -r requirements.txt
+```
 
 ## Usage
 
-Run the main assistant script:
 ```bash
 python main.py
 ```
 
-Say **"hey VARNA"** to activate, then speak your command.
+Speak commands directly — VARNA processes all speech.
 
-### Example Voice Commands
+### Example Commands
 
-| Category         | Example Command                         | What It Does                        |
-| ---------------- | --------------------------------------- | ----------------------------------- |
-| **Static**       | "open chrome"                           | Launches Chrome browser             |
-| **Static**       | "battery status"                        | Shows battery percentage            |
-| **Parameterized**| "search React hooks"                    | Google search for "React hooks"     |
-| **Parameterized**| "search youtube Python tutorials"       | YouTube search                      |
-| **Chain**        | "start my backend"                      | Navigates to folder + npm start     |
-| **Developer**    | "kill port 3000"                        | Kills process on port 3000          |
-| **Developer**    | "show running ports"                    | Lists all listening ports           |
-| **System** 🆕    | "shutdown system"                       | Shuts down PC (with confirmation)   |
-| **Scheduler** 🆕 | "schedule shutdown at 10 PM"            | Schedules shutdown via Task Scheduler|
-| **Monitor** 🆕   | "monitor chrome memory usage"           | Background memory monitoring        |
-| **Context** 🆕   | "close it"                              | Closes last opened app              |
-| **Context** 🆕   | "go back"                               | Opens last project folder           |
+| Category | Example | What It Does |
+|----------|---------|-------------|
+| **Static** | "open chrome" | Launches Chrome |
+| **Static** | "battery status" | Shows battery % |
+| **Parameterized** | "search React hooks" | Google search (browser-aware) |
+| **Chain** | "start my backend" | Navigates + npm start |
+| **Developer** | "kill port 3000" | Kills process on port |
+| **System** | "shutdown system" | Shuts down (with confirmation) |
+| **Scheduler** | "schedule shutdown at 10 PM" | Scheduled shutdown |
+| **Monitor** | "monitor chrome memory usage" | Background memory monitor |
+| **Context** | "close it" | Closes last opened app |
+| **Clipboard** 🆕 | "read clipboard" | Speaks clipboard contents |
+| **Screenshot** 🆕 | "screenshot as ReactBug" | Named screenshot to Desktop |
+| **File Search** 🆕 | "find PDF downloaded yesterday" | Searches common folders |
+| **Macros** 🆕 | "whenever I say focus mode do open vscode and open chrome" | Saves custom macro |
 
-For the full list of all 77 commands, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **91+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
-- `main.py` — Entry point with wake-word loop, confirmation, and monitor handling.
-- `listener.py` — Speech recognition: wake word detection, command listening, yes/no confirmation.
-- `parser.py` — Maps spoken text to commands (static, parameterized, chains, scheduler, monitor, context).
-- `executor.py` — Safe execution of PowerShell commands (single + chain).
-- `speaker.py` — Text-to-speech output.
-- `context.py` — Session state tracking and pronoun resolution. 🆕
-- `monitor.py` — Background process monitoring with TTS alerts. 🆕
-- `commands.json` — Structured command whitelist (static, parameterized, chains, developer, system, scheduler, monitoring, context).
+| File | Purpose |
+|------|---------|
+| `main.py` | Entry point — listening loop, command routing, tray integration |
+| `listener.py` | Speech recognition, yes/no confirmation |
+| `parser.py` | Maps text to commands (static, param, chain, scheduler, monitor, macro, clipboard, file search) |
+| `executor.py` | Safe PowerShell execution |
+| `speaker.py` | Text-to-speech |
+| `context.py` | Session state + browser tracking + pronoun resolution |
+| `monitor.py` | Background process monitoring |
+| `macros.py` | Custom macro manager (record/play/list/delete) 🆕 |
+| `tray.py` | System tray icon + floating overlay 🆕 |
+| `commands.json` | Structured command whitelist |
+| `macros.json` | User-defined macros storage 🆕 |
 
 ## Version History
 
-| Version | Description                                                     |
-| ------- | --------------------------------------------------------------- |
-| v1.0    | Core assistant — static commands, TTS, STT                      |
-| v1.1    | Parameterized commands, command chaining, developer mode         |
-| v1.2    | Wake word, context tracking, confirmation, scheduler, monitoring |
+| Version | Description |
+|---------|-------------|
+| v1.0 | Core assistant — static commands, TTS, STT |
+| v1.1 | Parameterized commands, chaining, developer mode |
+| v1.2 | Context tracking, confirmation, scheduler, monitoring |
+| v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |

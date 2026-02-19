@@ -155,5 +155,27 @@
         "open last folder": "Opens the last accessed project/folder",
         "what was my last app": "Reports the last used application",
         "session status": "Reports the full session context"
+    },
+    "clipboard": {
+        "read clipboard": "Reads and speaks clipboard contents",
+        "what did i copy": "Reads and speaks clipboard contents",
+        "read what i copied": "Reads and speaks clipboard contents",
+        "clipboard": "Reads and speaks clipboard contents"
+    },
+    "file_search": {
+        "description": "Search for files by name, type, or recency",
+        "triggers": [
+            "find",
+            "find file",
+            "find files",
+            "search file",
+            "search files",
+            "locate"
+        ]
+    },
+    "macros": {
+        "list macros": "Lists all saved macros",
+        "show macros": "Lists all saved macros",
+        "my macros": "Lists all saved macros"
     }
 }
