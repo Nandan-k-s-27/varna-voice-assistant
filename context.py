@@ -5,6 +5,7 @@ Tracks state across the session for context-aware command resolution.
 Provides:
   - Last opened/closed app tracking
   - Last opened project/folder tracking
+  - Last browser tracking  (search uses last browser, not always Chrome)
   - Current working directory
   - Pronoun resolution  ("close it" → last app)
 """
@@ -40,6 +41,13 @@ _APP_PROCESS_MAP = {
     "powerpoint": "POWERPNT",
 }
 
+# Which app names are browsers (friendly name → Start-Process name)
+_BROWSERS = {
+    "chrome": "chrome",
+    "firefox": "firefox",
+    "edge": "msedge",
+}
+
 # Reverse map: process name → friendly name for TTS
 _PROCESS_FRIENDLY = {v.lower(): k for k, v in _APP_PROCESS_MAP.items()}
 
@@ -50,17 +58,19 @@ class SessionContext:
     def __init__(self):
         self.last_app: str | None = None          # e.g. "chrome"
         self.last_app_process: str | None = None   # e.g. "chrome"
+        self.last_browser: str = "chrome"          # default browser for searches
         self.last_project: str | None = None       # e.g. "E:\\Projects\\react-app"
         self.cwd: str = str(Path.cwd())
         self.last_command_key: str | None = None   # e.g. "open chrome"
-        log.info("SessionContext initialised. CWD = %s", self.cwd)
+        log.info("SessionContext initialised. CWD = %s, default browser = %s",
+                 self.cwd, self.last_browser)
 
     # ------------------------------------------------------------------ #
     def update_after_command(self, command_key: str, ps_command: str) -> None:
         """
         Update context based on the command that was just executed.
 
-        Automatically detects app opens/closes and project paths.
+        Automatically detects app opens/closes, browser switches, and project paths.
         """
         self.last_command_key = command_key
         key = command_key.lower().strip()
@@ -78,6 +88,11 @@ class SessionContext:
                 log.info("Context: last_app = '%s' (process: '%s')",
                          self.last_app, self.last_app_process)
 
+                # If the opened app is a browser, update last_browser
+                if app_name in _BROWSERS:
+                    self.last_browser = _BROWSERS[app_name]
+                    log.info("Context: last_browser = '%s'", self.last_browser)
+
         # Detect app close — "close chrome", etc.
         close_match = re.match(r"^close\s+(.+)$", key)
         if close_match:
@@ -85,6 +100,14 @@ class SessionContext:
             self.last_app = app_name
             self.last_app_process = _APP_PROCESS_MAP.get(app_name, app_name)
             log.info("Context: last_app (closed) = '%s'", self.last_app)
+
+        # Detect browser from command itself (e.g. search/website commands)
+        # If the PS command starts a specific browser, track it
+        browser_in_cmd = re.search(r"Start-Process\s+(chrome|firefox|msedge)", ps_command, re.IGNORECASE)
+        if browser_in_cmd:
+            browser_exec = browser_in_cmd.group(1).lower()
+            self.last_browser = browser_exec
+            log.info("Context: last_browser (from command) = '%s'", self.last_browser)
 
         # Detect folder/project opens — command contains a path
         path_match = re.search(r"[A-Za-z]:\\[^\s'\"]+", ps_command)
@@ -122,9 +145,7 @@ class SessionContext:
         # "open it again" / "reopen it" / "open it"
         if text in ("open it again", "reopen it", "open it", "open that again"):
             if self.last_app:
-                # Use the original start command name
                 start_name = self.last_app
-                # Map friendly names back to process names
                 process_map_reverse = {
                     "chrome": "chrome",
                     "firefox": "firefox",
@@ -167,6 +188,8 @@ class SessionContext:
         parts = []
         if self.last_app:
             parts.append(f"Last app: {self.last_app}")
+        if self.last_browser:
+            parts.append(f"Active browser: {self.last_browser}")
         if self.last_project:
             parts.append(f"Last project: {self.last_project}")
         parts.append(f"Working directory: {self.cwd}")

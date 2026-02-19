@@ -3,19 +3,18 @@ VARNA v1.2 — Voice-Activated Resource & Navigation Assistant
 Main entry point.
 
 Pipeline:
-  🎤 Wake Word  →  📝 Speech-to-Text  →  🧠 Parser  →  🛡 Whitelist
-  →  ⚡ PowerShell Executor  →  🔊 TTS Response
+  🎤 Always Listening  →  🔑 "VARNA" keyword detection  →  📝 Extract command
+  →  🧠 Parser  →  🛡 Whitelist  →  ⚡ PowerShell Executor  →  🔊 TTS Response
 
-v1.2 additions:
-  • Wake-word activation   ("hey varna" triggers, everything else is ignored)
-  • Context / state tracking (remembers last app, project, cwd)
-  • Pronoun resolution      ("close it" → close last app)
-  • Confirmation layer      (dangerous commands ask "Are you sure?")
-  • Task Scheduler          ("schedule shutdown at 10 PM")
-  • Process Monitoring      ("monitor chrome memory usage")
+Behaviour:
+  • VARNA listens continuously to everything.
+  • Only when the user says "varna" somewhere in the phrase does it
+    treat the rest as a command.  E.g. "varna search html elements".
+  • All other speech is silently ignored.
 """
 
 import sys
+import re
 from listener import Listener
 from parser import Parser, ParseResult
 from executor import Executor
@@ -30,6 +29,28 @@ VERSION = "1.2"
 
 # Exit phrases (user says any of these to quit)
 EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
+
+# Pattern to detect and strip the wake keyword from spoken text
+_WAKE_PATTERN = re.compile(
+    r"\b(?:hey\s+varna|hi\s+varna|hello\s+varna|ok\s+varna|varna)\b",
+    re.IGNORECASE,
+)
+
+
+def _extract_command(text: str) -> str | None:
+    """
+    If the text contains the keyword 'varna', strip it out and return
+    the remaining text as the intended command.
+    Returns None if 'varna' is not present in the text.
+    """
+    if not _WAKE_PATTERN.search(text):
+        return None
+
+    # Remove the wake-word and clean up
+    command = _WAKE_PATTERN.sub("", text).strip()
+    # Collapse multiple spaces
+    command = re.sub(r"\s{2,}", " ", command)
+    return command if command else None
 
 
 def main() -> None:
@@ -57,64 +78,62 @@ def main() -> None:
     listener.calibrate(duration=2.0)
 
     # --- Greet the user --------------------------------------------------
-    speaker.say("VARNA online. Say 'hey VARNA' to activate me.")
+    speaker.greet()
 
     # --- Main loop -------------------------------------------------------
-    log.info("Entering main loop. Waiting for wake word …")
-    print(f"\n🎤  VARNA v{VERSION} is ready. Say 'hey VARNA' to activate.\n")
+    log.info("Entering main loop. Say 'varna <command>' to interact.")
+    print(f"\n🎤  VARNA v{VERSION} is listening. Say 'VARNA <command>' to interact.\n")
 
     while True:
-        # ============================================================== #
-        # PHASE 1: IDLE — Wait for wake word
-        # ============================================================== #
-        wake_detected = listener.listen_for_wake_word(timeout=3, phrase_time_limit=4)
-
-        if not wake_detected:
-            continue
-
-        # Wake word detected — enter active mode
-        print("   ✨ Wake word detected! Listening for command …")
-        speaker.say("Yes?")
-
-        # ============================================================== #
-        # PHASE 2: ACTIVE — Listen for actual command
-        # ============================================================== #
+        # Always listen for speech
         text = listener.listen(timeout=7, phrase_time_limit=10)
 
         if text is None:
-            speaker.say("I didn't catch that. Say 'hey VARNA' again.")
+            # No speech detected — silently loop
             continue
 
-        print(f'   You said: "{text}"')
+        # --- Check if the user said "varna" somewhere --------------------
+        command = _extract_command(text)
+
+        if command is None:
+            # "varna" was NOT in the speech — ignore completely
+            log.debug("Ignored (no wake keyword): '%s'", text)
+            continue
+
+        # If user ONLY said "varna" with no command
+        if not command:
+            speaker.say("Yes? What can I do for you?")
+            continue
+
+        print(f'   You said: "{command}"')
 
         # Check for exit intent
-        if text in EXIT_PHRASES:
-            log.info("Exit phrase detected: '%s'", text)
-            # Stop monitor if running
+        if command in EXIT_PHRASES:
+            log.info("Exit phrase detected: '%s'", command)
             if monitor.is_running:
                 monitor.stop()
             speaker.goodbye()
             break
 
         # Check for "help" / "list commands"
-        if text in {"help", "list commands", "what can you do"}:
+        if command in {"help", "list commands", "what can you do"}:
             cmds = parser.list_commands()
             summary = ", ".join(cmds[:10])
             speaker.say(f"I can do things like: {summary}, and more.")
             continue
 
         # Check for "developer commands" / "dev help"
-        if text in {"developer commands", "dev commands", "dev help"}:
+        if command in {"developer commands", "dev commands", "dev help"}:
             dev_cmds = parser.list_developer_commands()
             summary = ", ".join(dev_cmds[:8])
             speaker.say(f"Developer commands include: {summary}.")
             continue
 
-        # Parse the spoken text (with context)
-        result: ParseResult = parser.parse(text, context=context)
+        # Parse the spoken command (with context for browser-awareness etc.)
+        result: ParseResult = parser.parse(command, context=context)
 
         if not result.matched:
-            speaker.say(f"Sorry, I don't recognise the command: {text}")
+            speaker.say(f"Sorry, I don't recognise the command: {command}")
             continue
 
         # --- Info response (no execution needed) -----------------------
@@ -148,7 +167,6 @@ def main() -> None:
 
         # --- Execute ---------------------------------------------------
         if result.is_chain:
-            # Multi-step command chain
             speaker.say(f"Running chain: {result.matched_key}")
             print(f"   ⛓  Chain: {result.matched_key}  ({len(result.commands)} steps)")
 
@@ -166,7 +184,6 @@ def main() -> None:
                 speaker.say(f"Chain failed: {output}")
 
         else:
-            # Single command execution
             ps_command = result.commands[0]
             speaker.say(f"Running: {result.matched_key}")
 
@@ -203,7 +220,6 @@ def _handle_monitor(result: ParseResult, monitor: ProcessMonitor, speaker: Speak
     elif result.monitor_action == "check" and result.monitor_process:
         status = monitor.get_status(result.monitor_process)
         print(f"   📊 {status}")
-        # Summarise for TTS
         if "not running" in status.lower():
             speaker.say(f"{result.monitor_process} is not running.")
         else:

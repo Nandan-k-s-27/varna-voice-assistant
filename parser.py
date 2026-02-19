@@ -244,8 +244,8 @@ class Parser:
         if result.matched:
             return result
 
-        # 7. Parameterized match
-        result = self._match_parameterized(text)
+        # 7. Parameterized match (browser-aware via context)
+        result = self._match_parameterized(text, context=context)
         if result.matched:
             return result
 
@@ -270,10 +270,14 @@ class Parser:
         return ParseResult()
 
     # ------------------------------------------------------------------ #
-    def _match_parameterized(self, text: str) -> ParseResult:
+    def _match_parameterized(self, text: str, context=None) -> ParseResult:
         """
         Check if text starts with a parameterized trigger keyword
         and extract the dynamic portion.
+
+        If a SessionContext is provided and it has a last_browser set,
+        browser-related templates will use that browser instead of
+        the hardcoded default (chrome).
         """
         # Sort by key length descending so "search youtube" matches before "search"
         for key in sorted(self.parameterized, key=len, reverse=True):
@@ -294,6 +298,20 @@ class Parser:
                 # URL-encode the query for web searches
                 encoded_query = quote_plus(raw_query)
                 command = entry["template"].replace("{query}", encoded_query)
+
+                # --- Browser-aware context (v1.2) --------------------------
+                # If context has a last_browser, replace the browser in the
+                # command.  e.g. "Start-Process chrome ..." → "Start-Process msedge ..."
+                if context and hasattr(context, "last_browser") and context.last_browser:
+                    browser = context.last_browser  # e.g. "msedge", "firefox"
+                    # Replace hardcoded browser in Start-Process commands
+                    command = re.sub(
+                        r"Start-Process\s+(chrome|firefox|msedge)",
+                        f"Start-Process {browser}",
+                        command,
+                        count=1,
+                    )
+                    log.info("Browser-aware: using '%s' for this command.", browser)
 
                 log.info(
                     "Parameterized match: key='%s', query='%s', encoded='%s'",
