@@ -368,17 +368,35 @@ class Parser:
 
     # ------------------------------------------------------------------ #
     def _match_tab(self, text: str) -> ParseResult:
-        """Match tab control commands."""
+        """Match tab control commands — supports natural variations."""
         tab_map = {
+            # Close tab
             "close tab": "close",
             "close this tab": "close",
+            "close the tab": "close",
+            "close current tab": "close",
+            # New tab
             "new tab": "new",
             "open new tab": "new",
+            "open a new tab": "new",
+            # Next tab
             "next tab": "next",
+            "go to next tab": "next",
+            "switch to next tab": "next",
+            "go next tab": "next",
+            # Previous tab
             "previous tab": "prev",
+            "go to previous tab": "prev",
+            "switch to previous tab": "prev",
+            "go previous tab": "prev",
+            "go to last tab": "prev",
             "last tab": "prev",
+            "prev tab": "prev",
+            # Reopen
             "reopen tab": "reopen",
             "reopen last tab": "reopen",
+            "reopen closed tab": "reopen",
+            "open last closed tab": "reopen",
         }
         if text in tab_map:
             return ParseResult(matched_key=text, is_tab=True, tab_action=tab_map[text])

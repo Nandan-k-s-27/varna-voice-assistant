@@ -281,6 +281,74 @@ def _process_single(text: str, parser: Parser, executor: Executor,
 
 
 # ====================================================================== #
+# Utility functions
+# ====================================================================== #
+
+# Spoken punctuation/symbol → actual character
+_SYMBOL_MAP = {
+    "question mark": "?",
+    "exclamation mark": "!",
+    "exclamation point": "!",
+    "period": ".",
+    "full stop": ".",
+    "comma": ",",
+    "colon": ":",
+    "semicolon": ";",
+    "at the rate": "@",
+    "at sign": "@",
+    "at": "@",
+    "hash": "#",
+    "hashtag": "#",
+    "dollar sign": "$",
+    "dollar": "$",
+    "percent": "%",
+    "percent sign": "%",
+    "ampersand": "&",
+    "and sign": "&",
+    "asterisk": "*",
+    "star": "*",
+    "plus sign": "+",
+    "plus": "+",
+    "minus sign": "-",
+    "minus": "-",
+    "equals sign": "=",
+    "equals": "=",
+    "underscore": "_",
+    "hyphen": "-",
+    "dash": "-",
+    "slash": "/",
+    "forward slash": "/",
+    "backslash": "\\",
+    "open parenthesis": "(",
+    "close parenthesis": ")",
+    "open bracket": "[",
+    "close bracket": "]",
+    "open brace": "{",
+    "close brace": "}",
+    "double quote": '"',
+    "single quote": "'",
+    "apostrophe": "'",
+    "tilde": "~",
+    "pipe": "|",
+    "greater than": ">",
+    "less than": "<",
+    "new line": "\n",
+    "enter key": "\n",
+    "tab key": "\t",
+    "space": " ",
+}
+
+
+def _replace_symbols(text: str) -> str:
+    """Replace spoken punctuation/symbol names with actual characters."""
+    # Sort by length (longest first) to match "exclamation mark" before "mark"
+    for name in sorted(_SYMBOL_MAP.keys(), key=len, reverse=True):
+        if name in text.lower():
+            text = re.sub(re.escape(name), _SYMBOL_MAP[name], text, flags=re.IGNORECASE)
+    return text
+
+
+# ====================================================================== #
 # Handler functions
 # ====================================================================== #
 
@@ -381,8 +449,14 @@ def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
     text = result.typing_text
     if text:
+        # Map spoken punctuation/symbol names to actual characters
+        text = _replace_symbols(text)
+
         speaker.say(f"Typing: {text}")
         time.sleep(0.5)  # Small delay to let TTS finish before typing
+
+        # Add a space before typing (for consecutive type commands)
+        pyautogui.press("space")
         pyautogui.write(text, interval=0.03)
         log.info("Typed: '%s'", text)
         tray.update_result(f"⌨️ Typed: {text[:30]}")
