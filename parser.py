@@ -1,35 +1,35 @@
 """
-VARNA v1.3 - Command Parser
-Loads the structured whitelist (commands.json) and maps spoken text
-to PowerShell commands.
+VARNA v1.4 - Command Parser
+Maps spoken text to safe, whitelisted PowerShell commands.
 
-Supports command types:
-  1. Static        – exact key → single PS command.
-  2. Parameterized – extract parameters from speech, inject into template.
-  3. Chains        – multi-step sequential command pipeline.
-  4. Developer     – developer-productivity shortcuts.
-  5. System        – system-level commands (shutdown, restart, etc.)
-  6. Scheduler     – time-based scheduled tasks (v1.2)
-  7. Monitoring    – process monitoring commands (v1.2)
-  8. Context       – pronoun-based context-aware commands (v1.2)
-  9. Clipboard     – clipboard read/speak (v1.3)
- 10. File Search   – find files by name/type/date (v1.3)
- 11. Smart Screenshot – screenshot with custom name (v1.3)
- 12. Macros        – user-defined command sequences (v1.3)
+v1.4 additions:
+  - NLP preprocessing (filler removal + fuzzy matching + intent extraction)
+  - Window control commands (switch, minimize, maximize, restore)
+  - Voice typing ("type hello world")
+  - Tab control (close tab, new tab, next/prev tab)
+  - Smart search routing (search in current tab if browser active)
+  - Smart open (via WindowManager — restore/focus instead of re-launch)
 
 Matching strategy (in order):
-  1. Context match – pronoun resolution  ("close it" → last app).
-  2. Exact match   – spoken text matches a key exactly (static → developer → system).
-  3. Clipboard match (v1.3)
-  4. Macro match (v1.3)
-  5. Scheduler     – "schedule shutdown at 10 PM"
-  6. Monitoring    – "monitor chrome memory usage"
-  7. Smart screenshot – "screenshot as ReactBug"   (v1.3)
-  8. File search   – "find PDF downloaded yesterday" (v1.3)
-  9. Macro record  – "whenever I say X do Y"     (v1.3)
- 10. Parameterized – spoken text starts with a trigger keyword.
- 11. Chain match   – spoken text matches a chain key.
- 12. Keyword match – spoken text *contains* a key as a substring.
+  1. Context — pronoun resolution
+  2. Exact match — static / developer / system
+  3. Clipboard
+  4. Tab control (v1.4)
+  5. Window commands (v1.4)
+  6. Macro list/delete
+  7. Scheduler
+  8. Monitor
+  9. Smart screenshot
+ 10. File search
+ 11. Voice typing (v1.4)
+ 12. Macro record
+ 13. Parameterized (browser-aware)
+ 14. Chain match
+ 15. Smart open/close (v1.4) — detected via intent parser
+ 16. Keyword/substring fallback
+ 17. Fuzzy match fallback (v1.4)
+ 18. Intent-based fallback (v1.4)
+ 19. Macro trigger fallback
 """
 
 import json
@@ -39,11 +39,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from urllib.parse import quote_plus
 from utils.logger import get_logger
+from nlp import TextNormalizer
 
 log = get_logger(__name__)
 
-# Path to the command whitelist
 _COMMANDS_FILE = Path(__file__).resolve().parent / "commands.json"
+
+# Instantiate the NLP normalizer
+_nlp = TextNormalizer()
 
 
 # ====================================================================== #
@@ -53,24 +56,34 @@ class ParseResult:
     matched_key: str | None = None
     commands: list[str] = field(default_factory=list)
     is_chain: bool = False
-    needs_confirmation: bool = False    # v1.2 — dangerous command flag
-    is_scheduler: bool = False          # v1.2 — scheduler command flag
-    is_monitor: bool = False            # v1.2 — monitoring command flag
-    monitor_action: str | None = None   # "start" | "stop" | "check"
-    monitor_process: str | None = None  # e.g. "chrome"
-    is_context: bool = False            # v1.2 — context-aware command flag
-    is_info: bool = False               # v1.2 — info query (session status, etc.)
-    info_text: str | None = None        # text for info responses
-    # v1.3 additions
-    is_clipboard: bool = False          # clipboard read/speak
-    is_file_search: bool = False        # file search command
+    needs_confirmation: bool = False
+    is_scheduler: bool = False
+    is_monitor: bool = False
+    monitor_action: str | None = None
+    monitor_process: str | None = None
+    is_context: bool = False
+    is_info: bool = False
+    info_text: str | None = None
+    # v1.3
+    is_clipboard: bool = False
+    is_file_search: bool = False
     file_search_query: str | None = None
-    is_screenshot: bool = False         # smart screenshot
-    screenshot_name: str | None = None  # custom screenshot filename
-    is_macro: bool = False              # macro command
-    macro_action: str | None = None     # "record" | "play" | "list" | "delete"
+    is_screenshot: bool = False
+    screenshot_name: str | None = None
+    is_macro: bool = False
+    macro_action: str | None = None
     macro_name: str | None = None
     macro_steps: list[str] = field(default_factory=list)
+    # v1.4
+    is_window: bool = False                # window control command
+    window_action: str | None = None       # "smart_open" | "minimize" | "maximize" | "restore" | "switch" | "show_desktop" | "open_new"
+    window_target: str | None = None       # app name
+    is_typing: bool = False                # voice typing
+    typing_text: str | None = None         # text to type
+    is_tab: bool = False                   # tab control
+    tab_action: str | None = None          # "close" | "new" | "next" | "prev" | "reopen"
+    is_in_tab_search: bool = False         # search in current tab
+    search_query: str | None = None        # query for in-tab search
 
     @property
     def matched(self) -> bool:
@@ -86,203 +99,369 @@ class Parser:
             with open(commands_path, "r", encoding="utf-8") as fh:
                 data = json.load(fh)
 
-            # v1.1 structured schema
             self.static: dict[str, str] = data.get("static", {})
             self.parameterized: dict[str, dict] = data.get("parameterized", {})
             self.chains: dict[str, dict] = data.get("chains", {})
             self.developer: dict[str, str] = data.get("developer", {})
-
-            # v1.2 additions
             self.dangerous: list[str] = data.get("dangerous", [])
             self.system: dict[str, str] = data.get("system", {})
             self.scheduler: dict[str, dict] = data.get("scheduler", {})
             self.monitoring: dict[str, dict] = data.get("monitoring", {})
             self.context_cmds: dict[str, str] = data.get("context", {})
-
-            # v1.3 additions
             self.clipboard_cmds: dict[str, str] = data.get("clipboard", {})
             self.file_search_cfg: dict = data.get("file_search", {})
             self.macro_cmds: dict[str, str] = data.get("macros", {})
+            self.window_cmds: dict[str, str] = data.get("window", {})
+            self.tab_cmds: dict[str, str] = data.get("tabs", {})
 
-            # Backward compatibility
-            if not any(k in data for k in ("static", "parameterized", "chains", "developer")):
+            if not any(k in data for k in ("static", "parameterized", "chains")):
                 self.static = data
-                log.info("Loaded v1.0-style flat command file — treating all as static.")
 
             total = (
                 len(self.static) + len(self.parameterized) + len(self.chains)
                 + len(self.developer) + len(self.system) + len(self.scheduler)
                 + len(self.monitoring) + len(self.context_cmds)
                 + len(self.clipboard_cmds) + len(self.macro_cmds)
+                + len(self.window_cmds) + len(self.tab_cmds)
             )
             log.info("Loaded %d command entries from %s", total, commands_path.name)
 
-        except FileNotFoundError:
-            log.error("Command file not found: %s", commands_path)
-            self._init_empty()
-        except json.JSONDecodeError as exc:
-            log.error("Invalid JSON in %s: %s", commands_path, exc)
+        except (FileNotFoundError, json.JSONDecodeError) as exc:
+            log.error("Command file error: %s", exc)
             self._init_empty()
 
     def _init_empty(self):
-        self.static = {}
-        self.parameterized = {}
-        self.chains = {}
-        self.developer = {}
+        for attr in ("static", "parameterized", "chains", "developer",
+                      "system", "scheduler", "monitoring", "context_cmds",
+                      "clipboard_cmds", "file_search_cfg", "macro_cmds",
+                      "window_cmds", "tab_cmds"):
+            setattr(self, attr, {})
         self.dangerous = []
-        self.system = {}
-        self.scheduler = {}
-        self.monitoring = {}
-        self.context_cmds = {}
-        self.clipboard_cmds = {}
-        self.file_search_cfg = {}
-        self.macro_cmds = {}
 
     # ------------------------------------------------------------------ #
     def parse(self, text: str, context=None, macro_manager=None) -> ParseResult:
         """
-        Match *text* against the whitelist.
-
-        Resolution order:
-          1. Context-aware match (pronoun resolution)
-          2. Exact match in static / developer / system
-          3. Clipboard commands (v1.3)
-          4. Macro list/delete/play (v1.3)
-          5. Scheduler match
-          6. Monitor match
-          7. Smart screenshot (v1.3)
-          8. File search (v1.3)
-          9. Macro record (v1.3)
-         10. Parameterized match (browser-aware)
-         11. Chain match
-         12. Keyword/substring fallback
-         13. Macro trigger fallback (v1.3)
+        Match text against the whitelist with NLP preprocessing.
         """
         if not text:
             return ParseResult()
 
-        text = text.lower().strip()
+        # v1.4 — NLP preprocessing: clean filler words
+        original = text.lower().strip()
+        text = _nlp.clean(original)
 
-        # 0. Context-aware — session info queries
+        if text != original:
+            log.info("NLP cleaned: '%s' → '%s'", original, text)
+
+        # 0. Context info queries
         if text in ("what was my last app", "session status", "what's my context"):
             if context:
-                info = context.get_status()
-                return ParseResult(matched_key=text, is_info=True, info_text=info)
-            else:
-                return ParseResult(matched_key=text, is_info=True,
-                                   info_text="No context tracking available.")
+                return ParseResult(matched_key=text, is_info=True, info_text=context.get_status())
+            return ParseResult(matched_key=text, is_info=True, info_text="No context tracking available.")
 
-        # 1. Context-aware — pronoun resolution
+        # 1. Context — pronoun resolution
         if context and text in self.context_cmds:
             resolved = context.resolve_pronoun(text)
             if resolved:
-                matched_key, ps_cmd = resolved
-                needs_confirm = matched_key in self.dangerous
-                log.info("Context match: '%s' → '%s'", text, matched_key)
-                return ParseResult(
-                    matched_key=matched_key, commands=[ps_cmd],
-                    is_context=True, needs_confirmation=needs_confirm,
-                )
-            else:
-                return ParseResult(
-                    matched_key=text, is_info=True,
-                    info_text="I don't have enough context to understand that. Try being more specific.",
-                )
+                mk, ps = resolved
+                return ParseResult(matched_key=mk, commands=[ps], is_context=True,
+                                   needs_confirmation=mk in self.dangerous)
+            return ParseResult(matched_key=text, is_info=True,
+                               info_text="I don't have enough context. Try being more specific.")
 
         # 2. Exact match — static
         if text in self.static:
-            log.info("Static exact match: '%s'", text)
-            needs_confirm = text in self.dangerous
+            # v1.4: route "open X" through window intelligence
+            result = self._try_smart_open(text)
+            if result:
+                return result
             return ParseResult(matched_key=text, commands=[self.static[text]],
-                               needs_confirmation=needs_confirm)
+                               needs_confirmation=text in self.dangerous)
 
-        # 3. Exact match — developer
+        # 3. Exact — developer
         if text in self.developer:
-            log.info("Developer exact match: '%s'", text)
-            needs_confirm = text in self.dangerous
             return ParseResult(matched_key=text, commands=[self.developer[text]],
-                               needs_confirmation=needs_confirm)
+                               needs_confirmation=text in self.dangerous)
 
-        # 4. Exact match — system
+        # 4. Exact — system
         if text in self.system:
-            log.info("System exact match: '%s'", text)
-            needs_confirm = text in self.dangerous
             return ParseResult(matched_key=text, commands=[self.system[text]],
-                               needs_confirmation=needs_confirm)
+                               needs_confirmation=text in self.dangerous)
 
-        # 5. Clipboard commands (v1.3)
+        # 5. Clipboard (v1.3)
         if text in self.clipboard_cmds:
-            log.info("Clipboard match: '%s'", text)
             return ParseResult(matched_key=text, is_clipboard=True)
 
-        # 6. Macro list/delete (v1.3)
-        if text in self.macro_cmds:
-            log.info("Macro list command: '%s'", text)
-            return ParseResult(matched_key=text, is_macro=True, macro_action="list")
+        # 6. Tab control (v1.4)
+        result = self._match_tab(text)
+        if result.matched:
+            return result
 
+        # 7. Window commands (v1.4) — switch/minimize/maximize/restore/show desktop
+        result = self._match_window(text)
+        if result.matched:
+            return result
+
+        # 8. Macro list/delete
+        if text in self.macro_cmds:
+            return ParseResult(matched_key=text, is_macro=True, macro_action="list")
         result = self._match_macro_delete(text)
         if result.matched:
             return result
 
-        # 7. Scheduler match
+        # 9. Scheduler
         result = self._match_scheduler(text)
         if result.matched:
             return result
 
-        # 8. Monitor match
+        # 10. Monitor
         result = self._match_monitor(text)
         if result.matched:
             return result
 
-        # 9. Smart screenshot (v1.3) — "screenshot as ReactBug"
+        # 11. Smart screenshot (v1.3)
         result = self._match_screenshot(text)
         if result.matched:
             return result
 
-        # 10. File search (v1.3) — "find PDF downloaded yesterday"
+        # 12. File search (v1.3)
         result = self._match_file_search(text)
         if result.matched:
             return result
 
-        # 11. Macro record (v1.3) — "whenever I say X do Y"
+        # 13. Voice typing (v1.4) — "type hello world"
+        result = self._match_typing(text)
+        if result.matched:
+            return result
+
+        # 14. Macro record
         result = self._match_macro_record(text)
         if result.matched:
             return result
 
-        # 12. Parameterized match (browser-aware via context)
+        # 15. Parameterized (browser-aware)
         result = self._match_parameterized(text, context=context)
         if result.matched:
             return result
 
-        # 13. Chain match
+        # 16. Chain match
         result = self._match_chain(text)
         if result.matched:
             return result
 
-        # 14. Keyword / substring fallback (longest key first)
+        # 17. Keyword/substring fallback
         all_flat = {**self.static, **self.developer, **self.system}
         for key in sorted(all_flat, key=len, reverse=True):
             if key in text:
-                log.info("Keyword match: '%s' found in '%s'", key, text)
-                needs_confirm = key in self.dangerous
+                result = self._try_smart_open(key)
+                if result:
+                    return result
                 return ParseResult(matched_key=key, commands=[all_flat[key]],
-                                   needs_confirmation=needs_confirm)
+                                   needs_confirmation=key in self.dangerous)
 
-        # 15. Macro trigger fallback (v1.3) — check if it matches a saved macro
+        # 18. v1.4 — Fuzzy match fallback (handles speech recognition errors)
+        all_keys = list(all_flat.keys()) + list(self.chains.keys())
+        fuzzy = _nlp.fuzzy_match(text, all_keys, threshold=0.75)
+        if fuzzy:
+            if fuzzy in all_flat:
+                result = self._try_smart_open(fuzzy)
+                if result:
+                    return result
+                return ParseResult(matched_key=fuzzy, commands=[all_flat[fuzzy]],
+                                   needs_confirmation=fuzzy in self.dangerous)
+            if fuzzy in self.chains:
+                steps = self.chains[fuzzy].get("steps", [])
+                return ParseResult(matched_key=fuzzy, commands=steps, is_chain=True)
+
+        # 19. v1.4 — Intent-based fallback (NLP intent extraction)
+        result = self._match_intent(text, context)
+        if result.matched:
+            return result
+
+        # 20. Macro trigger fallback
         if macro_manager and macro_manager.has(text):
             steps = macro_manager.get(text)
-            log.info("Macro trigger: '%s' → %d steps", text, len(steps))
-            return ParseResult(
-                matched_key=f"macro: {text}", is_macro=True,
-                macro_action="play", macro_name=text, macro_steps=steps,
-            )
+            return ParseResult(matched_key=f"macro: {text}", is_macro=True,
+                               macro_action="play", macro_name=text, macro_steps=steps)
 
         log.info("No match for: '%s'", text)
         return ParseResult()
 
     # ------------------------------------------------------------------ #
+    def _try_smart_open(self, key: str) -> ParseResult | None:
+        """
+        If key is an 'open X' command (not folder/directory), route through
+        window intelligence instead of raw Start-Process.
+        """
+        m = re.match(r"^open\s+(.+)$", key)
+        if m:
+            app = m.group(1).strip()
+            # Skip folder opens — those go through Start-Process
+            if app in ("downloads", "documents", "desktop", "folder"):
+                return None
+            # Skip open website
+            if app.startswith("website"):
+                return None
+            log.info("Routing 'open %s' through window intelligence.", app)
+            return ParseResult(
+                matched_key=key, is_window=True,
+                window_action="smart_open", window_target=app,
+            )
+        return None
+
+    # ------------------------------------------------------------------ #
+    def _match_window(self, text: str) -> ParseResult:
+        """
+        Match window control commands:
+          "switch to chrome", "minimize edge", "maximize vscode",
+          "restore notepad", "show desktop", "minimize all",
+          "open new chrome window"
+        """
+        # Show desktop / minimize all
+        if text in ("show desktop", "minimize all"):
+            return ParseResult(matched_key=text, is_window=True,
+                               window_action="show_desktop")
+
+        # "open new X window"
+        m = re.match(r"^open\s+new\s+(\w+)(?:\s+window)?$", text)
+        if m:
+            app = m.group(1).strip()
+            return ParseResult(matched_key=f"open new {app} window", is_window=True,
+                               window_action="open_new", window_target=app)
+
+        # "switch to X"
+        m = re.match(r"^switch\s+to\s+(.+)$", text)
+        if m:
+            app = m.group(1).strip()
+            return ParseResult(matched_key=f"switch to {app}", is_window=True,
+                               window_action="switch", window_target=app)
+
+        # "minimize X"
+        m = re.match(r"^minimize\s+(.+)$", text)
+        if m:
+            app = m.group(1).strip()
+            if app not in ("all",):
+                return ParseResult(matched_key=f"minimize {app}", is_window=True,
+                                   window_action="minimize", window_target=app)
+
+        # "maximize X"
+        m = re.match(r"^maximize\s+(.+)$", text)
+        if m:
+            app = m.group(1).strip()
+            return ParseResult(matched_key=f"maximize {app}", is_window=True,
+                               window_action="maximize", window_target=app)
+
+        # "restore X"
+        m = re.match(r"^restore\s+(.+)$", text)
+        if m:
+            app = m.group(1).strip()
+            if app not in ("last window",):
+                return ParseResult(matched_key=f"restore {app}", is_window=True,
+                                   window_action="restore", window_target=app)
+
+        # "restore last window"
+        if text == "restore last window":
+            return ParseResult(matched_key=text, is_window=True,
+                               window_action="restore_last")
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_tab(self, text: str) -> ParseResult:
+        """Match tab control commands."""
+        tab_map = {
+            "close tab": "close",
+            "close this tab": "close",
+            "new tab": "new",
+            "open new tab": "new",
+            "next tab": "next",
+            "previous tab": "prev",
+            "last tab": "prev",
+            "reopen tab": "reopen",
+            "reopen last tab": "reopen",
+        }
+        if text in tab_map:
+            return ParseResult(matched_key=text, is_tab=True, tab_action=tab_map[text])
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_typing(self, text: str) -> ParseResult:
+        """
+        Match voice typing commands:
+          "type hello world"
+          "write good morning"
+          "enter username admin"
+        """
+        m = re.match(r"^(?:type|write|enter)\s+(.+)$", text)
+        if m:
+            content = m.group(1).strip()
+            if content:
+                log.info("Voice typing: '%s'", content)
+                return ParseResult(matched_key=f"type: {content}",
+                                   is_typing=True, typing_text=content)
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_intent(self, text: str, context=None) -> ParseResult:
+        """
+        v1.4 — Intent-based fallback using NLP intent extraction.
+        Handles natural phrases like "launch chrome" → open chrome.
+        """
+        intent, obj, param = _nlp.extract_intent(text)
+
+        if not intent:
+            return ParseResult()
+
+        log.info("Intent extracted: intent='%s', obj='%s', param='%s'", intent, obj, param)
+
+        # open / launch / start / bring up
+        if intent == "open" and obj:
+            return ParseResult(
+                matched_key=f"open {obj}", is_window=True,
+                window_action="smart_open", window_target=obj,
+            )
+
+        # close / quit / kill / terminate
+        if intent == "close" and obj:
+            from context import _APP_PROCESS_MAP
+            process = _APP_PROCESS_MAP.get(obj, obj)
+            cmd = f"Stop-Process -Name {process} -Force -ErrorAction SilentlyContinue"
+            return ParseResult(matched_key=f"close {obj}", commands=[cmd])
+
+        # search
+        if intent == "search" and param:
+            encoded = quote_plus(param)
+            browser = "chrome"
+            if context and hasattr(context, "last_browser") and context.last_browser:
+                browser = context.last_browser
+            cmd = f"Start-Process {browser} 'https://www.google.com/search?q={encoded}'"
+            return ParseResult(matched_key=f"search {param}", commands=[cmd])
+
+        # switch to
+        if intent == "switch" and obj:
+            return ParseResult(matched_key=f"switch to {obj}", is_window=True,
+                               window_action="switch", window_target=obj)
+
+        # minimize / maximize / restore
+        if intent in ("minimize", "maximize", "restore") and obj:
+            return ParseResult(matched_key=f"{intent} {obj}", is_window=True,
+                               window_action=intent, window_target=obj)
+
+        # type / write
+        if intent == "type" and param:
+            return ParseResult(matched_key=f"type: {param}",
+                               is_typing=True, typing_text=param)
+
+        # find
+        if intent == "find" and param:
+            return ParseResult(matched_key=f"find {param}",
+                               is_file_search=True, file_search_query=param)
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
     def _match_parameterized(self, text: str, context=None) -> ParseResult:
-        """Check if text starts with a parameterized trigger keyword."""
+        """Parameterized command matching with browser-aware context."""
         for key in sorted(self.parameterized, key=len, reverse=True):
             entry = self.parameterized[key]
             extract_after = entry.get("extract_after", key).lower()
@@ -292,266 +471,157 @@ class Parser:
                 raw_query = re.sub(r"^(for|about|on|the)\s+", "", raw_query, count=1)
 
                 if not raw_query:
-                    log.info("Parameterized match '%s' but no query extracted.", key)
                     return ParseResult()
 
                 encoded_query = quote_plus(raw_query)
                 command = entry["template"].replace("{query}", encoded_query)
 
-                # Browser-aware context (v1.2)
+                # Browser-aware context
                 if context and hasattr(context, "last_browser") and context.last_browser:
                     browser = context.last_browser
                     command = re.sub(
                         r"Start-Process\s+(chrome|firefox|msedge)",
-                        f"Start-Process {browser}",
-                        command, count=1,
+                        f"Start-Process {browser}", command, count=1,
                     )
-                    log.info("Browser-aware: using '%s' for this command.", browser)
 
-                log.info("Parameterized match: key='%s', query='%s'", key, raw_query)
+                # v1.4 — Smart search routing: if browser is active, search in current tab
+                if key in ("search", "search youtube"):
+                    return ParseResult(
+                        matched_key=f"{key} {raw_query}",
+                        commands=[command],
+                        is_in_tab_search=True,
+                        search_query=raw_query,
+                    )
+
                 return ParseResult(matched_key=f"{key} {raw_query}", commands=[command])
 
         return ParseResult()
 
     # ------------------------------------------------------------------ #
     def _match_chain(self, text: str) -> ParseResult:
-        """Check if text matches a multi-step command chain."""
         if text in self.chains:
-            entry = self.chains[text]
-            steps = entry.get("steps", [])
-            log.info("Chain exact match: '%s' (%d steps)", text, len(steps))
+            steps = self.chains[text].get("steps", [])
             return ParseResult(matched_key=text, commands=steps, is_chain=True)
-
         for key in sorted(self.chains, key=len, reverse=True):
             if key in text:
-                entry = self.chains[key]
-                steps = entry.get("steps", [])
-                log.info("Chain keyword match: '%s' in '%s'", key, text)
+                steps = self.chains[key].get("steps", [])
                 return ParseResult(matched_key=key, commands=steps, is_chain=True)
-
         return ParseResult()
 
     # ------------------------------------------------------------------ #
     def _match_scheduler(self, text: str) -> ParseResult:
-        """Parse scheduler commands like 'schedule shutdown at 10 PM'."""
         for key in sorted(self.scheduler, key=len, reverse=True):
             entry = self.scheduler[key]
             extract_after = entry.get("extract_after", key).lower()
-
             if text.startswith(extract_after):
                 time_part = text[len(extract_after):].strip()
                 time_part = re.sub(r"^(at|for|in)\s+", "", time_part, count=1)
-
                 if not time_part:
-                    log.info("Scheduler match '%s' but no time extracted.", key)
                     return ParseResult()
-
                 sched_type = entry.get("type", "shutdown")
                 parsed_time = self._parse_time_expression(time_part)
-
                 if parsed_time is None:
-                    return ParseResult(
-                        matched_key=key, is_info=True,
-                        info_text=f"I couldn't understand the time: {time_part}. "
-                                  f"Try something like '10 PM' or 'in 30 minutes'.",
-                    )
-
+                    return ParseResult(matched_key=key, is_info=True,
+                                       info_text=f"I couldn't understand the time: {time_part}.")
                 task_name = f"VARNA_{'Shutdown' if sched_type == 'shutdown' else 'Restart'}"
                 action = "Stop-Computer -Force" if sched_type == "shutdown" else "Restart-Computer -Force"
-                ps_cmd = (
-                    f"schtasks /Create /TN '{task_name}' /TR "
-                    f"\"powershell -NoProfile -Command {action}\" "
-                    f"/SC ONCE /ST {parsed_time} /F"
-                )
-
-                log.info("Scheduler match: type='%s', time='%s'", sched_type, parsed_time)
-                return ParseResult(
-                    matched_key=f"{key} at {parsed_time}", commands=[ps_cmd],
-                    is_scheduler=True, needs_confirmation=True,
-                )
-
+                ps_cmd = (f"schtasks /Create /TN '{task_name}' /TR "
+                          f"\"powershell -NoProfile -Command {action}\" /SC ONCE /ST {parsed_time} /F")
+                return ParseResult(matched_key=f"{key} at {parsed_time}", commands=[ps_cmd],
+                                   is_scheduler=True, needs_confirmation=True)
         return ParseResult()
 
-    # ------------------------------------------------------------------ #
     @staticmethod
     def _parse_time_expression(time_str: str) -> str | None:
-        """Convert natural time expressions to 24-hour HH:MM format."""
         time_str = time_str.lower().strip()
-
-        minutes_match = re.match(r"(\d+)\s*minutes?", time_str)
-        if minutes_match:
+        m = re.match(r"(\d+)\s*minutes?", time_str)
+        if m:
             from datetime import datetime, timedelta
-            mins = int(minutes_match.group(1))
-            target = datetime.now() + timedelta(minutes=mins)
-            return target.strftime("%H:%M")
-
-        hours_match = re.match(r"(\d+)\s*hours?", time_str)
-        if hours_match:
+            return (datetime.now() + timedelta(minutes=int(m.group(1)))).strftime("%H:%M")
+        m = re.match(r"(\d+)\s*hours?", time_str)
+        if m:
             from datetime import datetime, timedelta
-            hrs = int(hours_match.group(1))
-            target = datetime.now() + timedelta(hours=hrs)
-            return target.strftime("%H:%M")
-
-        ampm_match = re.match(r"(\d{1,2}):(\d{2})\s*(am|pm)", time_str)
-        if ampm_match:
-            hour, minute = int(ampm_match.group(1)), int(ampm_match.group(2))
-            period = ampm_match.group(3)
-            if period == "pm" and hour != 12: hour += 12
-            elif period == "am" and hour == 12: hour = 0
-            return f"{hour:02d}:{minute:02d}"
-
-        ampm_match2 = re.match(r"(\d{1,2})\s*(am|pm)", time_str)
-        if ampm_match2:
-            hour = int(ampm_match2.group(1))
-            period = ampm_match2.group(2)
-            if period == "pm" and hour != 12: hour += 12
-            elif period == "am" and hour == 12: hour = 0
-            return f"{hour:02d}:00"
-
-        h24_match = re.match(r"(\d{1,2}):(\d{2})$", time_str)
-        if h24_match:
-            hour, minute = int(h24_match.group(1)), int(h24_match.group(2))
-            if 0 <= hour <= 23 and 0 <= minute <= 59:
-                return f"{hour:02d}:{minute:02d}"
-
+            return (datetime.now() + timedelta(hours=int(m.group(1)))).strftime("%H:%M")
+        m = re.match(r"(\d{1,2}):(\d{2})\s*(am|pm)", time_str)
+        if m:
+            h, mi, p = int(m.group(1)), int(m.group(2)), m.group(3)
+            if p == "pm" and h != 12: h += 12
+            elif p == "am" and h == 12: h = 0
+            return f"{h:02d}:{mi:02d}"
+        m = re.match(r"(\d{1,2})\s*(am|pm)", time_str)
+        if m:
+            h, p = int(m.group(1)), m.group(2)
+            if p == "pm" and h != 12: h += 12
+            elif p == "am" and h == 12: h = 0
+            return f"{h:02d}:00"
+        m = re.match(r"(\d{1,2}):(\d{2})$", time_str)
+        if m:
+            h, mi = int(m.group(1)), int(m.group(2))
+            if 0 <= h <= 23 and 0 <= mi <= 59:
+                return f"{h:02d}:{mi:02d}"
         return None
 
     # ------------------------------------------------------------------ #
     def _match_monitor(self, text: str) -> ParseResult:
-        """Parse monitoring commands."""
         if text in ("stop monitoring", "stop monitor"):
-            log.info("Monitor stop command detected.")
-            return ParseResult(matched_key="stop monitoring", is_monitor=True,
-                               monitor_action="stop")
-
-        mon_match = re.match(r"^monitor\s+(\w+)(?:\s+memory\s+usage)?$", text)
-        if mon_match:
-            process = mon_match.group(1).strip()
-            log.info("Monitor start: process='%s'", process)
-            return ParseResult(matched_key=f"monitor {process}", is_monitor=True,
-                               monitor_action="start", monitor_process=process)
-
-        check_match = re.match(r"^check\s+process\s+(\w+)$", text)
-        if check_match:
-            process = check_match.group(1).strip()
-            log.info("Monitor check: process='%s'", process)
-            return ParseResult(matched_key=f"check process {process}", is_monitor=True,
-                               monitor_action="check", monitor_process=process)
-
+            return ParseResult(matched_key="stop monitoring", is_monitor=True, monitor_action="stop")
+        m = re.match(r"^monitor\s+(\w+)(?:\s+memory\s+usage)?$", text)
+        if m:
+            p = m.group(1).strip()
+            return ParseResult(matched_key=f"monitor {p}", is_monitor=True,
+                               monitor_action="start", monitor_process=p)
+        m = re.match(r"^check\s+process\s+(\w+)$", text)
+        if m:
+            p = m.group(1).strip()
+            return ParseResult(matched_key=f"check process {p}", is_monitor=True,
+                               monitor_action="check", monitor_process=p)
         return ParseResult()
 
-    # ------------------------------------------------------------------ #
-    # v1.3 — Smart Screenshot
-    # ------------------------------------------------------------------ #
     def _match_screenshot(self, text: str) -> ParseResult:
-        """
-        Match smart screenshot commands:
-          "screenshot as ReactBug"
-          "take screenshot as LoginPage"
-          "save screenshot as dashboard"
-        """
-        patterns = [
-            r"^(?:take\s+)?screenshot\s+as\s+(.+)$",
-            r"^save\s+screenshot\s+as\s+(.+)$",
-            r"^capture\s+screen\s+as\s+(.+)$",
-        ]
-        for pattern in patterns:
-            m = re.match(pattern, text)
+        for pat in [r"^(?:take\s+)?screenshot\s+as\s+(.+)$",
+                    r"^save\s+screenshot\s+as\s+(.+)$",
+                    r"^capture\s+screen\s+as\s+(.+)$"]:
+            m = re.match(pat, text)
             if m:
-                name = m.group(1).strip().replace(" ", "_")
-                # Sanitize filename
-                name = re.sub(r"[^\w\-]", "", name)
-                if not name:
-                    name = "screenshot"
-                log.info("Smart screenshot: name='%s'", name)
-                return ParseResult(
-                    matched_key=f"screenshot as {name}",
-                    is_screenshot=True,
-                    screenshot_name=name,
-                )
+                name = re.sub(r"[^\w\-]", "", m.group(1).strip().replace(" ", "_")) or "screenshot"
+                return ParseResult(matched_key=f"screenshot as {name}",
+                                   is_screenshot=True, screenshot_name=name)
         return ParseResult()
 
-    # ------------------------------------------------------------------ #
-    # v1.3 — File Search
-    # ------------------------------------------------------------------ #
     def _match_file_search(self, text: str) -> ParseResult:
-        """
-        Match file search commands:
-          "find PDF downloaded yesterday"
-          "find files named report"
-          "find document report"
-          "locate file budget"
-        """
         triggers = self.file_search_cfg.get("triggers", ["find", "locate"])
-
         for trigger in sorted(triggers, key=len, reverse=True):
             if text.startswith(trigger):
                 query = text[len(trigger):].strip()
-                # Remove filler words
                 query = re.sub(r"^(file|files|named|called|document|documents)\s+", "", query)
-                if not query:
-                    return ParseResult()
-
-                log.info("File search: query='%s'", query)
-                return ParseResult(
-                    matched_key=f"find {query}",
-                    is_file_search=True,
-                    file_search_query=query,
-                )
-
+                if query:
+                    return ParseResult(matched_key=f"find {query}",
+                                       is_file_search=True, file_search_query=query)
         return ParseResult()
 
-    # ------------------------------------------------------------------ #
-    # v1.3 — Macro Record
-    # ------------------------------------------------------------------ #
     def _match_macro_record(self, text: str) -> ParseResult:
-        """
-        Match macro recording commands:
-          "whenever I say focus mode do open vscode and open chrome"
-          "when I say coding time do open vscode and open chrome and kill port 3000"
-          "create macro study mode open chrome and open notepad"
-        """
-        patterns = [
-            r"^(?:whenever|when)\s+i\s+say\s+(.+?)\s+do\s+(.+)$",
-            r"^create\s+macro\s+(.+?)\s+do\s+(.+)$",
-            r"^save\s+macro\s+(.+?)\s+do\s+(.+)$",
-        ]
-        for pattern in patterns:
-            m = re.match(pattern, text)
+        for pat in [r"^(?:whenever|when)\s+i\s+say\s+(.+?)\s+do\s+(.+)$",
+                    r"^create\s+macro\s+(.+?)\s+do\s+(.+)$",
+                    r"^save\s+macro\s+(.+?)\s+do\s+(.+)$"]:
+            m = re.match(pat, text)
             if m:
                 name = m.group(1).strip()
-                steps_raw = m.group(2).strip()
-                # Split on " and " to get individual step names
-                steps = [s.strip() for s in re.split(r"\s+and\s+", steps_raw) if s.strip()]
+                steps = [s.strip() for s in re.split(r"\s+and\s+", m.group(2).strip()) if s.strip()]
                 if name and steps:
-                    log.info("Macro record: name='%s', steps=%s", name, steps)
-                    return ParseResult(
-                        matched_key=f"create macro: {name}",
-                        is_macro=True,
-                        macro_action="record",
-                        macro_name=name,
-                        macro_steps=steps,
-                    )
+                    return ParseResult(matched_key=f"create macro: {name}", is_macro=True,
+                                       macro_action="record", macro_name=name, macro_steps=steps)
         return ParseResult()
 
-    # ------------------------------------------------------------------ #
     def _match_macro_delete(self, text: str) -> ParseResult:
-        """Match macro delete commands: 'delete macro focus mode'"""
         m = re.match(r"^delete\s+macro\s+(.+)$", text)
         if m:
             name = m.group(1).strip()
-            log.info("Macro delete: '%s'", name)
-            return ParseResult(
-                matched_key=f"delete macro: {name}",
-                is_macro=True,
-                macro_action="delete",
-                macro_name=name,
-            )
+            return ParseResult(matched_key=f"delete macro: {name}", is_macro=True,
+                               macro_action="delete", macro_name=name)
         return ParseResult()
 
     # ------------------------------------------------------------------ #
     def list_commands(self) -> list[str]:
-        """Return all available spoken command phrases."""
         all_keys = []
         all_keys.extend(self.static.keys())
         all_keys.extend(self.developer.keys())
@@ -562,9 +632,9 @@ class Parser:
         all_keys.extend(self.context_cmds.keys())
         all_keys.extend(self.clipboard_cmds.keys())
         all_keys.extend(self.macro_cmds.keys())
+        all_keys.extend(self.tab_cmds.keys())
+        all_keys.extend(self.window_cmds.keys())
         return all_keys
 
-    # ------------------------------------------------------------------ #
     def list_developer_commands(self) -> list[str]:
-        """Return only developer-mode command phrases."""
         return list(self.developer.keys())

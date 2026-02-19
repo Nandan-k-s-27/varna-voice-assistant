@@ -1,6 +1,6 @@
 # VARNA Voice Assistant
 
-**VARNA (Voice Activated Responsive Network Assistant)** is a secure, fully offline Windows desktop voice assistant. It uses speech recognition for high-accuracy STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system.
+**VARNA (Voice Activated Responsive Network Assistant)** is a secure, fully offline Windows desktop voice assistant. It uses speech recognition for high-accuracy STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system with window intelligence and natural language understanding.
 
 ## Features
 
@@ -23,21 +23,25 @@
 - **Task Scheduler**: `"schedule shutdown at 10 PM"` via Windows Task Scheduler.
 - **Process Monitoring**: `"monitor chrome memory usage"` with background alerts.
 
-### v1.3 — Personalization + Interface Upgrade
-- **Custom Macros (Command Learning)**: Define personal automation sequences.
-  - `"whenever I say focus mode do open vscode and open chrome"` → saves macro.
-  - `"focus mode"` → replays the saved sequence.
-  - `"list macros"` / `"delete macro focus mode"`.
-- **Clipboard Intelligence**: Read clipboard contents aloud.
-  - `"read clipboard"` / `"what did I copy"` → speaks clipboard text.
-- **Smart Screenshot**: Take screenshots with custom filenames.
-  - `"screenshot as ReactBug"` → saves `ReactBug.png` to Desktop.
-- **File Search**: Find files by name, type, or date.
-  - `"find PDF downloaded yesterday"` → searches Desktop, Downloads, Documents.
-  - Supports type filters (PDF, docx, png, etc.) and time filters (today, yesterday, this week).
-- **System Tray UI**: Floating overlay widget showing:
-  - 🎤 Mic status, last speech, last command, result.
-  - System tray icon with Show/Hide/Exit menu.
+### v1.3 — Personalization + Interface
+- **Custom Macros**: `"whenever I say focus mode do open vscode and open chrome"`.
+- **Clipboard Intelligence**: `"read clipboard"` / `"what did I copy"`.
+- **Smart Screenshot**: `"screenshot as ReactBug"` → saves `ReactBug.png` to Desktop.
+- **File Search**: `"find PDF downloaded yesterday"` with type + date filters.
+- **System Tray UI**: Floating overlay showing mic status, last command, result.
+
+### v1.4 — Smart Application Control + Natural Parsing
+- **Window Intelligence**: Smart open (restores if minimized, focuses if running, launches if not).
+  - `"switch to chrome"` / `"minimize edge"` / `"maximize vscode"` / `"show desktop"`.
+  - `"open new chrome window"` → forces a new instance.
+- **Voice Typing**: `"type hello world"` → types text in any active application.
+- **Tab Control**: `"close tab"` / `"new tab"` / `"next tab"` / `"previous tab"` / `"reopen tab"`.
+- **Flexible NLP** (no LLM):
+  - **Filler removal**: `"can you please open notepad for me"` → `"open notepad"`.
+  - **Fuzzy matching**: Handles speech recognition errors (75%+ similarity).
+  - **Intent extraction**: `"launch chrome"` / `"fire up vscode"` → all understood.
+- **Smart Search Routing**: If browser is active → searches in current tab (Ctrl+L → type → Enter).
+- **Natural Chains**: `"open edge and search React hooks"` → executes both in sequence.
 
 ## Requirements
 
@@ -59,43 +63,63 @@ pip install -r requirements.txt
 python main.py
 ```
 
-Speak commands directly — VARNA processes all speech.
+Speak commands naturally — VARNA now understands flexible language.
 
 ### Example Commands
 
 | Category | Example | What It Does |
 |----------|---------|-------------|
-| **Static** | "open chrome" | Launches Chrome |
-| **Static** | "battery status" | Shows battery % |
-| **Parameterized** | "search React hooks" | Google search (browser-aware) |
-| **Chain** | "start my backend" | Navigates + npm start |
-| **Developer** | "kill port 3000" | Kills process on port |
+| **Smart Open** | "open chrome" | Restores if minimized, focuses if running, launches if not |
+| **Window** | "switch to vscode" | Brings VS Code to front |
+| **Window** | "minimize edge" | Minimizes Edge |
+| **Tab** 🆕 | "close tab" | Closes current browser tab |
+| **Tab** 🆕 | "new tab" | Opens new tab |
+| **Typing** 🆕 | "type hello world" | Types in active window |
+| **NLP** 🆕 | "can you open notepad" | Strips fillers → opens Notepad |
+| **Chain** 🆕 | "open edge and search React" | Opens Edge, then searches |
+| **Search** | "search React hooks" | In-tab if browser active, else new tab |
+| **Clipboard** | "read clipboard" | Speaks clipboard contents |
+| **Screenshot** | "screenshot as ReactBug" | Named screenshot to Desktop |
+| **File Search** | "find PDF yesterday" | Searches common folders |
+| **Macros** | "whenever I say dev mode do open vscode and open chrome" | Saves macro |
 | **System** | "shutdown system" | Shuts down (with confirmation) |
-| **Scheduler** | "schedule shutdown at 10 PM" | Scheduled shutdown |
-| **Monitor** | "monitor chrome memory usage" | Background memory monitor |
-| **Context** | "close it" | Closes last opened app |
-| **Clipboard** 🆕 | "read clipboard" | Speaks clipboard contents |
-| **Screenshot** 🆕 | "screenshot as ReactBug" | Named screenshot to Desktop |
-| **File Search** 🆕 | "find PDF downloaded yesterday" | Searches common folders |
-| **Macros** 🆕 | "whenever I say focus mode do open vscode and open chrome" | Saves custom macro |
 
-For the full list of **91+ commands**, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **107+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
 | File | Purpose |
 |------|---------|
-| `main.py` | Entry point — listening loop, command routing, tray integration |
-| `listener.py` | Speech recognition, yes/no confirmation |
-| `parser.py` | Maps text to commands (static, param, chain, scheduler, monitor, macro, clipboard, file search) |
+| `main.py` | Entry point — listening loop, command routing, all handlers |
+| `listener.py` | Speech recognition + yes/no confirmation |
+| `parser.py` | 20-step command matching pipeline with NLP preprocessing |
 | `executor.py` | Safe PowerShell execution |
 | `speaker.py` | Text-to-speech |
 | `context.py` | Session state + browser tracking + pronoun resolution |
 | `monitor.py` | Background process monitoring |
-| `macros.py` | Custom macro manager (record/play/list/delete) 🆕 |
-| `tray.py` | System tray icon + floating overlay 🆕 |
+| `macros.py` | Custom macro manager |
+| `tray.py` | System tray icon + floating overlay |
+| `window_manager.py` | Smart window control (pygetwindow) 🆕 |
+| `nlp.py` | Rule-based NLP — filler removal, fuzzy match, intent extract 🆕 |
 | `commands.json` | Structured command whitelist |
-| `macros.json` | User-defined macros storage 🆕 |
+| `macros.json` | User-defined macros storage |
+
+## Architecture
+
+```
+🎤 Microphone → 📝 STT → 🧹 NLP Clean → 🧠 Parser (20 steps) → 🛡 Whitelist
+                                                    ↓
+                    ┌───────────────────────────────┼───────────────────────┐
+                    ↓                               ↓                       ↓
+             🪟 WindowManager              ⚡ PowerShell              ⌨️ PyAutoGUI
+          (smart open/switch/             (safe execution)          (type/tab/search)
+           minimize/maximize)
+                    ↓                               ↓                       ↓
+                    └───────────────────────────────┼───────────────────────┘
+                                                    ↓
+                                              🔊 TTS Response
+                                              🖥️ Tray UI Update
+```
 
 ## Version History
 
@@ -105,3 +129,4 @@ For the full list of **91+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.1 | Parameterized commands, chaining, developer mode |
 | v1.2 | Context tracking, confirmation, scheduler, monitoring |
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
+| v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |

@@ -1,6 +1,6 @@
-# VARNA v1.3 — Full Command List
+# VARNA v1.4 — Full Command List
 
-All commands supported by VARNA v1.3, organized by category.
+All commands supported by VARNA v1.4, organized by category.
 
 ---
 
@@ -8,20 +8,20 @@ All commands supported by VARNA v1.3, organized by category.
 
 | # | Command | Action |
 |---|---------|--------|
-| 1 | open notepad | Launches Notepad |
-| 2 | open chrome | Launches Google Chrome |
-| 3 | open firefox | Launches Mozilla Firefox |
-| 4 | open edge | Launches Microsoft Edge |
-| 5 | open calculator | Launches Calculator |
-| 6 | open paint | Launches Microsoft Paint |
+| 1 | open notepad | Smart opens Notepad (restores if minimized, focuses if running) |
+| 2 | open chrome | Smart opens Chrome |
+| 3 | open firefox | Smart opens Firefox |
+| 4 | open edge | Smart opens Edge |
+| 5 | open calculator | Smart opens Calculator |
+| 6 | open paint | Smart opens Paint |
 | 7 | open file explorer | Opens File Explorer |
 | 8 | open task manager | Opens Task Manager |
 | 9 | open command prompt | Opens CMD |
 | 10 | open powershell | Opens PowerShell |
-| 11 | open vscode | Launches Visual Studio Code |
-| 12 | open word | Launches MS Word |
-| 13 | open excel | Launches MS Excel |
-| 14 | open powerpoint | Launches MS PowerPoint |
+| 11 | open vscode | Smart opens VS Code |
+| 12 | open word | Smart opens MS Word |
+| 13 | open excel | Smart opens Excel |
+| 14 | open powerpoint | Smart opens PowerPoint |
 | 15 | open downloads | Opens Downloads folder |
 | 16 | open documents | Opens Documents folder |
 | 17 | open desktop | Opens Desktop folder |
@@ -31,13 +31,13 @@ All commands supported by VARNA v1.3, organized by category.
 | 21 | close edge | Closes Edge |
 | 22 | close calculator | Closes Calculator |
 | 23 | close paint | Closes Paint |
-| 24 | system info | Displays system specs |
-| 25 | battery status | Shows battery percentage |
-| 26 | ip address | Shows local IPv4 address |
-| 27 | disk space | Lists drive free space |
+| 24 | system info | System specs |
+| 25 | battery status | Battery % |
+| 26 | ip address | Local IPv4 |
+| 27 | disk space | Drive free space |
 | 28 | list processes | Top 10 CPU processes |
-| 29 | current time | Speaks current time |
-| 30 | current date | Speaks current date |
+| 29 | current time | Current time |
+| 30 | current date | Current date |
 | 31 | lock screen | Locks session |
 | 32 | empty recycle bin | Clears Recycle Bin ⚠️ |
 | 33 | screenshot | Screenshot to Desktop |
@@ -51,8 +51,8 @@ All commands supported by VARNA v1.3, organized by category.
 
 | # | Command | Example | Action |
 |---|---------|---------|--------|
-| 37 | search `{query}` | "search React hooks" | Google search (browser-aware) |
-| 38 | open website `{url}` | "open website github.com" | Opens URL (browser-aware) |
+| 37 | search `{query}` | "search React hooks" | Google search (browser-aware, in-tab if active) |
+| 38 | open website `{url}` | "open website github.com" | Opens URL |
 | 39 | search youtube `{query}` | "search youtube Python" | YouTube search (browser-aware) |
 | 40 | open folder `{path}` | "open folder C:\Users" | Opens folder |
 
@@ -78,9 +78,9 @@ All commands supported by VARNA v1.3, organized by category.
 | 47 | pull latest from git | `git pull origin main` |
 | 48 | git status | Shows git status |
 | 49 | open git bash | Opens Git Bash |
-| 50 | kill port 3000 | Kills process on port 3000 |
-| 51 | kill port 5000 | Kills process on port 5000 |
-| 52 | kill port 8080 | Kills process on port 8080 |
+| 50 | kill port 3000 | Kills process on port |
+| 51 | kill port 5000 | Kills on port 5000 |
+| 52 | kill port 8080 | Kills on port 8080 |
 | 53 | show running ports | Lists listening ports |
 | 54 | show node processes | Lists Node.js processes |
 | 55 | kill all node | Kills all Node.js ⚠️ |
@@ -92,11 +92,11 @@ All commands supported by VARNA v1.3, organized by category.
 
 | # | Command | Action |
 |---|---------|--------|
-| 57 | shutdown system | Shuts down PC ⚠️ |
-| 58 | restart system | Restarts PC ⚠️ |
+| 57 | shutdown system | Shuts down ⚠️ |
+| 58 | restart system | Restarts ⚠️ |
 | 59 | log off | Logs off ⚠️ |
-| 60 | cancel scheduled shutdown | Removes scheduled task |
-| 61 | cancel scheduled restart | Removes scheduled task |
+| 60 | cancel scheduled shutdown | Removes task |
+| 61 | cancel scheduled restart | Removes task |
 | 62 | show scheduled tasks | Lists VARNA tasks |
 
 ---
@@ -105,8 +105,8 @@ All commands supported by VARNA v1.3, organized by category.
 
 | # | Command | Example | Action |
 |---|---------|---------|--------|
-| 63 | schedule shutdown `{time}` | "schedule shutdown at 10 PM" | Schedules shutdown ⚠️ |
-| 64 | schedule restart `{time}` | "schedule restart in 30 minutes" | Schedules restart ⚠️ |
+| 63 | schedule shutdown `{time}` | "schedule shutdown at 10 PM" | Scheduled shutdown ⚠️ |
+| 64 | schedule restart `{time}` | "schedule restart in 30 minutes" | Scheduled restart ⚠️ |
 
 ---
 
@@ -124,71 +124,114 @@ All commands supported by VARNA v1.3, organized by category.
 
 | # | Command | Action |
 |---|---------|--------|
-| 68 | close it / close that | Closes last opened app |
-| 69 | open it again / reopen it | Re-opens last app |
-| 70 | go back | Opens last project/folder |
-| 71 | open last project | Opens last project |
-| 72 | open last folder | Opens last folder |
-| 73 | what was my last app | Reports last app |
-| 74 | session status | Reports full context |
+| 68–74 | close it, open it again, go back, etc. | Context-based actions |
 
 ---
 
-## 9. Clipboard Commands (4) — 🆕 v1.3
+## 9. Clipboard Commands (4) — v1.3
 
 | # | Command | Action |
 |---|---------|--------|
-| 75 | read clipboard | Reads and speaks clipboard contents |
+| 75 | read clipboard | Speaks clipboard contents |
 | 76 | what did i copy | Reads clipboard |
 | 77 | read what i copied | Reads clipboard |
 | 78 | clipboard | Reads clipboard |
 
 ---
 
-## 10. Smart Screenshot (3) — 🆕 v1.3
+## 10. Smart Screenshot (3) — v1.3
 
-| # | Command | Example | Action |
-|---|---------|---------|--------|
-| 79 | screenshot as `{name}` | "screenshot as ReactBug" | Named screenshot |
-| 80 | take screenshot as `{name}` | "take screenshot as login page" | Named screenshot |
-| 81 | save screenshot as `{name}` | "save screenshot as dashboard" | Named screenshot |
-
----
-
-## 11. File Search (dynamic) — 🆕 v1.3
-
-| # | Command | Example | Action |
-|---|---------|---------|--------|
-| 82 | find `{description}` | "find PDF downloaded yesterday" | Searches Desktop/Downloads/Documents |
-| 83 | locate `{description}` | "locate report" | Searches by name |
-| 84 | find files `{query}` | "find files named budget" | Searches by name |
-
-Supports filters:
-- **File type**: "find PDF", "find docx", "find png"
-- **Time**: "downloaded yesterday", "today", "this week", "last week"
+| # | Command | Action |
+|---|---------|--------|
+| 79 | screenshot as `{name}` | Named screenshot to Desktop |
+| 80 | take screenshot as `{name}` | Named screenshot |
+| 81 | save screenshot as `{name}` | Named screenshot |
 
 ---
 
-## 12. Custom Macros (dynamic) — 🆕 v1.3
+## 11. File Search (dynamic) — v1.3
 
 | # | Command | Example | Action |
 |---|---------|---------|--------|
-| 85 | whenever I say `{name}` do `{steps}` | "whenever I say focus mode do open vscode and open chrome" | Records macro |
-| 86 | `{macro name}` | "focus mode" | Plays saved macro |
-| 87 | list macros / show macros | "list macros" | Lists all macros |
-| 88 | delete macro `{name}` | "delete macro focus mode" | Deletes a macro |
+| 82 | find `{desc}` | "find PDF downloaded yesterday" | Searches common folders |
+| 83 | locate `{desc}` | "locate report" | Searches by name |
 
 ---
 
-## 13. System Tray UI — 🆕 v1.3
+## 12. Custom Macros (dynamic) — v1.3
 
-VARNA now shows a floating overlay widget (bottom-right):
-- 🎤 Mic status indicator
-- 🗣 Last recognised speech
-- ▶ Last matched command
-- ✅/❌ Result status
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 84 | whenever I say `{name}` do `{steps}` | "whenever I say focus mode do open vscode and open chrome" | Records macro |
+| 85 | `{macro name}` | "focus mode" | Plays saved macro |
+| 86 | list macros | "list macros" | Lists all macros |
+| 87 | delete macro `{name}` | "delete macro focus mode" | Deletes macro |
 
-System tray icon with Show/Hide/Exit menu.
+---
+
+## 13. Window Control (dynamic) — 🆕 v1.4
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 88 | switch to `{app}` | "switch to chrome" | Focuses/restores the app |
+| 89 | minimize `{app}` | "minimize edge" | Minimizes the app |
+| 90 | maximize `{app}` | "maximize vscode" | Maximizes the app |
+| 91 | restore `{app}` | "restore notepad" | Restores minimized app |
+| 92 | show desktop | "show desktop" | Win+D — minimize all |
+| 93 | minimize all | "minimize all" | Same as show desktop |
+| 94 | open new `{app}` window | "open new chrome window" | Forces new instance |
+| 95 | restore last window | "restore last window" | Restores last app |
+
+**Smart Open Logic** (applies to all "open X" commands):
+- If app is running & minimized → **Restore**
+- If app is running & active → **Focus**
+- If app is not running → **Launch new instance**
+
+---
+
+## 14. Tab Control (5) — 🆕 v1.4
+
+| # | Command | Action |
+|---|---------|--------|
+| 96 | close tab | Ctrl+W — closes current tab |
+| 97 | new tab | Ctrl+T — opens new tab |
+| 98 | next tab | Ctrl+Tab — next tab |
+| 99 | previous tab | Ctrl+Shift+Tab — prev tab |
+| 100 | reopen tab | Ctrl+Shift+T — reopens last tab |
+
+---
+
+## 15. Voice Typing (dynamic) — 🆕 v1.4
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 101 | type `{text}` | "type hello world" | Types text in active window |
+| 102 | write `{text}` | "write good morning" | Types text |
+| 103 | enter `{text}` | "enter username admin" | Types text |
+
+---
+
+## 16. Smart Search Routing — 🆕 v1.4
+
+If a browser is currently active, "search X" uses **Ctrl+L → type → Enter** to search in the current tab instead of opening a new one.
+
+---
+
+## 17. Flexible NLP — 🆕 v1.4 (automatic)
+
+All commands now support natural language:
+- **Filler removal**: "can you please open notepad for me" → "open notepad"
+- **Fuzzy matching**: Handles speech recognition errors (75%+ similarity)
+- **Intent extraction**: "launch chrome" → understood as "open chrome"
+- **Synonym support**: "bring up", "fire up", "start" all map to "open"
+
+---
+
+## 18. Natural Chains — 🆕 v1.4 (automatic)
+
+Say multiple commands in one sentence:
+- "open edge **and** search React hooks" → opens Edge, then searches
+- "open notepad **then** type hello world" → opens Notepad, then types
 
 ---
 
@@ -197,7 +240,7 @@ System tray icon with Show/Hide/Exit menu.
 | Symbol | Meaning |
 |--------|---------|
 | ⚠️ | Dangerous — requires voice confirmation |
-| 🆕 | New in v1.3 |
+| 🆕 | New in this version |
 
 ## Summary
 
@@ -215,4 +258,9 @@ System tray icon with Show/Hide/Exit menu.
 | Smart Screenshot | 3 | v1.3 |
 | File Search | 3+ | v1.3 |
 | Custom Macros | 4+ | v1.3 |
-| **Total** | **~91+** | |
+| Window Control | 8+ | v1.4 |
+| Tab Control | 5 | v1.4 |
+| Voice Typing | 3+ | v1.4 |
+| NLP + Smart Search | auto | v1.4 |
+| Natural Chains | auto | v1.4 |
+| **Total** | **~107+** | |

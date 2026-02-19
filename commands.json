@@ -177,5 +177,17 @@
         "list macros": "Lists all saved macros",
         "show macros": "Lists all saved macros",
         "my macros": "Lists all saved macros"
+    },
+    "window": {
+        "show desktop": "Minimizes all windows",
+        "minimize all": "Minimizes all windows"
+    },
+    "tabs": {
+        "close tab": "Closes the current browser tab",
+        "new tab": "Opens a new tab",
+        "next tab": "Switches to the next tab",
+        "previous tab": "Switches to the previous tab",
+        "reopen tab": "Reopens the last closed tab",
+        "reopen last tab": "Reopens the last closed tab"
     }
 }
