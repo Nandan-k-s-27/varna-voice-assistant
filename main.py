@@ -30,9 +30,12 @@ VERSION = "1.2"
 # Exit phrases (user says any of these to quit)
 EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
 
-# Pattern to detect and strip the wake keyword from spoken text
+# Pattern to detect and strip the wake keyword from spoken text.
+# Google Speech API frequently misrecognises "varna" as "verna",
+# "warna", "barna", etc.  The pattern covers all known variants.
+_VARNA_VARIANTS = r"(?:varna|verna|warna|barna|vana|verna|varuna|verona|varnah|vana)"
 _WAKE_PATTERN = re.compile(
-    r"\b(?:hey\s+varna|hi\s+varna|hello\s+varna|ok\s+varna|varna)\b",
+    rf"\b(?:hey\s+{_VARNA_VARIANTS}|hi\s+{_VARNA_VARIANTS}|hello\s+{_VARNA_VARIANTS}|ok\s+{_VARNA_VARIANTS}|{_VARNA_VARIANTS})\b",
     re.IGNORECASE,
 )
 
@@ -91,6 +94,14 @@ def main() -> None:
         if text is None:
             # No speech detected — silently loop
             continue
+
+        # --- Exit phrases always work (no wake word needed) ------
+        if text.strip().lower() in EXIT_PHRASES:
+            log.info("Exit phrase detected (no wake word): '%s'", text)
+            if monitor.is_running:
+                monitor.stop()
+            speaker.goodbye()
+            break
 
         # --- Check if the user said "varna" somewhere --------------------
         command = _extract_command(text)
