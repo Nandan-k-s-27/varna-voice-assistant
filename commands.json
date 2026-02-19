@@ -1,38 +1,106 @@
 {
-    "open notepad": "Start-Process notepad",
-    "open chrome": "Start-Process chrome",
-    "open firefox": "Start-Process firefox",
-    "open edge": "Start-Process msedge",
-    "open calculator": "Start-Process calc",
-    "open paint": "Start-Process mspaint",
-    "open file explorer": "Start-Process explorer",
-    "open task manager": "Start-Process taskmgr",
-    "open command prompt": "Start-Process cmd",
-    "open powershell": "Start-Process powershell",
-    "open vscode": "Start-Process code",
-    "open word": "Start-Process winword",
-    "open excel": "Start-Process excel",
-    "open powerpoint": "Start-Process powerpnt",
-    "open downloads": "Start-Process shell:Downloads",
-    "open documents": "Start-Process shell:Personal",
-    "open desktop": "Start-Process shell:Desktop",
-    "close notepad": "Stop-Process -Name notepad -Force -ErrorAction SilentlyContinue",
-    "close chrome": "Stop-Process -Name chrome -Force -ErrorAction SilentlyContinue",
-    "close firefox": "Stop-Process -Name firefox -Force -ErrorAction SilentlyContinue",
-    "close edge": "Stop-Process -Name msedge -Force -ErrorAction SilentlyContinue",
-    "close calculator": "Stop-Process -Name CalculatorApp -Force -ErrorAction SilentlyContinue",
-    "close paint": "Stop-Process -Name mspaint -Force -ErrorAction SilentlyContinue",
-    "system info": "Get-ComputerInfo | Select-Object CsName, OsName, OsVersion, CsProcessors, CsTotalPhysicalMemory",
-    "battery status": "Get-WmiObject -Class Win32_Battery | Select-Object EstimatedChargeRemaining, BatteryStatus",
-    "ip address": "Get-NetIPAddress -AddressFamily IPv4 | Select-Object InterfaceAlias, IPAddress",
-    "disk space": "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,2)}}",
-    "list processes": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, CPU, WorkingSet",
-    "current time": "Get-Date -Format 'hh:mm:ss tt'",
-    "current date": "Get-Date -Format 'dddd, MMMM dd, yyyy'",
-    "lock screen": "rundll32.exe user32.dll,LockWorkStation",
-    "empty recycle bin": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue",
-    "screenshot": "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | ForEach-Object { $bitmap = New-Object System.Drawing.Bitmap($_.Bounds.Width, $_.Bounds.Height); $graphics = [System.Drawing.Graphics]::FromImage($bitmap); $graphics.CopyFromScreen($_.Bounds.Location, [System.Drawing.Point]::Empty, $_.Bounds.Size); $path = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'screenshot_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.png'); $bitmap.Save($path); Write-Output \"Screenshot saved to $path\" }",
-    "increase volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]175)",
-    "decrease volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]174)",
-    "mute volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+    "static": {
+        "open notepad": "Start-Process notepad",
+        "open chrome": "Start-Process chrome",
+        "open firefox": "Start-Process firefox",
+        "open edge": "Start-Process msedge",
+        "open calculator": "Start-Process calc",
+        "open paint": "Start-Process mspaint",
+        "open file explorer": "Start-Process explorer",
+        "open task manager": "Start-Process taskmgr",
+        "open command prompt": "Start-Process cmd",
+        "open powershell": "Start-Process powershell",
+        "open vscode": "Start-Process code",
+        "open word": "Start-Process winword",
+        "open excel": "Start-Process excel",
+        "open powerpoint": "Start-Process powerpnt",
+        "open downloads": "Start-Process shell:Downloads",
+        "open documents": "Start-Process shell:Personal",
+        "open desktop": "Start-Process shell:Desktop",
+        "close notepad": "Stop-Process -Name notepad -Force -ErrorAction SilentlyContinue",
+        "close chrome": "Stop-Process -Name chrome -Force -ErrorAction SilentlyContinue",
+        "close firefox": "Stop-Process -Name firefox -Force -ErrorAction SilentlyContinue",
+        "close edge": "Stop-Process -Name msedge -Force -ErrorAction SilentlyContinue",
+        "close calculator": "Stop-Process -Name CalculatorApp -Force -ErrorAction SilentlyContinue",
+        "close paint": "Stop-Process -Name mspaint -Force -ErrorAction SilentlyContinue",
+        "system info": "Get-ComputerInfo | Select-Object CsName, OsName, OsVersion, CsProcessors, CsTotalPhysicalMemory",
+        "battery status": "Get-WmiObject -Class Win32_Battery | Select-Object EstimatedChargeRemaining, BatteryStatus",
+        "ip address": "Get-NetIPAddress -AddressFamily IPv4 | Select-Object InterfaceAlias, IPAddress",
+        "disk space": "Get-PSDrive -PSProvider FileSystem | Select-Object Name, @{N='Used(GB)';E={[math]::Round($_.Used/1GB,2)}}, @{N='Free(GB)';E={[math]::Round($_.Free/1GB,2)}}",
+        "list processes": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name, CPU, WorkingSet",
+        "current time": "Get-Date -Format 'hh:mm:ss tt'",
+        "current date": "Get-Date -Format 'dddd, MMMM dd, yyyy'",
+        "lock screen": "rundll32.exe user32.dll,LockWorkStation",
+        "empty recycle bin": "Clear-RecycleBin -Force -ErrorAction SilentlyContinue",
+        "screenshot": "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Screen]::PrimaryScreen | ForEach-Object { $bitmap = New-Object System.Drawing.Bitmap($_.Bounds.Width, $_.Bounds.Height); $graphics = [System.Drawing.Graphics]::FromImage($bitmap); $graphics.CopyFromScreen($_.Bounds.Location, [System.Drawing.Point]::Empty, $_.Bounds.Size); $path = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'screenshot_' + (Get-Date -Format 'yyyyMMdd_HHmmss') + '.png'); $bitmap.Save($path); Write-Output \"Screenshot saved to $path\" }",
+        "increase volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]175)",
+        "decrease volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]174)",
+        "mute volume": "(New-Object -ComObject WScript.Shell).SendKeys([char]173)"
+    },
+    "parameterized": {
+        "search": {
+            "description": "Search Google for anything",
+            "template": "Start-Process chrome 'https://www.google.com/search?q={query}'",
+            "extract_after": "search"
+        },
+        "open website": {
+            "description": "Open any website by name",
+            "template": "Start-Process chrome 'https://{query}'",
+            "extract_after": "open website"
+        },
+        "search youtube": {
+            "description": "Search YouTube for videos",
+            "template": "Start-Process chrome 'https://www.youtube.com/results?search_query={query}'",
+            "extract_after": "search youtube"
+        },
+        "open folder": {
+            "description": "Open a folder by path",
+            "template": "Start-Process explorer '{query}'",
+            "extract_after": "open folder"
+        }
+    },
+    "chains": {
+        "open vscode and my react project": {
+            "description": "Open VS Code with a React project",
+            "steps": [
+                "Start-Process code",
+                "Start-Sleep -Seconds 2",
+                "code 'E:\\Projects\\react-app'"
+            ]
+        },
+        "start my backend": {
+            "description": "Navigate to backend folder and start it",
+            "steps": [
+                "Start-Process powershell '-NoExit -Command cd E:\\Projects\\backend; npm start'"
+            ]
+        },
+        "start my frontend": {
+            "description": "Navigate to frontend folder and start it",
+            "steps": [
+                "Start-Process powershell '-NoExit -Command cd E:\\Projects\\frontend; npm start'"
+            ]
+        },
+        "start full stack": {
+            "description": "Start both backend and frontend servers",
+            "steps": [
+                "Start-Process powershell '-NoExit -Command cd E:\\Projects\\backend; npm start'",
+                "Start-Sleep -Seconds 3",
+                "Start-Process powershell '-NoExit -Command cd E:\\Projects\\frontend; npm start'"
+            ]
+        }
+    },
+    "developer": {
+        "run npm start": "Start-Process powershell '-NoExit -Command npm start'",
+        "run npm install": "Start-Process powershell '-NoExit -Command npm install'",
+        "pull latest from git": "git pull origin main",
+        "git status": "git status",
+        "open git bash": "Start-Process 'C:\\Program Files\\Git\\git-bash.exe'",
+        "kill port 3000": "Get-Process -Id (Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force",
+        "kill port 5000": "Get-Process -Id (Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force",
+        "kill port 8080": "Get-Process -Id (Get-NetTCPConnection -LocalPort 8080 -ErrorAction SilentlyContinue).OwningProcess -ErrorAction SilentlyContinue | Stop-Process -Force",
+        "show running ports": "Get-NetTCPConnection -State Listen | Select-Object LocalPort, OwningProcess | Sort-Object LocalPort",
+        "show node processes": "Get-Process -Name node -ErrorAction SilentlyContinue | Select-Object Id, CPU, WorkingSet",
+        "kill all node": "Stop-Process -Name node -Force -ErrorAction SilentlyContinue",
+        "open terminal here": "Start-Process powershell -ArgumentList '-NoExit'"
+    }
 }

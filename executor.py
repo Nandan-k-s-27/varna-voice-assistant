@@ -1,7 +1,11 @@
 """
-VARNA v1 - Safe PowerShell Executor
+VARNA v1.1 - Safe PowerShell Executor
 Runs ONLY whitelisted commands via subprocess.
 Never accepts raw user text — all input must pass through the Parser first.
+
+Supports:
+  - Single command execution (v1.0 compatible)
+  - Sequential chain execution (v1.1)
 """
 
 import subprocess
@@ -58,3 +62,43 @@ class Executor:
         except Exception as exc:
             log.error("Unexpected execution error: %s", exc)
             return False, str(exc)
+
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def run_chain(commands: list[str]) -> tuple[bool, str]:
+        """
+        Execute a sequence of PowerShell commands one by one.
+
+        Stops on the first failure and reports which step failed.
+        Collects output from all successful steps.
+
+        Args:
+            commands: List of PowerShell command strings (already validated).
+
+        Returns:
+            (all_succeeded: bool, combined_output_or_error: str)
+        """
+        if not commands:
+            log.warning("Empty chain — skipping execution.")
+            return False, "No commands provided."
+
+        log.info("Executing chain of %d steps.", len(commands))
+        all_output: list[str] = []
+
+        for i, cmd in enumerate(commands, start=1):
+            log.info("  Chain step %d/%d: %s", i, len(commands), cmd)
+
+            success, output = Executor.run(cmd)
+
+            if success:
+                if output and output != "Command executed successfully.":
+                    all_output.append(f"[Step {i}] {output}")
+                log.info("  Step %d succeeded.", i)
+            else:
+                error_msg = f"Chain failed at step {i}/{len(commands)}: {output}"
+                log.warning(error_msg)
+                return False, error_msg
+
+        combined = "\n".join(all_output) if all_output else "All steps completed successfully."
+        log.info("Chain completed successfully (%d steps).", len(commands))
+        return True, combined
