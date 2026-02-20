@@ -1,10 +1,18 @@
 """
-VARNA v2.0 - Offline Speech-to-Text Engine
+VARNA v2.1 - Offline Speech-to-Text Engine
 Provides fully offline STT using either Whisper or Vosk.
 
 Supported engines:
   - faster-whisper: Higher accuracy, requires more resources (~1-2s latency)
   - vosk: Lower latency (<500ms), lightweight, works well on CPU
+
+Performance modes:
+  - ultra_fast: Whisper tiny model, lowest latency
+  - balanced: Whisper base model, good balance (default)
+  - accuracy: Whisper small model, best accuracy
+
+Dynamic switching:
+  - Auto-switches to tiny model when CPU > 70%
 
 Usage:
     from stt_engine import create_stt_engine
@@ -17,14 +25,31 @@ import os
 import io
 import wave
 import tempfile
+import threading
 from abc import ABC, abstractmethod
 from pathlib import Path
+from enum import Enum
 from utils.logger import get_logger
 
 log = get_logger(__name__)
 
 # Load config
 _CONFIG_PATH = Path(__file__).parent / "config.json"
+
+
+class PerformanceMode(Enum):
+    """STT performance modes."""
+    ULTRA_FAST = "ultra_fast"   # Whisper tiny
+    BALANCED = "balanced"       # Whisper base (default)
+    ACCURACY = "accuracy"       # Whisper small
+
+
+# Performance mode to Whisper model mapping
+_MODE_MODEL_MAP = {
+    PerformanceMode.ULTRA_FAST: "tiny",
+    PerformanceMode.BALANCED: "base",
+    PerformanceMode.ACCURACY: "small",
+}
 
 
 def _load_config() -> dict:
@@ -35,6 +60,17 @@ def _load_config() -> dict:
     except FileNotFoundError:
         log.warning("config.json not found, using defaults")
         return {}
+
+
+def _get_cpu_usage() -> float:
+    """Get current CPU usage percentage."""
+    try:
+        import psutil
+        return psutil.cpu_percent(interval=0.1)
+    except ImportError:
+        return 0.0
+    except Exception:
+        return 0.0
 
 
 class STTEngine(ABC):
@@ -69,39 +105,81 @@ class WhisperEngine(STTEngine):
       - small: ~500MB, better accuracy
       - medium: ~1.5GB, high accuracy
       - large-v2: ~3GB, best accuracy
+
+    Performance Modes:
+      - ultra_fast: Uses tiny model
+      - balanced: Uses base model (default)
+      - accuracy: Uses small model
+
+    Auto-Switch:
+      - When auto_switch=True, dynamically switches to tiny model when CPU > 70%
     """
 
-    def __init__(self, model_name: str = "base", compute_type: str = "int8"):
+    def __init__(
+        self,
+        model_name: str = "base",
+        compute_type: str = "int8",
+        performance_mode: PerformanceMode | str | None = None,
+        auto_switch: bool = False
+    ):
         """
         Initialize the Whisper engine.
 
         Args:
             model_name: Whisper model size (tiny/base/small/medium/large-v2).
             compute_type: Quantization type (int8/float16/float32).
+            performance_mode: Performance mode (overrides model_name if set).
+            auto_switch: If True, auto-switch to tiny when CPU > 70%.
         """
-        self.model_name = model_name
+        # Handle performance mode
+        if performance_mode is not None:
+            if isinstance(performance_mode, str):
+                performance_mode = PerformanceMode(performance_mode)
+            self.performance_mode = performance_mode
+            self.model_name = _MODE_MODEL_MAP[performance_mode]
+        else:
+            self.performance_mode = None
+            self.model_name = model_name
+
         self.compute_type = compute_type
+        self.auto_switch = auto_switch
         self.model = None
+        self._models_cache: dict[str, object] = {}  # Cache loaded models
         self._initialized = False
+        self._lock = threading.Lock()
+        self._current_model_name = self.model_name
 
         self._load_model()
 
-    def _load_model(self) -> None:
+    def _load_model(self, model_name: str | None = None) -> None:
         """Load the Whisper model."""
+        target_model = model_name or self.model_name
+        
+        # Check cache first
+        if target_model in self._models_cache:
+            self.model = self._models_cache[target_model]
+            self._current_model_name = target_model
+            log.debug("Using cached Whisper model '%s'", target_model)
+            return
+
         try:
             from faster_whisper import WhisperModel
 
             log.info("Loading Whisper model '%s' (compute_type=%s)...",
-                     self.model_name, self.compute_type)
+                     target_model, self.compute_type)
 
             # Use CPU with int8 quantization for best compatibility
-            self.model = WhisperModel(
-                self.model_name,
+            model = WhisperModel(
+                target_model,
                 device="cpu",
                 compute_type=self.compute_type,
                 download_root=str(Path(__file__).parent / "models" / "whisper")
             )
 
+            # Cache the model
+            self._models_cache[target_model] = model
+            self.model = model
+            self._current_model_name = target_model
             self._initialized = True
             log.info("Whisper model loaded successfully")
 
@@ -112,11 +190,32 @@ class WhisperEngine(STTEngine):
             log.error("Failed to load Whisper model: %s", e)
             self._initialized = False
 
+    def _check_auto_switch(self) -> None:
+        """Check CPU usage and switch models if needed."""
+        if not self.auto_switch:
+            return
+        
+        cpu_usage = _get_cpu_usage()
+        
+        with self._lock:
+            if cpu_usage > 70.0 and self._current_model_name != "tiny":
+                log.info("CPU usage %.1f%% > 70%%, switching to tiny model", cpu_usage)
+                self._load_model("tiny")
+            elif cpu_usage < 50.0 and self._current_model_name == "tiny":
+                # Switch back to configured model when CPU is low
+                if self._current_model_name != self.model_name:
+                    log.info("CPU usage %.1f%% < 50%%, switching back to %s", 
+                             cpu_usage, self.model_name)
+                    self._load_model(self.model_name)
+
     def transcribe(self, audio_data) -> str | None:
         """Transcribe audio using Whisper."""
         if not self._initialized or self.model is None:
             log.error("Whisper engine not initialized")
             return None
+
+        # Check if we need to auto-switch models based on CPU
+        self._check_auto_switch()
 
         try:
             # Convert AudioData to WAV bytes
@@ -408,9 +507,23 @@ def create_stt_engine(engine_type: str = None) -> STTEngine:
 
     if engine_type == "whisper":
         stt_config = config.get("stt", {})
+        perf_config = config.get("performance", {})
+        
+        # Get performance mode from config
+        perf_mode_str = perf_config.get("mode", "balanced")
+        auto_switch = perf_config.get("auto_switch", False)
+        
+        try:
+            perf_mode = PerformanceMode(perf_mode_str)
+        except ValueError:
+            log.warning("Invalid performance mode '%s', using balanced", perf_mode_str)
+            perf_mode = PerformanceMode.BALANCED
+        
         return WhisperEngine(
             model_name=stt_config.get("whisper_model", "base"),
-            compute_type=stt_config.get("compute_type", "int8")
+            compute_type=stt_config.get("compute_type", "int8"),
+            performance_mode=perf_mode,
+            auto_switch=auto_switch
         )
     elif engine_type == "vosk":
         stt_config = config.get("stt", {})

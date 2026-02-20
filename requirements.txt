@@ -1,4 +1,4 @@
-# VARNA v2.0 — Dependencies
+# VARNA v2.1 — Dependencies
 # Install with:  pip install -r requirements.txt
 
 # === Core Dependencies ===
@@ -24,6 +24,9 @@ faster-whisper>=1.0.0
 # === Enhanced NLP ===
 # Semantic matching for better command recognition
 sentence-transformers>=2.2.0
+
+# Faster fuzzy matching (10x faster than difflib)
+rapidfuzz>=3.0.0
 
 # === Optional Performance ===
 # watchdog>=3.0.0  # For incremental app scanning (optional)

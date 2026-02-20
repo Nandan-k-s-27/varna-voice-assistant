@@ -1,19 +1,28 @@
 """
-VARNA v2.0 - Enhanced Fuzzy Matcher
+VARNA v2.1 - Enhanced Fuzzy Matcher
 Advanced fuzzy string matching with phonetic support.
 
 Features:
-  - Standard fuzzy matching (difflib)
+  - Optimized fuzzy matching (rapidfuzz - 10x faster than difflib)
   - Phonetic matching (metaphone/soundex for pronunciation variants)
   - Levenshtein distance calculation
   - Adaptive thresholds based on input length
 """
 
-from difflib import get_close_matches, SequenceMatcher
+try:
+    from rapidfuzz import fuzz, process
+    _HAS_RAPIDFUZZ = True
+except ImportError:
+    from difflib import get_close_matches, SequenceMatcher
+    _HAS_RAPIDFUZZ = False
+
 from functools import lru_cache
 from utils.logger import get_logger
 
 log = get_logger(__name__)
+
+if not _HAS_RAPIDFUZZ:
+    log.warning("rapidfuzz not installed, using slower difflib. Install with: pip install rapidfuzz")
 
 # Phonetic encoding tables
 _METAPHONE_RULES = {
@@ -234,17 +243,34 @@ class FuzzyMatcher:
         if cache_key in self._cache:
             return self._cache[cache_key]
         
-        # Use difflib for fuzzy matching
-        matches = get_close_matches(text, candidates, n=1, cutoff=threshold)
-        
-        if matches:
-            # Calculate actual similarity score
-            score = SequenceMatcher(None, text, matches[0]).ratio()
-            result = (matches[0], score)
-            log.info("Fuzzy match: '%s' → '%s' (score=%.2f)", text, matches[0], score)
+        if _HAS_RAPIDFUZZ:
+            # Use rapidfuzz for faster matching (10x faster than difflib)
+            result = process.extractOne(
+                text, 
+                candidates,
+                scorer=fuzz.ratio,
+                score_cutoff=threshold * 100  # rapidfuzz uses 0-100 scale
+            )
+            
+            if result:
+                match_text, score, _ = result
+                score = score / 100.0  # Convert back to 0-1 scale
+                result = (match_text, score)
+                log.info("Fuzzy match: '%s' → '%s' (score=%.2f)", text, match_text, score)
+            else:
+                result = None
+                log.debug("No fuzzy match for '%s' (threshold=%.2f)", text, threshold)
         else:
-            result = None
-            log.debug("No fuzzy match for '%s' (threshold=%.2f)", text, threshold)
+            # Fallback to difflib
+            matches = get_close_matches(text, candidates, n=1, cutoff=threshold)
+            
+            if matches:
+                score = SequenceMatcher(None, text, matches[0]).ratio()
+                result = (matches[0], score)
+                log.info("Fuzzy match: '%s' → '%s' (score=%.2f)", text, matches[0], score)
+            else:
+                result = None
+                log.debug("No fuzzy match for '%s' (threshold=%.2f)", text, threshold)
         
         # Cache result
         self._cache[cache_key] = result
@@ -272,12 +298,26 @@ class FuzzyMatcher:
         if not text or not candidates:
             return []
         
-        matches = get_close_matches(text, candidates, n=n, cutoff=threshold)
-        
-        results = []
-        for match in matches:
-            score = SequenceMatcher(None, text, match).ratio()
-            results.append((match, score))
+        if _HAS_RAPIDFUZZ:
+            # Use rapidfuzz extract for multiple matches
+            matches = process.extract(
+                text, 
+                candidates,
+                scorer=fuzz.ratio,
+                limit=n,
+                score_cutoff=threshold * 100
+            )
+            
+            # Convert to (match, score) format with 0-1 scale
+            results = [(match_text, score / 100.0) for match_text, score, _ in matches]
+        else:
+            # Fallback to difflib
+            matches = get_close_matches(text, candidates, n=n, cutoff=threshold)
+            
+            results = []
+            for match in matches:
+                score = SequenceMatcher(None, text, match).ratio()
+                results.append((match, score))
         
         return sorted(results, key=lambda x: -x[1])
     

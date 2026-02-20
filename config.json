@@ -1,5 +1,5 @@
 {
-    "version": "2.0",
+    "version": "2.1",
     "stt": {
         "engine": "whisper",
         "whisper_model": "base",
@@ -16,7 +16,9 @@
         "fuzzy_threshold": 0.70,
         "semantic_threshold": 0.65,
         "phonetic_enabled": true,
-        "use_semantic_fallback": true
+        "use_semantic_fallback": true,
+        "use_grammar_patterns": true,
+        "min_confidence": 0.45
     },
     "listener": {
         "energy_threshold": 300,
@@ -26,10 +28,15 @@
         "calibration_duration": 1.0
     },
     "performance": {
+        "mode": "balanced",
+        "auto_switch": true,
+        "cpu_threshold_high": 70,
+        "cpu_threshold_low": 50,
         "cache_parse_results": true,
         "parse_cache_size": 50,
-        "lazy_load_models": true,
-        "preload_common_apps": true
+        "lazy_load_models": false,
+        "preload_common_apps": true,
+        "prewarm_on_startup": true
     },
     "wake_words": [
         "hey varna",
