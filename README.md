@@ -40,6 +40,7 @@
 - **Numbered Tab Navigation**: `"go to tab 3"` / `"first tab"` → Ctrl+N.
 - **Smart Scrolling**: `"scroll down"` / `"scroll little up"` / `"scroll a lot down"` / `"scroll to top"`. Sensitivity-aware.
 - **Browser/Explorer Navigation**: `"go back"` / `"go forward"` / `"refresh"` — works in browsers AND File Explorer.
+- **Drive & Folder Navigation**: `"go to D drive"` / `"go to this PC"` / `"go to downloads"` — opens drives and known folders.
 - **Search Result Clicking**: `"open result 1"` / `"open first result"` — Tab-navigates to Nth search result.
 - **Clipboard History**: `"open clipboard"` (Win+V) / `"paste 3rd item"` — access Windows clipboard history.
 - **Key Press Commands**: `"press enter"` / `"send it"` / `"undo"` / `"redo"` / `"copy this"` / `"paste it"`.
@@ -101,7 +102,7 @@ Speak commands naturally — VARNA now understands flexible language.
 | **Key Press** 🆕 | "press enter" / "send it" | Press Enter to send/search |
 | **System** | "shutdown system" | Shuts down (with confirmation) |
 
-For the full list of **155+ commands**, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **160+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
@@ -153,4 +154,4 @@ For the full list of **155+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.2 | Context tracking, confirmation, scheduler, monitoring |
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
 | v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |
-| v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, browser nav, clipboard history, WhatsApp nav, 155+ commands |
+| v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, drive/folder nav, clipboard history, WhatsApp nav, 160+ commands |

@@ -99,7 +99,8 @@ class ParseResult:
     scroll_amount: int = 5                # click count
     scroll_special: str | None = None     # "top" | "bottom" | "page_up" | "page_down"
     is_navigation: bool = False           # browser/explorer nav
-    nav_action: str | None = None         # "back" | "forward" | "refresh" | "address_bar"
+    nav_action: str | None = None         # "back" | "forward" | "refresh" | "address_bar" | "drive" | "known_folder" | "this_pc"
+    nav_target: str | None = None         # drive letter or folder path
     is_result_click: bool = False         # open search result by number
     result_number: int = 1                # which result (1-based)
     is_clipboard_history: bool = False    # clipboard history command
@@ -658,6 +659,44 @@ class Parser:
         if text in nav_map:
             return ParseResult(matched_key=text, is_navigation=True,
                                nav_action=nav_map[text])
+
+        # Drive navigation: "go to D drive" / "open D drive" / "open drive D"
+        m = re.match(r"^(?:go to|open|navigate to)\s+([a-z])\s+drive$", text)
+        if m:
+            drive = m.group(1).upper()
+            return ParseResult(matched_key=f"go to {drive} drive",
+                               is_navigation=True, nav_action="drive",
+                               nav_target=f"{drive}:\\")
+
+        m = re.match(r"^(?:go to|open|navigate to)\s+drive\s+([a-z])$", text)
+        if m:
+            drive = m.group(1).upper()
+            return ParseResult(matched_key=f"go to drive {drive}",
+                               is_navigation=True, nav_action="drive",
+                               nav_target=f"{drive}:\\")
+
+        # This PC / My Computer
+        if text in ("go to this pc", "open this pc", "this pc",
+                    "go to my computer", "open my computer", "my computer"):
+            return ParseResult(matched_key=text, is_navigation=True,
+                               nav_action="this_pc")
+
+        # Known folders
+        known_folders = {
+            "desktop": "Desktop",
+            "downloads": "Downloads",
+            "documents": "Documents",
+            "pictures": "Pictures",
+            "music": "Music",
+            "videos": "Videos",
+        }
+        m = re.match(r"^(?:go to|open|navigate to)\s+(desktop|downloads|documents|pictures|music|videos)$", text)
+        if m:
+            folder_key = m.group(1)
+            return ParseResult(matched_key=f"go to {folder_key}",
+                               is_navigation=True, nav_action="known_folder",
+                               nav_target=known_folders[folder_key])
+
         return ParseResult()
 
     # ------------------------------------------------------------------ #

@@ -756,12 +756,14 @@ def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
 
 def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Handle browser / file explorer navigation."""
+    """Handle browser / file explorer navigation including drives and folders."""
     if not _HAS_AUTO:
         speaker.say("Navigation requires pyautogui.")
         return
 
     action = result.nav_action
+
+    # Keyboard shortcut-based navigation
     nav_shortcuts = {
         "back": (("alt", "left"), "Went back"),
         "forward": (("alt", "right"), "Went forward"),
@@ -779,6 +781,47 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         speaker.say(msg)
         tray.update_result(f"🧭 {msg}")
         log.info("Navigation: %s", action)
+        return
+
+    # Drive navigation: open D:\, E:\, etc.
+    if action == "drive":
+        target = result.nav_target  # e.g. "D:\\"
+        drive_letter = target[0]
+        import os
+        if os.path.exists(target):
+            import subprocess as _sp
+            _sp.Popen(["explorer.exe", target])
+            speaker.say(f"Opened {drive_letter} drive")
+            tray.update_result(f"📂 {drive_letter}: drive")
+            log.info("Navigation: opened drive %s", target)
+        else:
+            speaker.say(f"Drive {drive_letter} not found")
+            tray.update_result(f"❌ Drive {drive_letter} not found")
+        return
+
+    # This PC
+    if action == "this_pc":
+        import subprocess as _sp
+        _sp.Popen(["explorer.exe", "shell:MyComputerFolder"])
+        speaker.say("Opened This PC")
+        tray.update_result("📂 This PC")
+        log.info("Navigation: This PC")
+        return
+
+    # Known folders: Desktop, Downloads, Documents, etc.
+    if action == "known_folder":
+        import os, subprocess as _sp
+        folder_name = result.nav_target  # e.g. "Downloads"
+        folder_path = os.path.join(os.path.expanduser("~"), folder_name)
+        if os.path.exists(folder_path):
+            _sp.Popen(["explorer.exe", folder_path])
+            speaker.say(f"Opened {folder_name}")
+            tray.update_result(f"📂 {folder_name}")
+            log.info("Navigation: opened %s", folder_path)
+        else:
+            speaker.say(f"{folder_name} folder not found")
+            tray.update_result(f"❌ {folder_name} not found")
+        return
 
 
 def _handle_result_click(result: ParseResult, speaker: Speaker, tray: TrayUI):

@@ -317,6 +317,10 @@ Say multiple commands in one sentence:
 | 134 | refresh / reload | "refresh page" | F5 |
 | 135 | go to address bar | "address bar" | Ctrl+L |
 | 136 | navigate back/forward | "navigate back" | Alt+Left/Right |
+| 137 | go to `{letter}` drive | "go to D drive" | Opens D:\ in File Explorer |
+| 138 | open drive `{letter}` | "open drive E" | Opens E:\ in File Explorer |
+| 139 | go to this PC | "go to this pc" | Opens This PC (My Computer) |
+| 140 | go to `{folder}` | "go to downloads" | Opens known folder (Desktop/Downloads/Documents/Pictures/Music/Videos) |
 
 ---
 
@@ -396,8 +400,8 @@ Say multiple commands in one sentence:
 | **Text Selection** 🆕 | **7** | **v1.5** |
 | **Numbered Tabs** 🆕 | **3+** | **v1.5** |
 | **Smart Scrolling** 🆕 | **8** | **v1.5** |
-| **Browser Navigation** 🆕 | **6** | **v1.5** |
+| **Browser/Explorer Nav** 🆕 | **10** | **v1.5** |
 | **Search Results** 🆕 | **4** | **v1.5** |
 | **Clipboard History** 🆕 | **5** | **v1.5** |
 | **WhatsApp Nav** 🆕 | **5** | **v1.5** |
-| **Total** | **~155+** | |
+| **Total** | **~160+** | |
