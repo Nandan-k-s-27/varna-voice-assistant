@@ -783,44 +783,86 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         log.info("Navigation: %s", action)
         return
 
-    # Drive navigation: open D:\, E:\, etc.
+    # Drive navigation: navigate in SAME window via address bar
     if action == "drive":
         target = result.nav_target  # e.g. "D:\\"
         drive_letter = target[0]
         import os
         if os.path.exists(target):
-            import subprocess as _sp
-            _sp.Popen(["explorer.exe", target])
-            speaker.say(f"Opened {drive_letter} drive")
+            pyautogui.hotkey("ctrl", "l")      # focus address bar
+            time.sleep(0.3)
+            pyautogui.typewrite(target, interval=0.03)
+            time.sleep(0.1)
+            pyautogui.press("enter")
+            speaker.say(f"Navigated to {drive_letter} drive")
             tray.update_result(f"📂 {drive_letter}: drive")
-            log.info("Navigation: opened drive %s", target)
+            log.info("Navigation: drive %s (same window)", target)
         else:
             speaker.say(f"Drive {drive_letter} not found")
             tray.update_result(f"❌ Drive {drive_letter} not found")
         return
 
-    # This PC
+    # This PC — navigate in same window
     if action == "this_pc":
-        import subprocess as _sp
-        _sp.Popen(["explorer.exe", "shell:MyComputerFolder"])
-        speaker.say("Opened This PC")
+        pyautogui.hotkey("ctrl", "l")          # focus address bar
+        time.sleep(0.3)
+        pyautogui.typewrite("This PC", interval=0.03)
+        time.sleep(0.1)
+        pyautogui.press("enter")
+        speaker.say("Navigated to This PC")
         tray.update_result("📂 This PC")
-        log.info("Navigation: This PC")
+        log.info("Navigation: This PC (same window)")
         return
 
-    # Known folders: Desktop, Downloads, Documents, etc.
+    # Known folders: Desktop, Downloads, Documents, etc. — same window
     if action == "known_folder":
-        import os, subprocess as _sp
+        import os
         folder_name = result.nav_target  # e.g. "Downloads"
         folder_path = os.path.join(os.path.expanduser("~"), folder_name)
         if os.path.exists(folder_path):
-            _sp.Popen(["explorer.exe", folder_path])
-            speaker.say(f"Opened {folder_name}")
+            pyautogui.hotkey("ctrl", "l")      # focus address bar
+            time.sleep(0.3)
+            pyautogui.typewrite(folder_path, interval=0.02)
+            time.sleep(0.1)
+            pyautogui.press("enter")
+            speaker.say(f"Navigated to {folder_name}")
             tray.update_result(f"📂 {folder_name}")
-            log.info("Navigation: opened %s", folder_path)
+            log.info("Navigation: %s (same window)", folder_path)
         else:
             speaker.say(f"{folder_name} folder not found")
             tray.update_result(f"❌ {folder_name} not found")
+        return
+
+    # Open/select a subfolder by name in current File Explorer
+    if action == "open_folder":
+        folder_name = result.nav_target
+        # Type the folder name — File Explorer auto-jumps to matching item
+        # First click on the file list area to ensure it has focus
+        pyautogui.press("escape")
+        time.sleep(0.1)
+        # Press F5 to refresh focus to file list, then type to jump
+        pyautogui.press("f6")  # cycles focus; in Explorer, F6 → file list
+        time.sleep(0.2)
+        # Type folder name — Explorer jumps to closest match
+        pyautogui.typewrite(folder_name, interval=0.05)
+        time.sleep(0.3)
+        pyautogui.press("enter")               # open the selected folder
+        speaker.say(f"Opened {folder_name}")
+        tray.update_result(f"📂 → {folder_name}")
+        log.info("Navigation: open folder '%s'", folder_name)
+        return
+
+    # File Explorer search box
+    if action == "explorer_search":
+        query = result.nav_target
+        pyautogui.hotkey("ctrl", "e")          # focus search box
+        time.sleep(0.4)
+        pyautogui.typewrite(query, interval=0.04)
+        time.sleep(0.2)
+        pyautogui.press("enter")
+        speaker.say(f"Searching for {query}")
+        tray.update_result(f"🔍 Search: {query}")
+        log.info("Navigation: explorer search '%s'", query)
         return
 
 

@@ -632,10 +632,15 @@ class Parser:
     def _match_navigation(self, text: str) -> ParseResult:
         """
         Match browser / file explorer navigation:
-          "go back"          → Alt+Left
-          "go forward"       → Alt+Right
-          "refresh page"     → F5
-          "go to address bar" → Ctrl+L
+          "go back"             → Alt+Left
+          "go forward"          → Alt+Right
+          "refresh page"        → F5
+          "go to address bar"   → Ctrl+L
+          "go to D drive"       → navigate in same window
+          "go to this pc"       → This PC
+          "go to downloads"     → known folder
+          "open folder pgcet"   → navigate into subfolder
+          "search for X"        → File Explorer search box
         """
         nav_map = {
             "go back": "back",
@@ -696,6 +701,35 @@ class Parser:
             return ParseResult(matched_key=f"go to {folder_key}",
                                is_navigation=True, nav_action="known_folder",
                                nav_target=known_folders[folder_key])
+
+        # Open/select a folder by name in current File Explorer window
+        # "open folder pgcet" / "go to folder projects" / "select pgcet folder"
+        m = re.match(r"^(?:open|go to|navigate to)\s+(?:folder\s+)(.+)$", text)
+        if m:
+            folder = m.group(1).strip()
+            # Guard: don't match known nav commands already handled above
+            if folder not in ("this pc", "my computer") and "drive" not in folder:
+                return ParseResult(matched_key=f"open folder {folder}",
+                                   is_navigation=True, nav_action="open_folder",
+                                   nav_target=folder)
+
+        m = re.match(r"^select\s+(.+?)\s+folder$", text)
+        if m:
+            folder = m.group(1).strip()
+            return ParseResult(matched_key=f"open folder {folder}",
+                               is_navigation=True, nav_action="open_folder",
+                               nav_target=folder)
+
+        # File Explorer search: "search for X" / "search X in explorer"
+        # "find X here" / "search here for X"
+        m = re.match(r"^search\s+(?:for\s+)?(.+?)(?:\s+in\s+explorer|\s+here)?$", text)
+        if m:
+            query = m.group(1).strip()
+            # Guard: don't match generic "search X" that should go to browser
+            if text.endswith("in explorer") or text.endswith("here") or text.startswith("search for "):
+                return ParseResult(matched_key=f"search explorer {query}",
+                                   is_navigation=True, nav_action="explorer_search",
+                                   nav_target=query)
 
         return ParseResult()
 
