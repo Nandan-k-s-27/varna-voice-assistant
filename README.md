@@ -30,15 +30,19 @@
 - **File Search**: `"find PDF downloaded yesterday"` with type + date filters.
 - **System Tray UI**: Floating overlay showing mic status, last command, result.
 
-### v1.5 — Universal App Control
-- **Open ANY App**: `"open whatsapp"` / `"open spotify"` / `"open telegram"` — scans your entire PC.
+### v1.5 — Universal App Control + Advanced Interactions
+- **Open ANY App**: `"open whatsapp"` / `"open spotify"` — scans your entire PC.
   - Scans Start Menu shortcuts, Program Files, AppData, and UWP Store apps.
-  - Auto-builds searchable index cached in `apps.json`.
   - Fuzzy matches speech errors: `"open watsapp"` → finds WhatsApp.
-  - If multiple matches → suggests similar apps.
 - **Close ANY App**: `"close whatsapp"` → finds running process via `psutil` and terminates.
-- **App Management**: `"scan apps"` to rebuild index. `"list installed apps"` to see all.
-- **No hardcoding**: Works with any installed .exe or UWP app.
+- **App Management**: `"scan apps"` / `"list installed apps"`.
+- **Text Selection**: `"select good"` → finds and highlights exact word. `"select line"` / `"select next 3 words"` / `"go to line 10"`.
+- **Numbered Tab Navigation**: `"go to tab 3"` / `"first tab"` → Ctrl+N.
+- **Smart Scrolling**: `"scroll down"` / `"scroll little up"` / `"scroll a lot down"` / `"scroll to top"`. Sensitivity-aware.
+- **Browser/Explorer Navigation**: `"go back"` / `"go forward"` / `"refresh"` — works in browsers AND File Explorer.
+- **Search Result Clicking**: `"open result 1"` / `"open first result"` — Tab-navigates to Nth search result.
+- **Clipboard History**: `"open clipboard"` (Win+V) / `"paste 3rd item"` — access Windows clipboard history.
+- **Key Press Commands**: `"press enter"` / `"send it"` / `"undo"` / `"redo"` / `"copy this"` / `"paste it"`.
 
 ### v1.4 — Smart Application Control + Natural Parsing
 - **Window Intelligence**: Smart open (restores if minimized, focuses if running, launches if not).
@@ -88,13 +92,15 @@ Speak commands naturally — VARNA now understands flexible language.
 | **NLP** 🆕 | "can you open notepad" | Strips fillers → opens Notepad |
 | **Chain** 🆕 | "open edge and search React" | Opens Edge, then searches |
 | **Search** | "search React hooks" | In-tab if browser active, else new tab |
-| **Clipboard** | "read clipboard" | Speaks clipboard contents |
-| **Screenshot** | "screenshot as ReactBug" | Named screenshot to Desktop |
-| **File Search** | "find PDF yesterday" | Searches common folders |
-| **Macros** | "whenever I say dev mode do open vscode and open chrome" | Saves macro |
+| **Selection** 🆕 | "select good" | Finds and highlights the word |
+| **Scroll** 🆕 | "scroll little down" | Sensitivity-aware scrolling |
+| **Navigate** 🆕 | "go back" / "go forward" | Alt+Left/Right in browser/explorer |
+| **Result** 🆕 | "open result 1" | Opens first search result |
+| **Clipboard** 🆕 | "paste 3rd item" | Pastes from clipboard history |
+| **Key Press** 🆕 | "press enter" / "send it" | Press Enter to send/search |
 | **System** | "shutdown system" | Shuts down (with confirmation) |
 
-For the full list of **115+ commands**, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **150+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
@@ -146,4 +152,4 @@ For the full list of **115+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.2 | Context tracking, confirmation, scheduler, monitoring |
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
 | v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |
-| v1.5 | **Universal App Manager** — open/close ANY installed app, auto-scan, fuzzy match, UWP support |
+| v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, browser nav, clipboard history, 150+ commands |

@@ -89,6 +89,23 @@ class ParseResult:
     close_target: str | None = None        # app name to close
     is_key_press: bool = False             # press a keyboard key
     key_name: str | None = None            # "enter" | "escape" | "tab" | "backspace" | "delete"
+    # v1.5 polish
+    is_selection: bool = False             # text selection command
+    selection_action: str | None = None    # "select_word_name" | "select_line" | "select_word" | "select_next" | "go_to_line"
+    selection_target: str | None = None    # word name or line number
+    selection_count: int = 1               # how many words to select
+    is_scroll: bool = False               # scroll command
+    scroll_direction: str | None = None   # "up" | "down"
+    scroll_amount: int = 5                # click count
+    scroll_special: str | None = None     # "top" | "bottom" | "page_up" | "page_down"
+    is_navigation: bool = False           # browser/explorer nav
+    nav_action: str | None = None         # "back" | "forward" | "refresh" | "address_bar"
+    is_result_click: bool = False         # open search result by number
+    result_number: int = 1                # which result (1-based)
+    is_clipboard_history: bool = False    # clipboard history command
+    clipboard_action: str | None = None   # "open" | "paste_nth"
+    clipboard_index: int = 1              # which clipboard item (1-based)
+    tab_number: int | None = None         # numbered tab (1-9)
 
     @property
     def matched(self) -> bool:
@@ -228,8 +245,33 @@ class Parser:
             key = key_map[text]
             return ParseResult(matched_key=text, is_key_press=True, key_name=key)
 
-        # 6. Tab control (v1.4)
+        # 6. Tab control (v1.4) — including numbered tabs
         result = self._match_tab(text)
+        if result.matched:
+            return result
+
+        # 6.5 Text selection (v1.5 polish)
+        result = self._match_selection(text)
+        if result.matched:
+            return result
+
+        # 6.6 Scrolling (v1.5 polish)
+        result = self._match_scroll(text)
+        if result.matched:
+            return result
+
+        # 6.7 Browser/Explorer navigation (v1.5 polish)
+        result = self._match_navigation(text)
+        if result.matched:
+            return result
+
+        # 6.8 Open search result (v1.5 polish)
+        result = self._match_result_click(text)
+        if result.matched:
+            return result
+
+        # 6.9 Clipboard history (v1.5 polish)
+        result = self._match_clipboard_history(text)
         if result.matched:
             return result
 
@@ -448,6 +490,232 @@ class Parser:
         }
         if text in tab_map:
             return ParseResult(matched_key=text, is_tab=True, tab_action=tab_map[text])
+
+        # Numbered tab: "go to tab 3", "tab 5", "switch to tab 1", "first tab", "second tab"
+        m = re.match(r"^(?:go to |switch to )?tab\s+(\d)$", text)
+        if m:
+            n = int(m.group(1))
+            if 1 <= n <= 9:
+                return ParseResult(matched_key=f"tab {n}", is_tab=True,
+                                   tab_action="numbered", tab_number=n)
+
+        # Ordinal: "first tab", "second tab", etc.
+        ordinal_map = {
+            "first tab": 1, "1st tab": 1,
+            "second tab": 2, "2nd tab": 2,
+            "third tab": 3, "3rd tab": 3,
+            "fourth tab": 4, "4th tab": 4,
+            "fifth tab": 5, "5th tab": 5,
+            "sixth tab": 6, "6th tab": 6,
+            "seventh tab": 7, "7th tab": 7,
+            "eighth tab": 8, "8th tab": 8,
+            "ninth tab": 9, "9th tab": 9,
+        }
+        if text in ordinal_map:
+            n = ordinal_map[text]
+            return ParseResult(matched_key=text, is_tab=True,
+                               tab_action="numbered", tab_number=n)
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_selection(self, text: str) -> ParseResult:
+        """
+        Match text selection commands:
+          "select good"           → find and select the word
+          "select line"           → select current line
+          "select word"           → select current word
+          "select next 3 words"   → select next N words
+          "go to line 10"         → jump to line
+        """
+        # "go to line N"
+        m = re.match(r"^go to line\s+(\d+)$", text)
+        if m:
+            line_num = m.group(1)
+            return ParseResult(matched_key=f"go to line {line_num}",
+                               is_selection=True, selection_action="go_to_line",
+                               selection_target=line_num)
+
+        # "select line" / "select this line" / "select current line"
+        if text in ("select line", "select this line", "select current line"):
+            return ParseResult(matched_key=text, is_selection=True,
+                               selection_action="select_line")
+
+        # "select word" / "select this word" / "select current word"
+        if text in ("select word", "select this word", "select current word"):
+            return ParseResult(matched_key=text, is_selection=True,
+                               selection_action="select_word")
+
+        # "select next N words" / "select previous N words"
+        m = re.match(r"^select\s+(next|previous|prev|last)\s+(\d+)\s+words?$", text)
+        if m:
+            direction = "next" if m.group(1) == "next" else "prev"
+            count = int(m.group(2))
+            return ParseResult(matched_key=f"select {direction} {count} words",
+                               is_selection=True, selection_action=f"select_{direction}",
+                               selection_count=count)
+
+        # "select <word>" — find and select a specific word
+        m = re.match(r"^select\s+(.+)$", text)
+        if m:
+            target = m.group(1).strip()
+            # Avoid matching other select commands
+            if target not in ("all", "line", "word", "this line", "this word",
+                              "current line", "current word"):
+                return ParseResult(matched_key=f"select {target}",
+                                   is_selection=True, selection_action="select_word_name",
+                                   selection_target=target)
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_scroll(self, text: str) -> ParseResult:
+        """
+        Match scroll commands with sensitivity:
+          "scroll down"           → normal (5)
+          "scroll little down"    → small (2)
+          "scroll a lot down"     → big (15)
+          "scroll to top"         → Ctrl+Home
+          "page down"             → PageDown
+        """
+        # Special scrolls
+        special_map = {
+            "scroll to top": "top",
+            "scroll to the top": "top",
+            "go to top": "top",
+            "scroll to bottom": "bottom",
+            "scroll to the bottom": "bottom",
+            "go to bottom": "bottom",
+            "page down": "page_down",
+            "page up": "page_up",
+        }
+        if text in special_map:
+            return ParseResult(matched_key=text, is_scroll=True,
+                               scroll_special=special_map[text])
+
+        # Sensitivity-based scrolling
+        m = re.match(
+            r"^scroll\s+(?:(little|slightly|a little|a bit|bit)\s+)?(up|down)$",
+            text
+        )
+        if m:
+            modifier = m.group(1)
+            direction = m.group(2)
+            amount = 2 if modifier else 5
+            return ParseResult(matched_key=f"scroll {direction}",
+                               is_scroll=True, scroll_direction=direction,
+                               scroll_amount=amount)
+
+        m = re.match(
+            r"^scroll\s+(?:(a lot|way|much|fast|big)\s+)?(up|down)$",
+            text
+        )
+        if m and m.group(1):  # only if modifier present (otherwise normal scroll already matched)
+            direction = m.group(2)
+            return ParseResult(matched_key=f"scroll {direction} a lot",
+                               is_scroll=True, scroll_direction=direction,
+                               scroll_amount=15)
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_navigation(self, text: str) -> ParseResult:
+        """
+        Match browser / file explorer navigation:
+          "go back"          → Alt+Left
+          "go forward"       → Alt+Right
+          "refresh page"     → F5
+          "go to address bar" → Ctrl+L
+        """
+        nav_map = {
+            "go back": "back",
+            "go to previous page": "back",
+            "previous page": "back",
+            "back": "back",
+            "navigate back": "back",
+            "go forward": "forward",
+            "go to next page": "forward",
+            "next page": "forward",
+            "forward": "forward",
+            "navigate forward": "forward",
+            "refresh page": "refresh",
+            "refresh": "refresh",
+            "reload": "refresh",
+            "reload page": "refresh",
+            "go to address bar": "address_bar",
+            "address bar": "address_bar",
+            "focus address bar": "address_bar",
+        }
+        if text in nav_map:
+            return ParseResult(matched_key=text, is_navigation=True,
+                               nav_action=nav_map[text])
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_result_click(self, text: str) -> ParseResult:
+        """
+        Match search result opening:
+          "open result 1"       → Tab to first link → Enter
+          "open first result"   → same
+        """
+        # "open result N"
+        m = re.match(r"^open\s+result\s+(\d+)$", text)
+        if m:
+            n = int(m.group(1))
+            return ParseResult(matched_key=f"open result {n}",
+                               is_result_click=True, result_number=n)
+
+        # Ordinal: "open first result", "open second result"
+        ordinal_results = {
+            "open first result": 1, "open 1st result": 1,
+            "open second result": 2, "open 2nd result": 2,
+            "open third result": 3, "open 3rd result": 3,
+            "open fourth result": 4, "open 4th result": 4,
+            "open fifth result": 5, "open 5th result": 5,
+        }
+        if text in ordinal_results:
+            n = ordinal_results[text]
+            return ParseResult(matched_key=text, is_result_click=True,
+                               result_number=n)
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_clipboard_history(self, text: str) -> ParseResult:
+        """
+        Match clipboard history commands:
+          "open clipboard"          → Win+V
+          "show clipboard"          → Win+V
+          "paste 3rd item"          → Win+V → down × 2 → Enter
+          "paste third copied"      → same
+        """
+        if text in ("open clipboard", "show clipboard", "show clipboard history",
+                    "clipboard history", "open clipboard history"):
+            return ParseResult(matched_key=text, is_clipboard_history=True,
+                               clipboard_action="open")
+
+        # "paste Nth item" / "paste Nth copied"
+        m = re.match(r"^paste\s+(\d+)(?:st|nd|rd|th)?\s+(?:item|copied|content|entry)$", text)
+        if m:
+            n = int(m.group(1))
+            return ParseResult(matched_key=f"paste item {n}",
+                               is_clipboard_history=True,
+                               clipboard_action="paste_nth", clipboard_index=n)
+
+        # Ordinal: "paste first item", "paste second copied"
+        ordinal_paste = {
+            "paste first item": 1, "paste first copied": 1,
+            "paste second item": 2, "paste second copied": 2,
+            "paste third item": 3, "paste third copied": 3,
+            "paste fourth item": 4, "paste fourth copied": 4,
+            "paste fifth item": 5, "paste fifth copied": 5,
+            "paste last item": 1,  # most recent = first in history
+            "paste last copied": 1,
+        }
+        if text in ordinal_paste:
+            n = ordinal_paste[text]
+            return ParseResult(matched_key=text, is_clipboard_history=True,
+                               clipboard_action="paste_nth", clipboard_index=n)
+
         return ParseResult()
 
     # ------------------------------------------------------------------ #

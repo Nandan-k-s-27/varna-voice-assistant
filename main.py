@@ -219,6 +219,31 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         _handle_key_press(result, speaker, tray)
         return
 
+    # --- Text selection (v1.5 polish) ---
+    if result.is_selection:
+        _handle_selection(result, speaker, tray)
+        return
+
+    # --- Scrolling (v1.5 polish) ---
+    if result.is_scroll:
+        _handle_scroll(result, speaker, tray)
+        return
+
+    # --- Browser/Explorer navigation (v1.5 polish) ---
+    if result.is_navigation:
+        _handle_navigation(result, speaker, tray)
+        return
+
+    # --- Search result click (v1.5 polish) ---
+    if result.is_result_click:
+        _handle_result_click(result, speaker, tray)
+        return
+
+    # --- Clipboard history (v1.5 polish) ---
+    if result.is_clipboard_history:
+        _handle_clipboard_history(result, speaker, tray)
+        return
+
     # --- Monitor ---
     if result.is_monitor:
         _handle_monitor(result, monitor, speaker, tray)
@@ -521,6 +546,16 @@ def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
         "reopen": ("ctrl", "shift", "t"),
     }
 
+    # Numbered tab: Ctrl+N
+    if action == "numbered" and result.tab_number:
+        n = result.tab_number
+        pyautogui.hotkey("ctrl", str(n))
+        msg = f"Switched to tab {n}"
+        speaker.say(msg)
+        tray.update_result(f"📑 {msg}")
+        log.info("Tab action: go to tab %d", n)
+        return
+
     shortcut = tab_shortcuts.get(action)
     if shortcut:
         pyautogui.hotkey(*shortcut)
@@ -604,6 +639,197 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
     speaker.say(msg)
     tray.update_result(f"⌨️ {msg}")
     log.info("Key press: %s", key)
+
+
+def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle text selection commands using keyboard shortcuts."""
+    if not _HAS_AUTO:
+        speaker.say("Text selection requires pyautogui.")
+        return
+
+    action = result.selection_action
+
+    if action == "select_line":
+        pyautogui.press("home")
+        time.sleep(0.05)
+        pyautogui.hotkey("shift", "end")
+        speaker.say("Selected line")
+        tray.update_result("📝 Selected line")
+
+    elif action == "select_word":
+        # Double-click selects word in most editors; keyboard alternative:
+        pyautogui.hotkey("ctrl", "shift", "left")
+        speaker.say("Selected word")
+        tray.update_result("📝 Selected word")
+
+    elif action == "select_next":
+        count = result.selection_count
+        for _ in range(count):
+            pyautogui.hotkey("ctrl", "shift", "right")
+            time.sleep(0.05)
+        speaker.say(f"Selected next {count} words")
+        tray.update_result(f"📝 Selected next {count} words")
+
+    elif action == "select_prev":
+        count = result.selection_count
+        for _ in range(count):
+            pyautogui.hotkey("ctrl", "shift", "left")
+            time.sleep(0.05)
+        speaker.say(f"Selected previous {count} words")
+        tray.update_result(f"📝 Selected prev {count} words")
+
+    elif action == "go_to_line":
+        line_num = result.selection_target
+        # Ctrl+G works in Notepad, VS Code, most editors
+        pyautogui.hotkey("ctrl", "g")
+        time.sleep(0.3)
+        pyautogui.typewrite(str(line_num), interval=0.03)
+        time.sleep(0.1)
+        pyautogui.press("enter")
+        speaker.say(f"Jumped to line {line_num}")
+        tray.update_result(f"📝 Go to line {line_num}")
+
+    elif action == "select_word_name":
+        target = result.selection_target
+        # Use Ctrl+F (Find) to locate the word, which highlights it
+        pyautogui.hotkey("ctrl", "f")
+        time.sleep(0.3)
+        # Clear any existing search text
+        pyautogui.hotkey("ctrl", "a")
+        time.sleep(0.05)
+        pyautogui.typewrite(target, interval=0.03)
+        time.sleep(0.1)
+        pyautogui.press("enter")  # Find next — highlights the match
+        time.sleep(0.1)
+        pyautogui.press("escape")  # Close find dialog — selection stays
+        speaker.say(f"Selected {target}")
+        tray.update_result(f"📝 Selected: {target}")
+
+    log.info("Selection: %s", action)
+
+
+def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle scroll commands with sensitivity."""
+    if not _HAS_AUTO:
+        speaker.say("Scrolling requires pyautogui.")
+        return
+
+    special = result.scroll_special
+    if special:
+        if special == "top":
+            pyautogui.hotkey("ctrl", "Home")
+            msg = "Scrolled to top"
+        elif special == "bottom":
+            pyautogui.hotkey("ctrl", "End")
+            msg = "Scrolled to bottom"
+        elif special == "page_down":
+            pyautogui.press("pagedown")
+            msg = "Page down"
+        elif special == "page_up":
+            pyautogui.press("pageup")
+            msg = "Page up"
+        else:
+            msg = "Scrolled"
+        speaker.say(msg)
+        tray.update_result(f"📜 {msg}")
+        log.info("Scroll special: %s", special)
+        return
+
+    direction = result.scroll_direction
+    amount = result.scroll_amount
+
+    # pyautogui.scroll: positive = up, negative = down
+    clicks = amount if direction == "up" else -amount
+    pyautogui.scroll(clicks)
+
+    sensitivity = "a little" if amount <= 2 else ("a lot" if amount >= 15 else "")
+    msg = f"Scrolled {sensitivity} {direction}".strip()
+    msg = " ".join(msg.split())  # clean double spaces
+    speaker.say(msg)
+    tray.update_result(f"📜 {msg}")
+    log.info("Scroll: %s %d clicks", direction, amount)
+
+
+def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle browser / file explorer navigation."""
+    if not _HAS_AUTO:
+        speaker.say("Navigation requires pyautogui.")
+        return
+
+    action = result.nav_action
+    nav_shortcuts = {
+        "back": (("alt", "left"), "Went back"),
+        "forward": (("alt", "right"), "Went forward"),
+        "refresh": (("F5",), "Refreshed page"),
+        "address_bar": (("ctrl", "l"), "Focused address bar"),
+    }
+
+    shortcut_info = nav_shortcuts.get(action)
+    if shortcut_info:
+        keys, msg = shortcut_info
+        if len(keys) == 1:
+            pyautogui.press(keys[0])
+        else:
+            pyautogui.hotkey(*keys)
+        speaker.say(msg)
+        tray.update_result(f"🧭 {msg}")
+        log.info("Navigation: %s", action)
+
+
+def _handle_result_click(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Open a search result by number using Tab navigation."""
+    if not _HAS_AUTO:
+        speaker.say("Result clicking requires pyautogui.")
+        return
+
+    n = result.result_number
+    # In Google search results, Tab navigates through links.
+    # We press Tab multiple times to reach the Nth result, then Enter.
+    # First, focus on the page body (click somewhere neutral)
+    speaker.say(f"Opening result {n}")
+    time.sleep(0.3)
+
+    # Press Tab to navigate through results
+    tab_count = n * 2 + 3  # approximate: skip nav elements, reach Nth result
+    for i in range(tab_count):
+        pyautogui.press("tab")
+        time.sleep(0.08)
+
+    pyautogui.press("enter")
+    tray.update_result(f"🔍 Opened result {n}")
+    log.info("Result click: #%d (tabbed %d times)", n, tab_count)
+
+
+def _handle_clipboard_history(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle clipboard history commands (Win+V)."""
+    if not _HAS_AUTO:
+        speaker.say("Clipboard history requires pyautogui.")
+        return
+
+    action = result.clipboard_action
+
+    if action == "open":
+        pyautogui.hotkey("win", "v")
+        speaker.say("Opened clipboard history")
+        tray.update_result("📋 Clipboard history")
+        log.info("Clipboard: opened history")
+
+    elif action == "paste_nth":
+        n = result.clipboard_index
+        # Open clipboard history
+        pyautogui.hotkey("win", "v")
+        time.sleep(0.5)  # Wait for clipboard panel to appear
+
+        # Navigate down to the Nth item (first item is already selected)
+        for _ in range(n - 1):
+            pyautogui.press("down")
+            time.sleep(0.1)
+
+        # Press Enter to paste the selected item
+        pyautogui.press("enter")
+        speaker.say(f"Pasted item {n}")
+        tray.update_result(f"📋 Pasted item {n}")
+        log.info("Clipboard: pasted item #%d", n)
 
 
 def _try_in_tab_search(query: str, win_mgr: WindowManager,

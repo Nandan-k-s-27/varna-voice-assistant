@@ -268,6 +268,84 @@ Say multiple commands in one sentence:
 
 ---
 
+## 🆕 v1.5 — Text Selection (7 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 113 | select `{word}` | "select good" | Ctrl+F → finds and highlights word |
+| 114 | select line | "select line" | Home → Shift+End |
+| 115 | select word | "select word" | Ctrl+Shift+Left |
+| 116 | select next `{N}` words | "select next 3 words" | Ctrl+Shift+Right × N |
+| 117 | select previous `{N}` words | "select previous 2 words" | Ctrl+Shift+Left × N |
+| 118 | go to line `{N}` | "go to line 10" | Ctrl+G → type line number |
+| 119 | select all | "select all" | Ctrl+A |
+
+---
+
+## 🆕 v1.5 — Numbered Tab Navigation (3+ commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 120 | go to tab `{N}` | "go to tab 3" | Ctrl+3 |
+| 121 | `{ordinal}` tab | "first tab", "third tab" | Ctrl+N |
+| 122 | tab `{N}` | "tab 5" | Ctrl+5 |
+
+---
+
+## 🆕 v1.5 — Smart Scrolling (8 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 123 | scroll down | "scroll down" | Normal scroll (5 clicks) |
+| 124 | scroll up | "scroll up" | Normal scroll up (5 clicks) |
+| 125 | scroll little down | "scroll little down" | Small scroll (2 clicks) |
+| 126 | scroll little up | "scroll slightly up" | Small scroll up (2 clicks) |
+| 127 | scroll a lot down | "scroll a lot down" | Big scroll (15 clicks) |
+| 128 | scroll to top | "scroll to top" | Ctrl+Home |
+| 129 | scroll to bottom | "scroll to bottom" | Ctrl+End |
+| 130 | page down / page up | "page down" | PageDown / PageUp |
+
+---
+
+## 🆕 v1.5 — Browser / Explorer Navigation (6 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 131 | go back | "go back" | Alt+Left — works in browser & File Explorer |
+| 132 | go to previous page | "previous page" | Alt+Left |
+| 133 | go forward | "go forward" | Alt+Right |
+| 134 | refresh / reload | "refresh page" | F5 |
+| 135 | go to address bar | "address bar" | Ctrl+L |
+| 136 | navigate back/forward | "navigate back" | Alt+Left/Right |
+
+---
+
+## 🆕 v1.5 — Open Search Results (4 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 137 | open result `{N}` | "open result 1" | Tab-navigates to Nth result → Enter |
+| 138 | open first result | "open first result" | Opens 1st search result |
+| 139 | open second result | "open second result" | Opens 2nd search result |
+| 140 | open `{ordinal}` result | "open third result" | Opens Nth result |
+
+---
+
+## 🆕 v1.5 — Clipboard History (5 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 141 | open clipboard | "open clipboard" | Win+V — opens clipboard history panel |
+| 142 | show clipboard | "show clipboard history" | Win+V |
+| 143 | paste `{N}`th item | "paste 3rd item" | Win+V → down × (N-1) → Enter |
+| 144 | paste `{ordinal}` item | "paste second item" | Pastes 2nd clipboard entry |
+| 145 | paste `{ordinal}` copied | "paste third copied" | Same as above |
+
+> **Note:** Requires Windows 10/11 Clipboard History to be enabled:
+> Settings → System → Clipboard → Toggle "Clipboard history" ON
+
+---
+
 ## Legend
 
 | Symbol | Meaning |
@@ -296,5 +374,12 @@ Say multiple commands in one sentence:
 | Voice Typing | 3+ | v1.4 |
 | NLP + Smart Search | auto | v1.4 |
 | Natural Chains | auto | v1.4 |
-| **Universal App** 🆕 | **9+** | **v1.5** |
-| **Total** | **~115+** | |
+| Universal App | 9+ | v1.5 |
+| **Text Selection** 🆕 | **7** | **v1.5** |
+| **Numbered Tabs** 🆕 | **3+** | **v1.5** |
+| **Smart Scrolling** 🆕 | **8** | **v1.5** |
+| **Browser Navigation** 🆕 | **6** | **v1.5** |
+| **Search Results** 🆕 | **4** | **v1.5** |
+| **Clipboard History** 🆕 | **5** | **v1.5** |
+| **Total** | **~150+** | |
+
