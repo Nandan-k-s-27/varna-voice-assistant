@@ -1,6 +1,63 @@
-# VARNA v2.1 — Full Command List
+# VARNA v2.2 — Full Command List
 
-All commands supported by VARNA v2.1, organized by category.
+All commands supported by VARNA v2.2, organized by category.
+
+---
+
+## 🆕 v2.2 — Adaptive Intelligence + Self-Healing
+
+### Intent Pre-Classification
+VARNA v2.2 uses a fast intent router that categorizes commands before NLP processing:
+
+| Category | Example Patterns | Skip Semantic |
+|----------|------------------|---------------|
+| APP_CONTROL | open, close, launch, start | Yes |
+| SEARCH | search, find, look up, google | Yes |
+| NAVIGATION | go to, switch to, navigate | Yes |
+| TYPING | type, write, enter text | Yes |
+| TAB_CONTROL | new tab, close tab, next tab | Yes |
+| WINDOW | minimize, maximize, restore | Yes |
+| SYSTEM | shutdown, restart, lock | Yes |
+| MEDIA | play, pause, volume | Yes |
+| CLIPBOARD | copy, paste, clipboard | Yes |
+| FILE | create file, delete file, rename | Yes |
+| UNKNOWN | Fallback to full NLP | No |
+
+### Confidence-Based Response Tiers
+
+| Confidence | Action | Example |
+|------------|--------|---------|
+| >90% | Execute immediately | "open chrome" → Opens Chrome |
+| 70-90% | Execute with confirmation | "open chrom" → "Opening Chrome" |
+| 50-70% | Ask user to confirm | "Did you mean 'open chrome'?" |
+| <50% | Suggest alternatives | "Did you mean: chrome, code, edge?" |
+
+### Command Learning Memory
+VARNA learns from your corrections and preferences:
+
+- **Pronunciations**: "crome" → "chrome" after 2 corrections
+- **App Preferences**: Learns which apps you use at different times
+- **Phrase Shortcuts**: "dev mode" → "open vscode and open terminal"
+
+### Smart Failure Recovery
+
+| Failure Type | Auto-Recovery |
+|--------------|---------------|
+| App Not Found | Auto-rescan installed apps |
+| Command Not Recognized | Suggest similar commands |
+| Execution Error | Graceful degradation + log |
+| Timeout | Retry with increased timeout |
+
+### New v2.2 Commands
+
+| # | Command | Action |
+|---|---------|--------|
+| — | optimize system | Clears temp files, shows resource hogs |
+| — | show cpu hogs | Lists top 5 CPU-consuming processes |
+| — | show memory hogs | Lists top 5 memory-consuming processes |
+| — | clear temp files | Clears Windows temp directory |
+| — | undo | Undoes last command (if undo handler exists) |
+| — | stop / stop talking | Interrupts current speech |
 
 ---
 

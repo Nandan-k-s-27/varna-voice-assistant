@@ -1,5 +1,5 @@
 """
-VARNA v2.0 - Text-to-Speech Module
+VARNA v2.2 - Text-to-Speech Module
 Uses pyttsx3 for completely offline speech synthesis.
 Supports async (non-blocking) speech with queue management.
 
@@ -8,6 +8,11 @@ v2.0 improvements:
   • Non-blocking say_async() returns immediately
   • Queue management (clear, pause, resume)
   • Configurable voice selection
+
+v2.2 improvements:
+  • Interruptible TTS - stops when user speaks
+  • Interrupt callback for audio detection
+  • Immediate stop capability
 """
 
 import threading
@@ -75,6 +80,11 @@ class Speaker:
         self._running = False
         self._paused = False
         
+        # v2.2: Interruptible TTS
+        self._interrupted = False
+        self._is_speaking = False
+        self._current_text = None
+        
         # Start the background queue processor
         self._start_queue_processor()
 
@@ -123,11 +133,23 @@ class Speaker:
     # ------------------------------------------------------------------ #
     def _speak_internal(self, text: str) -> None:
         """Internal method to speak text (called from queue thread)."""
+        if self._interrupted:
+            self._interrupted = False
+            return
+            
         try:
+            self._is_speaking = True
+            self._current_text = text
+            
             with self._lock:
                 self.engine.say(text)
                 self.engine.runAndWait()
+                
         except Exception as exc:
+            log.error("TTS error: %s", exc)
+        finally:
+            self._is_speaking = False
+            self._current_text = None
             log.error("TTS error: %s", exc)
 
     # ------------------------------------------------------------------ #
@@ -193,13 +215,54 @@ class Speaker:
 
     # ------------------------------------------------------------------ #
     def is_speaking(self) -> bool:
-        """Check if there are items in the speech queue."""
-        return not self._speech_queue.empty()
+        """Check if TTS is currently speaking or has items in queue."""
+        return self._is_speaking or not self._speech_queue.empty()
 
     # ------------------------------------------------------------------ #
     def queue_size(self) -> int:
         """Get the number of items waiting in the speech queue."""
         return self._speech_queue.qsize()
+
+    # ------------------------------------------------------------------ #
+    def interrupt(self) -> bool:
+        """
+        Interrupt current speech immediately (v2.2).
+        
+        Call this when user starts speaking to stop TTS.
+        
+        Returns:
+            True if speech was interrupted, False if not speaking.
+        """
+        if not self._is_speaking:
+            return False
+        
+        log.info("Interrupting TTS")
+        self._interrupted = True
+        
+        # Stop the engine
+        try:
+            with self._lock:
+                self.engine.stop()
+        except Exception as e:
+            log.debug("Stop error (may be normal): %s", e)
+        
+        # Clear the queue
+        self.clear_queue()
+        
+        self._is_speaking = False
+        return True
+
+    # ------------------------------------------------------------------ #
+    def on_audio_detected(self) -> None:
+        """
+        Callback when audio input is detected (v2.2).
+        
+        Call this from the listener when audio is detected
+        to interrupt any ongoing TTS.
+        """
+        if self._is_speaking:
+            self.interrupt()
+            log.debug("TTS interrupted due to audio detection")
 
     # ------------------------------------------------------------------ #
     def greet(self) -> None:

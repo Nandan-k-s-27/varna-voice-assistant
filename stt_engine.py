@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Offline Speech-to-Text Engine
+VARNA v2.2 - Offline Speech-to-Text Engine
 Provides fully offline STT using either Whisper or Vosk.
 
 Supported engines:
@@ -14,6 +14,11 @@ Performance modes:
 Dynamic switching:
   - Auto-switches to tiny model when CPU > 70%
 
+Hybrid Confidence Switching (v2.2):
+  - Captures Whisper confidence (avg token probability)
+  - If confidence < threshold, re-runs with alternate model
+  - 80% commands ultra fast, 20% complex auto-corrected
+
 Usage:
     from stt_engine import create_stt_engine
     engine = create_stt_engine("whisper")  # or "vosk"
@@ -27,6 +32,7 @@ import wave
 import tempfile
 import threading
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from pathlib import Path
 from enum import Enum
 from utils.logger import get_logger
@@ -50,6 +56,15 @@ _MODE_MODEL_MAP = {
     PerformanceMode.BALANCED: "base",
     PerformanceMode.ACCURACY: "small",
 }
+
+
+@dataclass
+class TranscriptionResult:
+    """Result of transcription with confidence."""
+    text: str
+    confidence: float  # 0.0-1.0
+    model_used: str
+    was_fallback: bool = False
 
 
 def _load_config() -> dict:
@@ -210,6 +225,26 @@ class WhisperEngine(STTEngine):
 
     def transcribe(self, audio_data) -> str | None:
         """Transcribe audio using Whisper."""
+        result = self.transcribe_with_confidence(audio_data)
+        return result.text if result else None
+    
+    def transcribe_with_confidence(
+        self, 
+        audio_data,
+        confidence_threshold: float = 0.6,
+        enable_fallback: bool = True
+    ) -> TranscriptionResult | None:
+        """
+        Transcribe audio with confidence score and optional fallback.
+        
+        Args:
+            audio_data: Audio data to transcribe.
+            confidence_threshold: If confidence below this, try fallback model.
+            enable_fallback: Whether to use fallback on low confidence.
+            
+        Returns:
+            TranscriptionResult with text, confidence, and model info.
+        """
         if not self._initialized or self.model is None:
             log.error("Whisper engine not initialized")
             return None
@@ -229,28 +264,35 @@ class WhisperEngine(STTEngine):
                 tmp_path = tmp.name
 
             try:
-                # Transcribe
-                segments, info = self.model.transcribe(
-                    tmp_path,
-                    language="en",
-                    beam_size=5,
-                    vad_filter=True,  # Filter out non-speech
-                    vad_parameters=dict(min_silence_duration_ms=500)
-                )
-
-                # Collect all segments
-                text_parts = []
-                for segment in segments:
-                    text_parts.append(segment.text.strip())
-
-                text = " ".join(text_parts).lower().strip()
-
-                if text:
-                    log.info("Whisper recognized: '%s'", text)
-                    return text
-                else:
-                    log.debug("Whisper returned empty transcription")
+                # Transcribe with current model
+                result = self._transcribe_file(tmp_path)
+                
+                if result is None:
                     return None
+                
+                # Check confidence and try fallback if needed
+                if (enable_fallback and 
+                    result.confidence < confidence_threshold and
+                    self._current_model_name == "tiny"):
+                    
+                    log.info("Low confidence (%.2f < %.2f), trying fallback model",
+                            result.confidence, confidence_threshold)
+                    
+                    # Try with base model
+                    self._load_model("base")
+                    fallback_result = self._transcribe_file(tmp_path)
+                    
+                    # Switch back to tiny
+                    self._load_model("tiny")
+                    
+                    if fallback_result and fallback_result.confidence > result.confidence:
+                        fallback_result.was_fallback = True
+                        log.info("Fallback improved: '%s' (conf=%.2f) → '%s' (conf=%.2f)",
+                                result.text, result.confidence,
+                                fallback_result.text, fallback_result.confidence)
+                        return fallback_result
+                
+                return result
 
             finally:
                 # Clean up temp file
@@ -261,6 +303,56 @@ class WhisperEngine(STTEngine):
 
         except Exception as e:
             log.error("Whisper transcription error: %s", e)
+            return None
+    
+    def _transcribe_file(self, file_path: str) -> TranscriptionResult | None:
+        """Internal transcription with confidence extraction."""
+        try:
+            segments, info = self.model.transcribe(
+                file_path,
+                language="en",
+                beam_size=5,
+                vad_filter=True,
+                vad_parameters=dict(min_silence_duration_ms=500)
+            )
+
+            # Collect all segments and calculate confidence
+            text_parts = []
+            total_logprob = 0.0
+            segment_count = 0
+            
+            for segment in segments:
+                text_parts.append(segment.text.strip())
+                # avg_logprob is negative, closer to 0 is better
+                total_logprob += segment.avg_logprob
+                segment_count += 1
+
+            text = " ".join(text_parts).lower().strip()
+            
+            if not text:
+                return None
+            
+            # Convert avg log probability to confidence (0-1)
+            # avg_logprob typically ranges from -2.0 (low) to 0 (high)
+            if segment_count > 0:
+                avg_logprob = total_logprob / segment_count
+                # Map -2.0 to 0.0 → 0.0 to 1.0
+                confidence = max(0.0, min(1.0, (avg_logprob + 2.0) / 2.0))
+            else:
+                confidence = 0.5
+            
+            log.info("Whisper recognized: '%s' (confidence=%.2f, model=%s)",
+                    text, confidence, self._current_model_name)
+            
+            return TranscriptionResult(
+                text=text,
+                confidence=confidence,
+                model_used=self._current_model_name,
+                was_fallback=False
+            )
+            
+        except Exception as e:
+            log.error("Transcription error: %s", e)
             return None
 
     def _audio_to_wav(self, audio_data) -> bytes | None:

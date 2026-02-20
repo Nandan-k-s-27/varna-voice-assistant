@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Session Context Manager (State Machine)
+VARNA v2.2 - Session Context Manager (Enhanced State Machine)
 Tracks state across the session for context-aware command resolution.
 
 Provides:
@@ -12,14 +12,23 @@ Provides:
   - Repeat / do it again support
   - Last search query tracking
   - Intent/entity history for situational awareness
+  
+v2.2 Enhancements:
+  - Full command history (last N commands)
+  - Undo/redo support
+  - "repeat last N commands" support
+  - "do same but in X" support (entity substitution)
+  - Last action timestamp tracking
 """
 
 import re
 import json
+import time
 from enum import Enum
 from pathlib import Path
 from dataclasses import dataclass, field
-from typing import Optional
+from datetime import datetime
+from typing import Optional, Callable
 from utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -80,19 +89,39 @@ class ContextMode(Enum):
 
 
 @dataclass
+class CommandRecord:
+    """Record of an executed command for history."""
+    text: str                     # Original command text
+    intent: str                   # Parsed intent
+    entity: str | None = None     # Target entity
+    parameter: str | None = None  # Additional parameter
+    timestamp: float = field(default_factory=time.time)
+    success: bool = True
+    undo_handler: Callable | None = field(default=None, repr=False)
+
+
+@dataclass
 class ContextState:
     """
     Full context state for situational awareness.
     
     This enables VARNA to be situationally aware without LLM.
+    
+    v2.2: Enhanced with full command history and undo support.
     """
     current_mode: ContextMode = ContextMode.IDLE
     active_app: Optional[str] = None
+    active_window_title: Optional[str] = None  # v2.2
     previous_app: Optional[str] = None
     last_intent: Optional[str] = None
     last_entity: Optional[str] = None
     last_parameter: Optional[str] = None
+    last_action_time: float = field(default_factory=time.time)  # v2.2
     intent_history: list = field(default_factory=list)
+    
+    # v2.2: Full command history
+    command_history: list[CommandRecord] = field(default_factory=list)
+    max_history: int = 50
     
     # Mode-specific context
     browser_tabs_open: int = 0
@@ -104,11 +133,52 @@ class ContextState:
         return {
             "mode": self.current_mode.value,
             "active_app": self.active_app,
+            "active_window_title": self.active_window_title,
             "previous_app": self.previous_app,
             "last_intent": self.last_intent,
             "last_entity": self.last_entity,
-            "intent_history": self.intent_history[-5:],  # Last 5
+            "last_action_time": self.last_action_time,
+            "intent_history": self.intent_history[-5:],
+            "command_count": len(self.command_history),
         }
+    
+    def add_command(
+        self, 
+        text: str, 
+        intent: str, 
+        entity: str = None, 
+        parameter: str = None,
+        success: bool = True,
+        undo_handler: Callable = None
+    ) -> None:
+        """Add a command to history."""
+        record = CommandRecord(
+            text=text,
+            intent=intent,
+            entity=entity,
+            parameter=parameter,
+            success=success,
+            undo_handler=undo_handler
+        )
+        self.command_history.append(record)
+        
+        # Trim to max size
+        if len(self.command_history) > self.max_history:
+            self.command_history = self.command_history[-self.max_history:]
+        
+        # Update action time
+        self.last_action_time = time.time()
+    
+    def get_last_commands(self, n: int = 5) -> list[CommandRecord]:
+        """Get last N commands."""
+        return self.command_history[-n:]
+    
+    def get_undoable_command(self) -> CommandRecord | None:
+        """Get last command that has an undo handler."""
+        for cmd in reversed(self.command_history):
+            if cmd.undo_handler is not None:
+                return cmd
+        return None
 
 
 # App name to mode mapping
@@ -410,6 +480,115 @@ class SessionContext:
         return None
 
     # ------------------------------------------------------------------ #
+    # v2.2: Enhanced Command History Methods
+    # ------------------------------------------------------------------ #
+    
+    def record_command(
+        self,
+        text: str,
+        intent: str,
+        entity: str = None,
+        parameter: str = None,
+        success: bool = True,
+        undo_handler: Callable = None
+    ) -> None:
+        """
+        Record a command execution.
+        
+        Args:
+            text: Original command text.
+            intent: Parsed intent (open, close, search, etc.)
+            entity: Target entity (app name, etc.)
+            parameter: Additional parameter (search query, etc.)
+            success: Whether command was successful.
+            undo_handler: Function to undo this command.
+        """
+        self.state.add_command(
+            text=text,
+            intent=intent,
+            entity=entity,
+            parameter=parameter,
+            success=success,
+            undo_handler=undo_handler
+        )
+        log.debug("Command recorded: %s %s", intent, entity or "")
+    
+    def undo_last_command(self) -> tuple[bool, str]:
+        """
+        Undo the last undoable command.
+        
+        Returns:
+            Tuple of (success, message).
+        """
+        cmd = self.state.get_undoable_command()
+        
+        if cmd is None:
+            return False, "Nothing to undo."
+        
+        if cmd.undo_handler is None:
+            return False, "Last command cannot be undone."
+        
+        try:
+            cmd.undo_handler()
+            log.info("Undid command: %s", cmd.text)
+            return True, f"Undid: {cmd.text}"
+        except Exception as e:
+            log.error("Undo failed: %s", e)
+            return False, f"Undo failed: {str(e)}"
+    
+    def get_repeat_commands(self, n: int = 1) -> list[str]:
+        """
+        Get last N commands for repeat.
+        
+        Args:
+            n: Number of commands to get.
+            
+        Returns:
+            List of command texts.
+        """
+        commands = self.state.get_last_commands(n)
+        return [cmd.text for cmd in commands if cmd.success]
+    
+    def substitute_entity(self, new_entity: str) -> str | None:
+        """
+        Create a new command by substituting entity in last command.
+        
+        Example: "do same but in Edge" after "search youtube React"
+        → "search youtube React" with browser=Edge
+        
+        Args:
+            new_entity: The new entity to substitute.
+            
+        Returns:
+            New command text or None.
+        """
+        if not self.state.command_history:
+            return None
+        
+        last_cmd = self.state.command_history[-1]
+        
+        if last_cmd.entity and last_cmd.entity.lower() != new_entity.lower():
+            # Simple substitution
+            new_text = last_cmd.text.replace(last_cmd.entity, new_entity)
+            log.info("Entity substitution: '%s' → '%s'", last_cmd.text, new_text)
+            return new_text
+        
+        return None
+    
+    def get_command_history_summary(self) -> list[dict]:
+        """Get summary of command history."""
+        return [
+            {
+                "text": cmd.text,
+                "intent": cmd.intent,
+                "entity": cmd.entity,
+                "time_ago": f"{(time.time() - cmd.timestamp):.0f}s ago",
+                "success": cmd.success
+            }
+            for cmd in self.state.get_last_commands(10)
+        ]
+
+    # ------------------------------------------------------------------ #
     def get_status(self) -> str:
         """Return a human-readable summary of current context."""
         parts = []
@@ -423,5 +602,7 @@ class SessionContext:
         if active:
             parts.append(f"Active window: {active}")
         parts.append(f"Working directory: {self.cwd}")
+        parts.append(f"Mode: {self.current_mode}")
+        parts.append(f"Commands this session: {len(self.state.command_history)}")
         return ". ".join(parts) if parts else "No context yet."
 

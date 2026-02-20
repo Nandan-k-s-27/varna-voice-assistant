@@ -1,16 +1,20 @@
 {
-    "version": "2.1",
+    "version": "2.2",
     "stt": {
         "engine": "whisper",
         "whisper_model": "base",
         "vosk_model_path": "models/vosk-model-small-en-us",
         "language": "en",
-        "compute_type": "int8"
+        "compute_type": "int8",
+        "confidence_threshold": 0.6,
+        "fallback_model": "base",
+        "enable_hybrid_fallback": true
     },
     "tts": {
         "rate": 190,
         "volume": 1.0,
-        "voice_index": 1
+        "voice_index": 1,
+        "interruptible": true
     },
     "nlp": {
         "fuzzy_threshold": 0.70,
@@ -18,7 +22,15 @@
         "phonetic_enabled": true,
         "use_semantic_fallback": true,
         "use_grammar_patterns": true,
-        "min_confidence": 0.45
+        "min_confidence": 0.45,
+        "use_intent_routing": true,
+        "skip_semantic_for_obvious": true
+    },
+    "confidence_response": {
+        "immediate_threshold": 0.90,
+        "confirmed_threshold": 0.70,
+        "ask_threshold": 0.50,
+        "enable_suggestions": true
     },
     "listener": {
         "energy_threshold": 300,
@@ -37,6 +49,31 @@
         "lazy_load_models": false,
         "preload_common_apps": true,
         "prewarm_on_startup": true
+    },
+    "execution": {
+        "threaded": true,
+        "max_workers": 2,
+        "parallel_tts_prep": true
+    },
+    "security": {
+        "sandbox_enabled": true,
+        "require_confirmation_dangerous": true,
+        "block_remote_commands": true
+    },
+    "adaptation": {
+        "learn_pronunciations": true,
+        "learn_app_preferences": true,
+        "corrections_threshold": 2
+    },
+    "analytics": {
+        "enabled": true,
+        "track_usage_patterns": true,
+        "session_file": "logs/analytics.json"
+    },
+    "recovery": {
+        "auto_rescan_apps": true,
+        "suggest_alternatives": true,
+        "max_suggestions": 3
     },
     "wake_words": [
         "hey varna",
