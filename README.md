@@ -1,10 +1,34 @@
 # VARNA Voice Assistant
 
-**VARNA (Voice Activated Responsive Network Assistant)** is a secure, **fully offline** Windows desktop voice assistant. It uses **Whisper/Vosk** for high-accuracy offline STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system with window intelligence, **layered NLP** with semantic understanding, and natural language processing.
+**VARNA (Voice Activated Responsive Network Assistant)** is a secure, **fully offline** Windows desktop voice assistant. It uses **Whisper/Vosk** for high-accuracy offline STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system with window intelligence, **intelligent NLP** with weighted scoring and semantic understanding, and natural language processing.
 
 ## Features
 
-### v2.0 — Offline STT + Layered NLP (Latest)
+### v2.1 — Intelligent Scoring + Performance Optimization (Latest)
+- **Weighted Intent Scoring**: Intelligent command matching using composite scoring.
+  - Formula: `exact×1.0 + fuzzy×0.6 + phonetic×0.5 + semantic×0.8 + context×0.3 + grammar×0.7`
+  - Dynamic confidence thresholds based on input complexity.
+  - Learning from user corrections via `user_corrections.json`.
+- **STT Performance Modes**: Adaptive model selection for speed vs accuracy.
+  - **Ultra Fast**: Whisper tiny model for lowest latency.
+  - **Balanced**: Whisper base model (default).
+  - **Accuracy**: Whisper small model for best recognition.
+  - Auto-switch to tiny model when CPU > 70%.
+- **Startup Prewarmer**: Eliminates first-command delay.
+  - Pre-loads STT engine, semantic model, grammar patterns at startup.
+  - Resources ready before you speak.
+- **Grammar Pattern Recognition**: 40+ pre-compiled command templates.
+  - Regex-based extraction of app names, queries, numbers.
+  - Handles complex patterns like "search youtube for X" or "go to tab N".
+- **Context State Machine**: App-aware command suggestions.
+  - Modes: BROWSING, CODING, CHATTING, SYSTEM, FILE_MANAGER.
+  - Context bonuses boost relevant commands.
+- **Latency Measurement**: End-to-end performance tracking.
+  - Pipeline metrics: mic → STT → NLP → exec → TTS times.
+  - Bottleneck identification for optimization.
+- **RapidFuzz Integration**: 10x faster fuzzy matching than difflib.
+
+### v2.0 — Offline STT + Layered NLP
 - **True Offline STT**: Whisper or Vosk for completely offline speech recognition.
   - No internet required — works in airplane mode.
   - Configurable: choose between Whisper (accuracy) or Vosk (speed).
@@ -150,6 +174,10 @@ For the full list of **160+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | `nlp/normalizer.py` | Filler removal, intent extraction |
 | `nlp/fuzzy_matcher.py` | Fuzzy + phonetic matching |
 | `nlp/semantic_matcher.py` | ML-based semantic similarity |
+| `nlp/scoring_engine.py` | Weighted intent scoring with learning 🆕 |
+| `nlp/grammar_matcher.py` | Template-based command recognition 🆕 |
+| `prewarmer.py` | Startup resource preloader 🆕 |
+| `utils/timing.py` | Performance timing utilities 🆕 |
 | `app_manager.py` | Universal app scan, index, fuzzy match, launch, close |
 | `apps.json` | Auto-generated installed app cache |
 | `commands.json` | Structured command whitelist |
@@ -193,6 +221,7 @@ For the full list of **160+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, drive/folder nav, clipboard history, WhatsApp nav, 160+ commands |
 | v1.6 | Smarter NLP (60+ fillers), context commands, 40+ key press commands, diagnostics |
 | v2.0 | **Offline STT + Layered NLP** — Whisper/Vosk offline speech, phonetic + semantic matching, async TTS queue, config system |
+| v2.1 | **Intelligent Scoring + Performance** — Weighted scoring engine, STT performance modes, startup prewarmer, grammar patterns, context state machine, rapidfuzz integration |
 
 ## Installation
 
@@ -217,7 +246,7 @@ If you prefer faster startup with smaller models:
 
 ## Configuration
 
-VARNA v2.0 uses `config.json` for all settings:
+VARNA v2.1 uses `config.json` for all settings:
 
 ```json
 {
@@ -228,7 +257,14 @@ VARNA v2.0 uses `config.json` for all settings:
   "nlp": {
     "fuzzy_threshold": 0.70,   // 0.0-1.0, lower = more lenient
     "semantic_threshold": 0.65,
-    "use_semantic_fallback": true
+    "use_semantic_fallback": true,
+    "use_grammar_patterns": true,    // 🆕 Enable 40+ grammar templates
+    "min_confidence": 0.45           // 🆕 Minimum score threshold
+  },
+  "performance": {
+    "mode": "balanced",        // 🆕 "ultra_fast", "balanced", "accuracy"
+    "auto_switch": true,       // 🆕 Switch to tiny model when CPU > 70%
+    "prewarm_on_startup": true // 🆕 Pre-load models at startup
   },
   "tts": {
     "rate": 190,               // Words per minute

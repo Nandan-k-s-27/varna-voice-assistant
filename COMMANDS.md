@@ -1,6 +1,44 @@
-# VARNA v1.6 — Full Command List
+# VARNA v2.1 — Full Command List
 
-All commands supported by VARNA v1.6, organized by category.
+All commands supported by VARNA v2.1, organized by category.
+
+---
+
+## 🆕 v2.1 — Intelligent Features
+
+### Weighted Intent Scoring
+VARNA now uses an intelligent scoring engine to match commands:
+
+| Signal | Weight | Description |
+|--------|--------|-------------|
+| Exact Match | 1.0 | Direct command match |
+| Semantic | 0.8 | ML-based meaning similarity |
+| Grammar | 0.7 | Template pattern match |
+| Fuzzy | 0.6 | Character similarity (RapidFuzz) |
+| Phonetic | 0.5 | Pronunciation match |
+| Context | 0.3 | App-aware bonus |
+
+**Learning**: Corrections are saved to `user_corrections.json` and boost future matches.
+
+### STT Performance Modes
+
+| Mode | Model | Use Case |
+|------|-------|----------|
+| `ultra_fast` | Whisper tiny | Low-latency, limited accuracy |
+| `balanced` | Whisper base | Default, good balance |
+| `accuracy` | Whisper small | Best recognition, slower |
+
+**Auto-Switch**: When CPU > 70%, automatically switches to tiny model for responsiveness.
+
+### Context-Aware Modes
+
+| Mode | Triggered By | Boosted Commands |
+|------|-------------|------------------|
+| BROWSING | Chrome, Edge, Firefox | search, tab, scroll, bookmark |
+| CODING | VS Code, IntelliJ | debug, run, git, terminal |
+| FILE_MANAGER | Explorer, Total Commander | copy, paste, rename, delete |
+| CHATTING | WhatsApp, Discord, Slack | type, send, emoji |
+| SYSTEM | Default | open, close, volume |
 
 ---
 
@@ -407,7 +445,10 @@ Say multiple commands in one sentence:
 | **WhatsApp Nav** 🆕 | **5** | **v1.5** |
 | **Key Press (expanded)** 🆕 | **40+** | **v1.6** |
 | **Context Commands** 🆕 | **10** | **v1.6** |
-| **Total** | **~210+** | |
+| **Weighted Scoring** 🆕 | **auto** | **v2.1** |
+| **Grammar Patterns** 🆕 | **40+** | **v2.1** |
+| **STT Performance Modes** 🆕 | **3** | **v2.1** |
+| **Total** | **~220+** | |
 
 ---
 
@@ -460,4 +501,43 @@ Examples:
 - "hey varna type the quick brown fox" → "type the quick brown fox" ✅
 
 **Typing preserves content**: "type the command" correctly types "the command" (not stripped).
+
+---
+
+## v2.1 Additions
+
+### Startup Prewarmer
+First command executes instantly — no cold-start delay:
+- STT engine pre-loaded
+- Semantic model ready
+- Grammar patterns compiled
+- App index in memory
+
+### Grammar Pattern Recognition (40+ patterns)
+Templates for extracting parameters from natural speech:
+
+| Pattern | Example | Extracted |
+|---------|---------|-----------|
+| open_app | "open spotify" | app: spotify |
+| search_web | "search react hooks" | query: react hooks |
+| search_youtube | "search youtube python tutorial" | query: python tutorial |
+| go_to_tab | "go to tab 3" | number: 3 |
+| scroll_direction | "scroll down a lot" | direction: down, amount: lot |
+| type_text | "type hello world" | text: hello world |
+| select_word | "select next 5 words" | count: 5 |
+| close_app | "close whatsapp" | app: whatsapp |
+
+### Performance Timing
+Latency tracking for optimization:
+- Mic capture time
+- STT processing time
+- NLP matching time
+- Command execution time
+- TTS response time
+
+### RapidFuzz (10x Faster)
+Upgraded fuzzy matching from difflib to rapidfuzz:
+- Same accuracy, much faster
+- Better for large command sets
+- Falls back to difflib if not installed
 
