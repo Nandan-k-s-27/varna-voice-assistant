@@ -87,6 +87,8 @@ class ParseResult:
     app_scan_action: str | None = None     # "scan" | "list"
     is_dynamic_close: bool = False         # close any app via psutil
     close_target: str | None = None        # app name to close
+    is_key_press: bool = False             # press a keyboard key
+    key_name: str | None = None            # "enter" | "escape" | "tab" | "backspace" | "delete"
 
     @property
     def matched(self) -> bool:
@@ -200,6 +202,31 @@ class Parser:
             return ParseResult(matched_key=text, is_app_scan=True, app_scan_action="scan")
         if text in ("list installed apps", "list apps", "show installed apps", "what apps do i have"):
             return ParseResult(matched_key=text, is_app_scan=True, app_scan_action="list")
+
+        # 5.6 Key press commands (v1.5 polish)
+        key_map = {
+            "press enter": "enter",
+            "hit enter": "enter",
+            "send it": "enter",
+            "send this": "enter",
+            "send message": "enter",
+            "search now": "enter",
+            "submit": "enter",
+            "press escape": "escape",
+            "press backspace": "backspace",
+            "undo typing": "backspace",
+            "press delete": "delete",
+            "press tab key": "tab",
+            "select all": "select_all",
+            "undo": "undo",
+            "redo": "redo",
+            "copy this": "copy",
+            "paste it": "paste",
+            "cut this": "cut",
+        }
+        if text in key_map:
+            key = key_map[text]
+            return ParseResult(matched_key=text, is_key_press=True, key_name=key)
 
         # 6. Tab control (v1.4)
         result = self._match_tab(text)

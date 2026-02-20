@@ -1,0 +1,2792 @@
+{
+  "elevator": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\elevator.exe",
+    "type": "exe",
+    "exe_name": "elevator"
+  },
+  "fsnotifier": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\fsnotifier.exe",
+    "type": "exe",
+    "exe_name": "fsnotifier"
+  },
+  "launcher": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\launcher.exe",
+    "type": "exe",
+    "exe_name": "launcher"
+  },
+  "profiler": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\profiler.exe",
+    "type": "exe",
+    "exe_name": "profiler"
+  },
+  "restarter": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\restarter.exe",
+    "type": "exe",
+    "exe_name": "restarter"
+  },
+  "studio64": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\studio64.exe",
+    "type": "exe",
+    "exe_name": "studio64"
+  },
+  "winprocesslisthelper": {
+    "path": "C:\\Program Files\\Android\\Android Studio\\bin\\WinProcessListHelper.exe",
+    "type": "exe",
+    "exe_name": "winprocesslisthelper"
+  },
+  "netbeans": {
+    "path": "C:\\Program Files\\Apache NetBeans\\bin\\netbeans.exe",
+    "type": "exe",
+    "exe_name": "netbeans"
+  },
+  "netbeans64": {
+    "path": "C:\\Program Files\\Apache NetBeans\\bin\\netbeans64.exe",
+    "type": "exe",
+    "exe_name": "netbeans64"
+  },
+  "launchers": {
+    "path": "C:\\Program Files\\Apache NetBeans\\harness\\launchers\\app.exe",
+    "type": "exe",
+    "exe_name": "app"
+  },
+  "jabswitch": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jabswitch.exe",
+    "type": "exe",
+    "exe_name": "jabswitch"
+  },
+  "jaccessinspector": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jaccessinspector.exe",
+    "type": "exe",
+    "exe_name": "jaccessinspector"
+  },
+  "jaccesswalker": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jaccesswalker.exe",
+    "type": "exe",
+    "exe_name": "jaccesswalker"
+  },
+  "jar": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jar.exe",
+    "type": "exe",
+    "exe_name": "jar"
+  },
+  "jarsigner": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jarsigner.exe",
+    "type": "exe",
+    "exe_name": "jarsigner"
+  },
+  "java": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\java.exe",
+    "type": "exe",
+    "exe_name": "java"
+  },
+  "javac": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\javac.exe",
+    "type": "exe",
+    "exe_name": "javac"
+  },
+  "javadoc": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\javadoc.exe",
+    "type": "exe",
+    "exe_name": "javadoc"
+  },
+  "javap": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\javap.exe",
+    "type": "exe",
+    "exe_name": "javap"
+  },
+  "javaw": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\javaw.exe",
+    "type": "exe",
+    "exe_name": "javaw"
+  },
+  "jcmd": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jcmd.exe",
+    "type": "exe",
+    "exe_name": "jcmd"
+  },
+  "jconsole": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jconsole.exe",
+    "type": "exe",
+    "exe_name": "jconsole"
+  },
+  "jdb": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jdb.exe",
+    "type": "exe",
+    "exe_name": "jdb"
+  },
+  "jdeprscan": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jdeprscan.exe",
+    "type": "exe",
+    "exe_name": "jdeprscan"
+  },
+  "jdeps": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jdeps.exe",
+    "type": "exe",
+    "exe_name": "jdeps"
+  },
+  "jfr": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jfr.exe",
+    "type": "exe",
+    "exe_name": "jfr"
+  },
+  "jhsdb": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jhsdb.exe",
+    "type": "exe",
+    "exe_name": "jhsdb"
+  },
+  "jimage": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jimage.exe",
+    "type": "exe",
+    "exe_name": "jimage"
+  },
+  "jinfo": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jinfo.exe",
+    "type": "exe",
+    "exe_name": "jinfo"
+  },
+  "jlink": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jlink.exe",
+    "type": "exe",
+    "exe_name": "jlink"
+  },
+  "jmap": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jmap.exe",
+    "type": "exe",
+    "exe_name": "jmap"
+  },
+  "jmod": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jmod.exe",
+    "type": "exe",
+    "exe_name": "jmod"
+  },
+  "jnativescan": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jnativescan.exe",
+    "type": "exe",
+    "exe_name": "jnativescan"
+  },
+  "jpackage": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jpackage.exe",
+    "type": "exe",
+    "exe_name": "jpackage"
+  },
+  "jps": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jps.exe",
+    "type": "exe",
+    "exe_name": "jps"
+  },
+  "jrunscript": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jrunscript.exe",
+    "type": "exe",
+    "exe_name": "jrunscript"
+  },
+  "jshell": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jshell.exe",
+    "type": "exe",
+    "exe_name": "jshell"
+  },
+  "jstack": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jstack.exe",
+    "type": "exe",
+    "exe_name": "jstack"
+  },
+  "jstat": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jstat.exe",
+    "type": "exe",
+    "exe_name": "jstat"
+  },
+  "jstatd": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jstatd.exe",
+    "type": "exe",
+    "exe_name": "jstatd"
+  },
+  "jwebserver": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\jwebserver.exe",
+    "type": "exe",
+    "exe_name": "jwebserver"
+  },
+  "keytool": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\keytool.exe",
+    "type": "exe",
+    "exe_name": "keytool"
+  },
+  "kinit": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\kinit.exe",
+    "type": "exe",
+    "exe_name": "kinit"
+  },
+  "klist": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\klist.exe",
+    "type": "exe",
+    "exe_name": "klist"
+  },
+  "ktab": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\ktab.exe",
+    "type": "exe",
+    "exe_name": "ktab"
+  },
+  "rmiregistry": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\rmiregistry.exe",
+    "type": "exe",
+    "exe_name": "rmiregistry"
+  },
+  "serialver": {
+    "path": "C:\\Program Files\\Apache NetBeans\\jdk\\bin\\serialver.exe",
+    "type": "exe",
+    "exe_name": "serialver"
+  },
+  "lib": {
+    "path": "C:\\Program Files\\Apache NetBeans\\platform\\lib\\nbexec.exe",
+    "type": "exe",
+    "exe_name": "nbexec"
+  },
+  "tomcat11": {
+    "path": "C:\\Program Files\\apache-tomcat-11.0.11\\bin\\tomcat11.exe",
+    "type": "exe",
+    "exe_name": "tomcat11"
+  },
+  "tomcat11w": {
+    "path": "C:\\Program Files\\apache-tomcat-11.0.11\\bin\\tomcat11w.exe",
+    "type": "exe",
+    "exe_name": "tomcat11w"
+  },
+  "alertmanager": {
+    "path": "C:\\Program Files\\Common Files\\McAfee\\AlertManager\\AlertManagerReg.exe",
+    "type": "exe",
+    "exe_name": "alertmanagerreg"
+  },
+  "mfeextnstatus": {
+    "path": "C:\\Program Files\\Common Files\\McAfee\\MfeExtnStatus\\MfeExtnStatusReg.exe",
+    "type": "exe",
+    "exe_name": "mfeextnstatusreg"
+  },
+  "modulecore": {
+    "path": "C:\\Program Files\\Common Files\\McAfee\\ModuleCore\\ModuleCoreReg.exe",
+    "type": "exe",
+    "exe_name": "modulecorereg"
+  },
+  "clicktorun": {
+    "path": "C:\\Program Files\\Common Files\\microsoft shared\\ClickToRun\\appvcleaner.exe",
+    "type": "exe",
+    "exe_name": "appvcleaner"
+  },
+  "ink": {
+    "path": "C:\\Program Files\\Common Files\\microsoft shared\\ink\\TabTip.exe",
+    "type": "exe",
+    "exe_name": "tabtip"
+  },
+  "msinfo": {
+    "path": "C:\\Program Files\\Common Files\\microsoft shared\\MSInfo\\msinfo32.exe",
+    "type": "exe",
+    "exe_name": "msinfo32"
+  },
+  "office16": {
+    "path": "C:\\Program Files\\Common Files\\microsoft shared\\OFFICE16\\LICLUA.EXE",
+    "type": "exe",
+    "exe_name": "liclua"
+  },
+  "db browser for sqlite": {
+    "path": "C:\\Program Files\\DB Browser for SQLite\\DB Browser for SQLCipher.exe",
+    "type": "exe",
+    "exe_name": "db browser for sqlcipher"
+  },
+  "service": {
+    "path": "C:\\Program Files\\Dell\\Dell Connected Service Delivery\\Service\\Dell.Connected.Service.Delivery.exe",
+    "type": "exe",
+    "exe_name": "dell.connected.service.delivery"
+  },
+  "subagent": {
+    "path": "C:\\Program Files\\Dell\\Dell Connected Service Delivery\\SubAgent\\Dell.Connected.Service.Delivery.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.connected.service.delivery.subagent"
+  },
+  "{9dddcb72-4f29-4244-83ab-4072792578ae}": {
+    "path": "C:\\Program Files\\Dell\\Downloaded_Installations\\{9DDDCB72-4F29-4244-83AB-4072792578AE}\\windowsdesktop-runtime-8-win-x64.exe",
+    "type": "exe",
+    "exe_name": "windowsdesktop-runtime-8-win-x64"
+  },
+  "analyticssubagent": {
+    "path": "C:\\Program Files\\Dell\\DTP\\AnalyticsSubAgent\\Dell.TechHub.Analytics.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.techhub.analytics.subagent"
+  },
+  "datamanagersubagent": {
+    "path": "C:\\Program Files\\Dell\\DTP\\DataManagerSubAgent\\Dell.TechHub.DataManager.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.techhub.datamanager.subagent"
+  },
+  "diagnosticssubagent": {
+    "path": "C:\\Program Files\\Dell\\DTP\\DiagnosticsSubAgent\\AMDSwitchableGraphicsRenderer.exe",
+    "type": "exe",
+    "exe_name": "amdswitchablegraphicsrenderer"
+  },
+  "instrumentationsubagent": {
+    "path": "C:\\Program Files\\Dell\\DTP\\InstrumentationSubAgent\\Dell.TechHub.Instrumentation.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.techhub.instrumentation.subagent"
+  },
+  "fusion": {
+    "path": "C:\\Program Files\\Dell\\Fusion\\FusionService.exe",
+    "type": "exe",
+    "exe_name": "fusionservice"
+  },
+  "manager": {
+    "path": "C:\\Program Files\\Dell\\MyDell\\Manager\\Dell.UCA.Manager.exe",
+    "type": "exe",
+    "exe_name": "dell.uca.manager"
+  },
+  "updater": {
+    "path": "C:\\Program Files\\Dell\\MyDell\\Updater\\MyDell.Updater.exe",
+    "type": "exe",
+    "exe_name": "mydell.updater"
+  },
+  "agent": {
+    "path": "C:\\Program Files\\Dell\\SARemediation\\agent\\DellSupportAssistControlPanel.exe",
+    "type": "exe",
+    "exe_name": "dellsupportassistcontrolpanel"
+  },
+  "audit": {
+    "path": "C:\\Program Files\\Dell\\SARemediation\\audit\\PostOnce.exe",
+    "type": "exe",
+    "exe_name": "postonce"
+  },
+  "plugin": {
+    "path": "C:\\Program Files\\Dell\\SARemediation\\plugin\\bootpartitionmgmt.exe",
+    "type": "exe",
+    "exe_name": "bootpartitionmgmt"
+  },
+  "selfdiagnosis": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SelfDiagnosis.exe",
+    "type": "exe",
+    "exe_name": "selfdiagnosis"
+  },
+  "supportassist": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssist.exe",
+    "type": "exe",
+    "exe_name": "supportassist"
+  },
+  "supportassistagent": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistAgent.exe",
+    "type": "exe",
+    "exe_name": "supportassistagent"
+  },
+  "supportassistappwire": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistAppWire.exe",
+    "type": "exe",
+    "exe_name": "supportassistappwire"
+  },
+  "supportassistdatamigration": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistDataMigration.exe",
+    "type": "exe",
+    "exe_name": "supportassistdatamigration"
+  },
+  "supportassistdatasanitization": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistDataSanitization.exe",
+    "type": "exe",
+    "exe_name": "supportassistdatasanitization"
+  },
+  "supportassisthardwarediags": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistHardwareDiags.exe",
+    "type": "exe",
+    "exe_name": "supportassisthardwarediags"
+  },
+  "supportassistsoftwarediags": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\bin\\SupportAssistSoftwareDiags.exe",
+    "type": "exe",
+    "exe_name": "supportassistsoftwarediags"
+  },
+  "cdm": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\CDM\\DellDataManager.exe",
+    "type": "exe",
+    "exe_name": "delldatamanager"
+  },
+  "dellremoteassist": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\DellRemoteAssist\\DellRemoteAssist.exe",
+    "type": "exe",
+    "exe_name": "dellremoteassist"
+  },
+  "osrecoveryplugin": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\OSRecoveryPlugin\\DellUpdateSupportAssistPlugin.exe",
+    "type": "exe",
+    "exe_name": "dellupdatesupportassistplugin"
+  },
+  "sre": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\SRE\\SRE.exe",
+    "type": "exe",
+    "exe_name": "sre"
+  },
+  "techniciantoolkit": {
+    "path": "C:\\Program Files\\Dell\\SupportAssistAgent\\TechnicianToolkit\\TechnicianToolkit.exe",
+    "type": "exe",
+    "exe_name": "techniciantoolkit"
+  },
+  "techhub": {
+    "path": "C:\\Program Files\\Dell\\TechHub\\Dell.CoreServices.Client.exe",
+    "type": "exe",
+    "exe_name": "dell.coreservices.client"
+  },
+  "cli-plugins": {
+    "path": "C:\\Program Files\\Docker\\cli-plugins\\docker-ai.exe",
+    "type": "exe",
+    "exe_name": "docker-ai"
+  },
+  "docker": {
+    "path": "C:\\Program Files\\Docker\\Docker\\courgette64.exe",
+    "type": "exe",
+    "exe_name": "courgette64"
+  },
+  "frontend": {
+    "path": "C:\\Program Files\\Docker\\Docker\\frontend\\Docker Desktop.exe",
+    "type": "exe",
+    "exe_name": "docker desktop"
+  },
+  "dotnet": {
+    "path": "C:\\Program Files\\dotnet\\dotnet.exe",
+    "type": "exe",
+    "exe_name": "dotnet"
+  },
+  "aliyunwrapexe": {
+    "path": "C:\\Program Files\\EaseUS\\EaseUS Partition Master\\bin\\AliyunWrapExe.exe",
+    "type": "exe",
+    "exe_name": "aliyunwrapexe"
+  },
+  "bash": {
+    "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+    "type": "exe",
+    "exe_name": "bash"
+  },
+  "git": {
+    "path": "C:\\Program Files\\Git\\bin\\git.exe",
+    "type": "exe",
+    "exe_name": "git"
+  },
+  "sh": {
+    "path": "C:\\Program Files\\Git\\bin\\sh.exe",
+    "type": "exe",
+    "exe_name": "sh"
+  },
+  "cmd": {
+    "path": "C:\\Program Files\\Git\\cmd\\git-gui.exe",
+    "type": "exe",
+    "exe_name": "git-gui"
+  },
+  "adig": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\adig.exe",
+    "type": "exe",
+    "exe_name": "adig"
+  },
+  "ahost": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\ahost.exe",
+    "type": "exe",
+    "exe_name": "ahost"
+  },
+  "antiword": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\antiword.exe",
+    "type": "exe",
+    "exe_name": "antiword"
+  },
+  "blocked-file-util": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\blocked-file-util.exe",
+    "type": "exe",
+    "exe_name": "blocked-file-util"
+  },
+  "brotli": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\brotli.exe",
+    "type": "exe",
+    "exe_name": "brotli"
+  },
+  "bunzip2": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\bunzip2.exe",
+    "type": "exe",
+    "exe_name": "bunzip2"
+  },
+  "bzcat": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\bzcat.exe",
+    "type": "exe",
+    "exe_name": "bzcat"
+  },
+  "bzip2": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\bzip2.exe",
+    "type": "exe",
+    "exe_name": "bzip2"
+  },
+  "bzip2recover": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\bzip2recover.exe",
+    "type": "exe",
+    "exe_name": "bzip2recover"
+  },
+  "connect": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\connect.exe",
+    "type": "exe",
+    "exe_name": "connect"
+  },
+  "create-shortcut": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\create-shortcut.exe",
+    "type": "exe",
+    "exe_name": "create-shortcut"
+  },
+  "curl": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\curl.exe",
+    "type": "exe",
+    "exe_name": "curl"
+  },
+  "edit_test": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\edit_test.exe",
+    "type": "exe",
+    "exe_name": "edit_test"
+  },
+  "edit_test_dll": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\edit_test_dll.exe",
+    "type": "exe",
+    "exe_name": "edit_test_dll"
+  },
+  "envsubst": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\envsubst.exe",
+    "type": "exe",
+    "exe_name": "envsubst"
+  },
+  "gettext": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\gettext.exe",
+    "type": "exe",
+    "exe_name": "gettext"
+  },
+  "git-askpass": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-askpass.exe",
+    "type": "exe",
+    "exe_name": "git-askpass"
+  },
+  "git-askyesno": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-askyesno.exe",
+    "type": "exe",
+    "exe_name": "git-askyesno"
+  },
+  "git-credential-helper-selector": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-credential-helper-selector.exe",
+    "type": "exe",
+    "exe_name": "git-credential-helper-selector"
+  },
+  "git-credential-manager": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-credential-manager.exe",
+    "type": "exe",
+    "exe_name": "git-credential-manager"
+  },
+  "git-lfs": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-lfs.exe",
+    "type": "exe",
+    "exe_name": "git-lfs"
+  },
+  "git-receive-pack": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-receive-pack.exe",
+    "type": "exe",
+    "exe_name": "git-receive-pack"
+  },
+  "git-upload-archive": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-upload-archive.exe",
+    "type": "exe",
+    "exe_name": "git-upload-archive"
+  },
+  "git-upload-pack": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\git-upload-pack.exe",
+    "type": "exe",
+    "exe_name": "git-upload-pack"
+  },
+  "lzmadec": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\lzmadec.exe",
+    "type": "exe",
+    "exe_name": "lzmadec"
+  },
+  "lzmainfo": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\lzmainfo.exe",
+    "type": "exe",
+    "exe_name": "lzmainfo"
+  },
+  "odt2txt": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\odt2txt.exe",
+    "type": "exe",
+    "exe_name": "odt2txt"
+  },
+  "openssl": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\openssl.exe",
+    "type": "exe",
+    "exe_name": "openssl"
+  },
+  "p11-kit": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\p11-kit.exe",
+    "type": "exe",
+    "exe_name": "p11-kit"
+  },
+  "pdftotext": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\pdftotext.exe",
+    "type": "exe",
+    "exe_name": "pdftotext"
+  },
+  "pkcs1-conv": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\pkcs1-conv.exe",
+    "type": "exe",
+    "exe_name": "pkcs1-conv"
+  },
+  "proxy-lookup": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\proxy-lookup.exe",
+    "type": "exe",
+    "exe_name": "proxy-lookup"
+  },
+  "psl": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\psl.exe",
+    "type": "exe",
+    "exe_name": "psl"
+  },
+  "scalar": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\scalar.exe",
+    "type": "exe",
+    "exe_name": "scalar"
+  },
+  "sexp-conv": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\sexp-conv.exe",
+    "type": "exe",
+    "exe_name": "sexp-conv"
+  },
+  "tclsh": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\tclsh.exe",
+    "type": "exe",
+    "exe_name": "tclsh"
+  },
+  "tclsh86": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\tclsh86.exe",
+    "type": "exe",
+    "exe_name": "tclsh86"
+  },
+  "trust": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\trust.exe",
+    "type": "exe",
+    "exe_name": "trust"
+  },
+  "unxz": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\unxz.exe",
+    "type": "exe",
+    "exe_name": "unxz"
+  },
+  "whouses": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\WhoUses.exe",
+    "type": "exe",
+    "exe_name": "whouses"
+  },
+  "wintoast": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\wintoast.exe",
+    "type": "exe",
+    "exe_name": "wintoast"
+  },
+  "wish": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\wish.exe",
+    "type": "exe",
+    "exe_name": "wish"
+  },
+  "wish86": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\wish86.exe",
+    "type": "exe",
+    "exe_name": "wish86"
+  },
+  "x86_64-w64-mingw32-agrep": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\x86_64-w64-mingw32-agrep.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-agrep"
+  },
+  "xmlwf": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\xmlwf.exe",
+    "type": "exe",
+    "exe_name": "xmlwf"
+  },
+  "xz": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\xz.exe",
+    "type": "exe",
+    "exe_name": "xz"
+  },
+  "xzcat": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\xzcat.exe",
+    "type": "exe",
+    "exe_name": "xzcat"
+  },
+  "xzdec": {
+    "path": "C:\\Program Files\\Git\\mingw64\\bin\\xzdec.exe",
+    "type": "exe",
+    "exe_name": "xzdec"
+  },
+  "arch": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\arch.exe",
+    "type": "exe",
+    "exe_name": "arch"
+  },
+  "awk": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\awk.exe",
+    "type": "exe",
+    "exe_name": "awk"
+  },
+  "b2sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\b2sum.exe",
+    "type": "exe",
+    "exe_name": "b2sum"
+  },
+  "base32": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\base32.exe",
+    "type": "exe",
+    "exe_name": "base32"
+  },
+  "base64": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\base64.exe",
+    "type": "exe",
+    "exe_name": "base64"
+  },
+  "basename": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\basename.exe",
+    "type": "exe",
+    "exe_name": "basename"
+  },
+  "basenc": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\basenc.exe",
+    "type": "exe",
+    "exe_name": "basenc"
+  },
+  "captoinfo": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\captoinfo.exe",
+    "type": "exe",
+    "exe_name": "captoinfo"
+  },
+  "cat": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cat.exe",
+    "type": "exe",
+    "exe_name": "cat"
+  },
+  "chattr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chattr.exe",
+    "type": "exe",
+    "exe_name": "chattr"
+  },
+  "chcon": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chcon.exe",
+    "type": "exe",
+    "exe_name": "chcon"
+  },
+  "chgrp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chgrp.exe",
+    "type": "exe",
+    "exe_name": "chgrp"
+  },
+  "chmod": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chmod.exe",
+    "type": "exe",
+    "exe_name": "chmod"
+  },
+  "chown": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chown.exe",
+    "type": "exe",
+    "exe_name": "chown"
+  },
+  "chroot": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\chroot.exe",
+    "type": "exe",
+    "exe_name": "chroot"
+  },
+  "cksum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cksum.exe",
+    "type": "exe",
+    "exe_name": "cksum"
+  },
+  "clear": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\clear.exe",
+    "type": "exe",
+    "exe_name": "clear"
+  },
+  "cmp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cmp.exe",
+    "type": "exe",
+    "exe_name": "cmp"
+  },
+  "column": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\column.exe",
+    "type": "exe",
+    "exe_name": "column"
+  },
+  "comm": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\comm.exe",
+    "type": "exe",
+    "exe_name": "comm"
+  },
+  "cp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cp.exe",
+    "type": "exe",
+    "exe_name": "cp"
+  },
+  "csplit": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\csplit.exe",
+    "type": "exe",
+    "exe_name": "csplit"
+  },
+  "cut": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cut.exe",
+    "type": "exe",
+    "exe_name": "cut"
+  },
+  "cygcheck": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cygcheck.exe",
+    "type": "exe",
+    "exe_name": "cygcheck"
+  },
+  "cygpath": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cygpath.exe",
+    "type": "exe",
+    "exe_name": "cygpath"
+  },
+  "cygwin-console-helper": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\cygwin-console-helper.exe",
+    "type": "exe",
+    "exe_name": "cygwin-console-helper"
+  },
+  "d2u": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\d2u.exe",
+    "type": "exe",
+    "exe_name": "d2u"
+  },
+  "dash": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dash.exe",
+    "type": "exe",
+    "exe_name": "dash"
+  },
+  "date": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\date.exe",
+    "type": "exe",
+    "exe_name": "date"
+  },
+  "dd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dd.exe",
+    "type": "exe",
+    "exe_name": "dd"
+  },
+  "df": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\df.exe",
+    "type": "exe",
+    "exe_name": "df"
+  },
+  "diff": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\diff.exe",
+    "type": "exe",
+    "exe_name": "diff"
+  },
+  "diff3": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\diff3.exe",
+    "type": "exe",
+    "exe_name": "diff3"
+  },
+  "dir": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dir.exe",
+    "type": "exe",
+    "exe_name": "dir"
+  },
+  "dircolors": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dircolors.exe",
+    "type": "exe",
+    "exe_name": "dircolors"
+  },
+  "dirmngr-client": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dirmngr-client.exe",
+    "type": "exe",
+    "exe_name": "dirmngr-client"
+  },
+  "dirmngr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dirmngr.exe",
+    "type": "exe",
+    "exe_name": "dirmngr"
+  },
+  "dirname": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dirname.exe",
+    "type": "exe",
+    "exe_name": "dirname"
+  },
+  "dos2unix": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dos2unix.exe",
+    "type": "exe",
+    "exe_name": "dos2unix"
+  },
+  "du": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\du.exe",
+    "type": "exe",
+    "exe_name": "du"
+  },
+  "dumpsexp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\dumpsexp.exe",
+    "type": "exe",
+    "exe_name": "dumpsexp"
+  },
+  "echo": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\echo.exe",
+    "type": "exe",
+    "exe_name": "echo"
+  },
+  "env": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\env.exe",
+    "type": "exe",
+    "exe_name": "env"
+  },
+  "ex": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ex.exe",
+    "type": "exe",
+    "exe_name": "ex"
+  },
+  "expand": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\expand.exe",
+    "type": "exe",
+    "exe_name": "expand"
+  },
+  "expr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\expr.exe",
+    "type": "exe",
+    "exe_name": "expr"
+  },
+  "factor": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\factor.exe",
+    "type": "exe",
+    "exe_name": "factor"
+  },
+  "false": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\false.exe",
+    "type": "exe",
+    "exe_name": "false"
+  },
+  "file": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\file.exe",
+    "type": "exe",
+    "exe_name": "file"
+  },
+  "find": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\find.exe",
+    "type": "exe",
+    "exe_name": "find"
+  },
+  "fmt": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\fmt.exe",
+    "type": "exe",
+    "exe_name": "fmt"
+  },
+  "fold": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\fold.exe",
+    "type": "exe",
+    "exe_name": "fold"
+  },
+  "funzip": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\funzip.exe",
+    "type": "exe",
+    "exe_name": "funzip"
+  },
+  "gawk-5.0.0": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gawk-5.0.0.exe",
+    "type": "exe",
+    "exe_name": "gawk-5.0.0"
+  },
+  "gawk": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gawk.exe",
+    "type": "exe",
+    "exe_name": "gawk"
+  },
+  "gencat": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gencat.exe",
+    "type": "exe",
+    "exe_name": "gencat"
+  },
+  "getconf": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\getconf.exe",
+    "type": "exe",
+    "exe_name": "getconf"
+  },
+  "getfacl": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\getfacl.exe",
+    "type": "exe",
+    "exe_name": "getfacl"
+  },
+  "getopt": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\getopt.exe",
+    "type": "exe",
+    "exe_name": "getopt"
+  },
+  "gkill": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gkill.exe",
+    "type": "exe",
+    "exe_name": "gkill"
+  },
+  "gmondump": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gmondump.exe",
+    "type": "exe",
+    "exe_name": "gmondump"
+  },
+  "gpg-agent": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-agent.exe",
+    "type": "exe",
+    "exe_name": "gpg-agent"
+  },
+  "gpg-card": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-card.exe",
+    "type": "exe",
+    "exe_name": "gpg-card"
+  },
+  "gpg-connect-agent": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-connect-agent.exe",
+    "type": "exe",
+    "exe_name": "gpg-connect-agent"
+  },
+  "gpg-error": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-error.exe",
+    "type": "exe",
+    "exe_name": "gpg-error"
+  },
+  "gpg-mail-tube": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-mail-tube.exe",
+    "type": "exe",
+    "exe_name": "gpg-mail-tube"
+  },
+  "gpg-wks-client": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-wks-client.exe",
+    "type": "exe",
+    "exe_name": "gpg-wks-client"
+  },
+  "gpg-wks-server": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg-wks-server.exe",
+    "type": "exe",
+    "exe_name": "gpg-wks-server"
+  },
+  "gpg": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpg.exe",
+    "type": "exe",
+    "exe_name": "gpg"
+  },
+  "gpgconf": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgconf.exe",
+    "type": "exe",
+    "exe_name": "gpgconf"
+  },
+  "gpgparsemail": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgparsemail.exe",
+    "type": "exe",
+    "exe_name": "gpgparsemail"
+  },
+  "gpgscm": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgscm.exe",
+    "type": "exe",
+    "exe_name": "gpgscm"
+  },
+  "gpgsm": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgsm.exe",
+    "type": "exe",
+    "exe_name": "gpgsm"
+  },
+  "gpgsplit": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgsplit.exe",
+    "type": "exe",
+    "exe_name": "gpgsplit"
+  },
+  "gpgtar": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgtar.exe",
+    "type": "exe",
+    "exe_name": "gpgtar"
+  },
+  "gpgv": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gpgv.exe",
+    "type": "exe",
+    "exe_name": "gpgv"
+  },
+  "grep": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\grep.exe",
+    "type": "exe",
+    "exe_name": "grep"
+  },
+  "groups": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\groups.exe",
+    "type": "exe",
+    "exe_name": "groups"
+  },
+  "gzip": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\gzip.exe",
+    "type": "exe",
+    "exe_name": "gzip"
+  },
+  "head": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\head.exe",
+    "type": "exe",
+    "exe_name": "head"
+  },
+  "hmac256": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\hmac256.exe",
+    "type": "exe",
+    "exe_name": "hmac256"
+  },
+  "hostid": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\hostid.exe",
+    "type": "exe",
+    "exe_name": "hostid"
+  },
+  "hostname": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\hostname.exe",
+    "type": "exe",
+    "exe_name": "hostname"
+  },
+  "iconv": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\iconv.exe",
+    "type": "exe",
+    "exe_name": "iconv"
+  },
+  "id": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\id.exe",
+    "type": "exe",
+    "exe_name": "id"
+  },
+  "infocmp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\infocmp.exe",
+    "type": "exe",
+    "exe_name": "infocmp"
+  },
+  "infotocap": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\infotocap.exe",
+    "type": "exe",
+    "exe_name": "infotocap"
+  },
+  "join": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\join.exe",
+    "type": "exe",
+    "exe_name": "join"
+  },
+  "kbxutil": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\kbxutil.exe",
+    "type": "exe",
+    "exe_name": "kbxutil"
+  },
+  "kill": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\kill.exe",
+    "type": "exe",
+    "exe_name": "kill"
+  },
+  "ldd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ldd.exe",
+    "type": "exe",
+    "exe_name": "ldd"
+  },
+  "ldh": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ldh.exe",
+    "type": "exe",
+    "exe_name": "ldh"
+  },
+  "less": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\less.exe",
+    "type": "exe",
+    "exe_name": "less"
+  },
+  "lessecho": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\lessecho.exe",
+    "type": "exe",
+    "exe_name": "lessecho"
+  },
+  "lesskey": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\lesskey.exe",
+    "type": "exe",
+    "exe_name": "lesskey"
+  },
+  "link": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\link.exe",
+    "type": "exe",
+    "exe_name": "link"
+  },
+  "ln": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ln.exe",
+    "type": "exe",
+    "exe_name": "ln"
+  },
+  "locale": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\locale.exe",
+    "type": "exe",
+    "exe_name": "locale"
+  },
+  "locate": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\locate.exe",
+    "type": "exe",
+    "exe_name": "locate"
+  },
+  "logname": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\logname.exe",
+    "type": "exe",
+    "exe_name": "logname"
+  },
+  "ls": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ls.exe",
+    "type": "exe",
+    "exe_name": "ls"
+  },
+  "lsattr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\lsattr.exe",
+    "type": "exe",
+    "exe_name": "lsattr"
+  },
+  "mac2unix": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mac2unix.exe",
+    "type": "exe",
+    "exe_name": "mac2unix"
+  },
+  "md5sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\md5sum.exe",
+    "type": "exe",
+    "exe_name": "md5sum"
+  },
+  "minidumper": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\minidumper.exe",
+    "type": "exe",
+    "exe_name": "minidumper"
+  },
+  "mintty": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mintty.exe",
+    "type": "exe",
+    "exe_name": "mintty"
+  },
+  "mkdir": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mkdir.exe",
+    "type": "exe",
+    "exe_name": "mkdir"
+  },
+  "mkfifo": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mkfifo.exe",
+    "type": "exe",
+    "exe_name": "mkfifo"
+  },
+  "mkgroup": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mkgroup.exe",
+    "type": "exe",
+    "exe_name": "mkgroup"
+  },
+  "mknod": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mknod.exe",
+    "type": "exe",
+    "exe_name": "mknod"
+  },
+  "mkpasswd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mkpasswd.exe",
+    "type": "exe",
+    "exe_name": "mkpasswd"
+  },
+  "mktemp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mktemp.exe",
+    "type": "exe",
+    "exe_name": "mktemp"
+  },
+  "mount": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mount.exe",
+    "type": "exe",
+    "exe_name": "mount"
+  },
+  "mpicalc": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mpicalc.exe",
+    "type": "exe",
+    "exe_name": "mpicalc"
+  },
+  "mv": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\mv.exe",
+    "type": "exe",
+    "exe_name": "mv"
+  },
+  "nano": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nano.exe",
+    "type": "exe",
+    "exe_name": "nano"
+  },
+  "nettle-hash": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nettle-hash.exe",
+    "type": "exe",
+    "exe_name": "nettle-hash"
+  },
+  "nettle-lfib-stream": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nettle-lfib-stream.exe",
+    "type": "exe",
+    "exe_name": "nettle-lfib-stream"
+  },
+  "nettle-pbkdf2": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nettle-pbkdf2.exe",
+    "type": "exe",
+    "exe_name": "nettle-pbkdf2"
+  },
+  "newgrp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\newgrp.exe",
+    "type": "exe",
+    "exe_name": "newgrp"
+  },
+  "nice": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nice.exe",
+    "type": "exe",
+    "exe_name": "nice"
+  },
+  "nl": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nl.exe",
+    "type": "exe",
+    "exe_name": "nl"
+  },
+  "nohup": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nohup.exe",
+    "type": "exe",
+    "exe_name": "nohup"
+  },
+  "nproc": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\nproc.exe",
+    "type": "exe",
+    "exe_name": "nproc"
+  },
+  "numfmt": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\numfmt.exe",
+    "type": "exe",
+    "exe_name": "numfmt"
+  },
+  "od": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\od.exe",
+    "type": "exe",
+    "exe_name": "od"
+  },
+  "passwd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\passwd.exe",
+    "type": "exe",
+    "exe_name": "passwd"
+  },
+  "paste": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\paste.exe",
+    "type": "exe",
+    "exe_name": "paste"
+  },
+  "patch": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\patch.exe",
+    "type": "exe",
+    "exe_name": "patch"
+  },
+  "pathchk": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pathchk.exe",
+    "type": "exe",
+    "exe_name": "pathchk"
+  },
+  "perl": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\perl.exe",
+    "type": "exe",
+    "exe_name": "perl"
+  },
+  "perl5.38.2": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\perl5.38.2.exe",
+    "type": "exe",
+    "exe_name": "perl5.38.2"
+  },
+  "pinentry-w32": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pinentry-w32.exe",
+    "type": "exe",
+    "exe_name": "pinentry-w32"
+  },
+  "pinentry": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pinentry.exe",
+    "type": "exe",
+    "exe_name": "pinentry"
+  },
+  "pinky": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pinky.exe",
+    "type": "exe",
+    "exe_name": "pinky"
+  },
+  "pldd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pldd.exe",
+    "type": "exe",
+    "exe_name": "pldd"
+  },
+  "pluginviewer": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pluginviewer.exe",
+    "type": "exe",
+    "exe_name": "pluginviewer"
+  },
+  "pr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pr.exe",
+    "type": "exe",
+    "exe_name": "pr"
+  },
+  "printenv": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\printenv.exe",
+    "type": "exe",
+    "exe_name": "printenv"
+  },
+  "printf": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\printf.exe",
+    "type": "exe",
+    "exe_name": "printf"
+  },
+  "ps": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ps.exe",
+    "type": "exe",
+    "exe_name": "ps"
+  },
+  "ptx": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ptx.exe",
+    "type": "exe",
+    "exe_name": "ptx"
+  },
+  "pwd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\pwd.exe",
+    "type": "exe",
+    "exe_name": "pwd"
+  },
+  "readlink": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\readlink.exe",
+    "type": "exe",
+    "exe_name": "readlink"
+  },
+  "realpath": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\realpath.exe",
+    "type": "exe",
+    "exe_name": "realpath"
+  },
+  "rebase": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rebase.exe",
+    "type": "exe",
+    "exe_name": "rebase"
+  },
+  "regtool": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\regtool.exe",
+    "type": "exe",
+    "exe_name": "regtool"
+  },
+  "reset": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\reset.exe",
+    "type": "exe",
+    "exe_name": "reset"
+  },
+  "rm": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rm.exe",
+    "type": "exe",
+    "exe_name": "rm"
+  },
+  "rmdir": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rmdir.exe",
+    "type": "exe",
+    "exe_name": "rmdir"
+  },
+  "rnano": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rnano.exe",
+    "type": "exe",
+    "exe_name": "rnano"
+  },
+  "runcon": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\runcon.exe",
+    "type": "exe",
+    "exe_name": "runcon"
+  },
+  "rview": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rview.exe",
+    "type": "exe",
+    "exe_name": "rview"
+  },
+  "rvim": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\rvim.exe",
+    "type": "exe",
+    "exe_name": "rvim"
+  },
+  "scp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\scp.exe",
+    "type": "exe",
+    "exe_name": "scp"
+  },
+  "sdiff": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sdiff.exe",
+    "type": "exe",
+    "exe_name": "sdiff"
+  },
+  "sed": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sed.exe",
+    "type": "exe",
+    "exe_name": "sed"
+  },
+  "seq": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\seq.exe",
+    "type": "exe",
+    "exe_name": "seq"
+  },
+  "setfacl": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\setfacl.exe",
+    "type": "exe",
+    "exe_name": "setfacl"
+  },
+  "setmetamode": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\setmetamode.exe",
+    "type": "exe",
+    "exe_name": "setmetamode"
+  },
+  "sftp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sftp.exe",
+    "type": "exe",
+    "exe_name": "sftp"
+  },
+  "sha1sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sha1sum.exe",
+    "type": "exe",
+    "exe_name": "sha1sum"
+  },
+  "sha224sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sha224sum.exe",
+    "type": "exe",
+    "exe_name": "sha224sum"
+  },
+  "sha256sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sha256sum.exe",
+    "type": "exe",
+    "exe_name": "sha256sum"
+  },
+  "sha384sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sha384sum.exe",
+    "type": "exe",
+    "exe_name": "sha384sum"
+  },
+  "sha512sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sha512sum.exe",
+    "type": "exe",
+    "exe_name": "sha512sum"
+  },
+  "shred": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\shred.exe",
+    "type": "exe",
+    "exe_name": "shred"
+  },
+  "shuf": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\shuf.exe",
+    "type": "exe",
+    "exe_name": "shuf"
+  },
+  "sleep": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sleep.exe",
+    "type": "exe",
+    "exe_name": "sleep"
+  },
+  "sort": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sort.exe",
+    "type": "exe",
+    "exe_name": "sort"
+  },
+  "split": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\split.exe",
+    "type": "exe",
+    "exe_name": "split"
+  },
+  "ssh-add": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh-add.exe",
+    "type": "exe",
+    "exe_name": "ssh-add"
+  },
+  "ssh-agent": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh-agent.exe",
+    "type": "exe",
+    "exe_name": "ssh-agent"
+  },
+  "ssh-keygen": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh-keygen.exe",
+    "type": "exe",
+    "exe_name": "ssh-keygen"
+  },
+  "ssh-keyscan": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh-keyscan.exe",
+    "type": "exe",
+    "exe_name": "ssh-keyscan"
+  },
+  "ssh-pageant": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh-pageant.exe",
+    "type": "exe",
+    "exe_name": "ssh-pageant"
+  },
+  "ssh": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssh.exe",
+    "type": "exe",
+    "exe_name": "ssh"
+  },
+  "ssp": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\ssp.exe",
+    "type": "exe",
+    "exe_name": "ssp"
+  },
+  "stat": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\stat.exe",
+    "type": "exe",
+    "exe_name": "stat"
+  },
+  "stdbuf": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\stdbuf.exe",
+    "type": "exe",
+    "exe_name": "stdbuf"
+  },
+  "strace": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\strace.exe",
+    "type": "exe",
+    "exe_name": "strace"
+  },
+  "stty": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\stty.exe",
+    "type": "exe",
+    "exe_name": "stty"
+  },
+  "sum": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sum.exe",
+    "type": "exe",
+    "exe_name": "sum"
+  },
+  "sync": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\sync.exe",
+    "type": "exe",
+    "exe_name": "sync"
+  },
+  "tabs": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tabs.exe",
+    "type": "exe",
+    "exe_name": "tabs"
+  },
+  "tac": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tac.exe",
+    "type": "exe",
+    "exe_name": "tac"
+  },
+  "tail": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tail.exe",
+    "type": "exe",
+    "exe_name": "tail"
+  },
+  "tar": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tar.exe",
+    "type": "exe",
+    "exe_name": "tar"
+  },
+  "tee": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tee.exe",
+    "type": "exe",
+    "exe_name": "tee"
+  },
+  "test": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\test.exe",
+    "type": "exe",
+    "exe_name": "test"
+  },
+  "tic": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tic.exe",
+    "type": "exe",
+    "exe_name": "tic"
+  },
+  "tig": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tig.exe",
+    "type": "exe",
+    "exe_name": "tig"
+  },
+  "timeout": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\timeout.exe",
+    "type": "exe",
+    "exe_name": "timeout"
+  },
+  "toe": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\toe.exe",
+    "type": "exe",
+    "exe_name": "toe"
+  },
+  "touch": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\touch.exe",
+    "type": "exe",
+    "exe_name": "touch"
+  },
+  "tput": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tput.exe",
+    "type": "exe",
+    "exe_name": "tput"
+  },
+  "tr": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tr.exe",
+    "type": "exe",
+    "exe_name": "tr"
+  },
+  "true": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\true.exe",
+    "type": "exe",
+    "exe_name": "true"
+  },
+  "truncate": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\truncate.exe",
+    "type": "exe",
+    "exe_name": "truncate"
+  },
+  "tset": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tset.exe",
+    "type": "exe",
+    "exe_name": "tset"
+  },
+  "tsort": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tsort.exe",
+    "type": "exe",
+    "exe_name": "tsort"
+  },
+  "tty": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tty.exe",
+    "type": "exe",
+    "exe_name": "tty"
+  },
+  "tzset": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\tzset.exe",
+    "type": "exe",
+    "exe_name": "tzset"
+  },
+  "u2d": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\u2d.exe",
+    "type": "exe",
+    "exe_name": "u2d"
+  },
+  "umount": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\umount.exe",
+    "type": "exe",
+    "exe_name": "umount"
+  },
+  "uname": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\uname.exe",
+    "type": "exe",
+    "exe_name": "uname"
+  },
+  "unexpand": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unexpand.exe",
+    "type": "exe",
+    "exe_name": "unexpand"
+  },
+  "uniq": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\uniq.exe",
+    "type": "exe",
+    "exe_name": "uniq"
+  },
+  "unix2dos": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unix2dos.exe",
+    "type": "exe",
+    "exe_name": "unix2dos"
+  },
+  "unix2mac": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unix2mac.exe",
+    "type": "exe",
+    "exe_name": "unix2mac"
+  },
+  "unlink": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unlink.exe",
+    "type": "exe",
+    "exe_name": "unlink"
+  },
+  "unzip": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unzip.exe",
+    "type": "exe",
+    "exe_name": "unzip"
+  },
+  "unzipsfx": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\unzipsfx.exe",
+    "type": "exe",
+    "exe_name": "unzipsfx"
+  },
+  "users": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\users.exe",
+    "type": "exe",
+    "exe_name": "users"
+  },
+  "vdir": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\vdir.exe",
+    "type": "exe",
+    "exe_name": "vdir"
+  },
+  "view": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\view.exe",
+    "type": "exe",
+    "exe_name": "view"
+  },
+  "vim": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\vim.exe",
+    "type": "exe",
+    "exe_name": "vim"
+  },
+  "vimdiff": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\vimdiff.exe",
+    "type": "exe",
+    "exe_name": "vimdiff"
+  },
+  "watchgnupg": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\watchgnupg.exe",
+    "type": "exe",
+    "exe_name": "watchgnupg"
+  },
+  "wc": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\wc.exe",
+    "type": "exe",
+    "exe_name": "wc"
+  },
+  "which": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\which.exe",
+    "type": "exe",
+    "exe_name": "which"
+  },
+  "who": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\who.exe",
+    "type": "exe",
+    "exe_name": "who"
+  },
+  "whoami": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\whoami.exe",
+    "type": "exe",
+    "exe_name": "whoami"
+  },
+  "winpty-agent": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\winpty-agent.exe",
+    "type": "exe",
+    "exe_name": "winpty-agent"
+  },
+  "winpty-debugserver": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\winpty-debugserver.exe",
+    "type": "exe",
+    "exe_name": "winpty-debugserver"
+  },
+  "winpty": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\winpty.exe",
+    "type": "exe",
+    "exe_name": "winpty"
+  },
+  "xargs": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\xargs.exe",
+    "type": "exe",
+    "exe_name": "xargs"
+  },
+  "xxd": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\xxd.exe",
+    "type": "exe",
+    "exe_name": "xxd"
+  },
+  "yat2m": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\yat2m.exe",
+    "type": "exe",
+    "exe_name": "yat2m"
+  },
+  "yes": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\yes.exe",
+    "type": "exe",
+    "exe_name": "yes"
+  },
+  "zipinfo": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\zipinfo.exe",
+    "type": "exe",
+    "exe_name": "zipinfo"
+  },
+  "[": {
+    "path": "C:\\Program Files\\Git\\usr\\bin\\[.exe",
+    "type": "exe",
+    "exe_name": "["
+  },
+  "libexec": {
+    "path": "C:\\Program Files\\Git\\usr\\libexec\\frcode.exe",
+    "type": "exe",
+    "exe_name": "frcode"
+  },
+  "chrome": {
+    "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+    "type": "exe",
+    "exe_name": "chrome"
+  },
+  "chrome_proxy": {
+    "path": "C:\\Program Files\\Google\\Chrome\\Application\\chrome_proxy.exe",
+    "type": "exe",
+    "exe_name": "chrome_proxy"
+  },
+  "drive file stream": {
+    "path": "C:\\Program Files\\Google\\Drive File Stream\\account_export_tool.exe",
+    "type": "exe",
+    "exe_name": "account_export_tool"
+  },
+  "intel(r) graphics software & drivers": {
+    "path": "C:\\Program Files\\Intel\\Intel(R) Graphics Software & Drivers\\Uninstaller.exe",
+    "type": "exe",
+    "exe_name": "uninstaller"
+  },
+  "internet explorer": {
+    "path": "C:\\Program Files\\Internet Explorer\\ExtExport.exe",
+    "type": "exe",
+    "exe_name": "extexport"
+  },
+  "appletviewer": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\appletviewer.exe",
+    "type": "exe",
+    "exe_name": "appletviewer"
+  },
+  "extcheck": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\extcheck.exe",
+    "type": "exe",
+    "exe_name": "extcheck"
+  },
+  "idlj": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\idlj.exe",
+    "type": "exe",
+    "exe_name": "idlj"
+  },
+  "java-rmi": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\java-rmi.exe",
+    "type": "exe",
+    "exe_name": "java-rmi"
+  },
+  "javafxpackager": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\javafxpackager.exe",
+    "type": "exe",
+    "exe_name": "javafxpackager"
+  },
+  "javah": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\javah.exe",
+    "type": "exe",
+    "exe_name": "javah"
+  },
+  "javapackager": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\javapackager.exe",
+    "type": "exe",
+    "exe_name": "javapackager"
+  },
+  "javaws": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\javaws.exe",
+    "type": "exe",
+    "exe_name": "javaws"
+  },
+  "jhat": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\jhat.exe",
+    "type": "exe",
+    "exe_name": "jhat"
+  },
+  "jjs": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\jjs.exe",
+    "type": "exe",
+    "exe_name": "jjs"
+  },
+  "jmc": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\jmc.exe",
+    "type": "exe",
+    "exe_name": "jmc"
+  },
+  "jsadebugd": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\jsadebugd.exe",
+    "type": "exe",
+    "exe_name": "jsadebugd"
+  },
+  "jvisualvm": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\jvisualvm.exe",
+    "type": "exe",
+    "exe_name": "jvisualvm"
+  },
+  "native2ascii": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\native2ascii.exe",
+    "type": "exe",
+    "exe_name": "native2ascii"
+  },
+  "orbd": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\orbd.exe",
+    "type": "exe",
+    "exe_name": "orbd"
+  },
+  "pack200": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\pack200.exe",
+    "type": "exe",
+    "exe_name": "pack200"
+  },
+  "policytool": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\policytool.exe",
+    "type": "exe",
+    "exe_name": "policytool"
+  },
+  "rmic": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\rmic.exe",
+    "type": "exe",
+    "exe_name": "rmic"
+  },
+  "rmid": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\rmid.exe",
+    "type": "exe",
+    "exe_name": "rmid"
+  },
+  "schemagen": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\schemagen.exe",
+    "type": "exe",
+    "exe_name": "schemagen"
+  },
+  "servertool": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\servertool.exe",
+    "type": "exe",
+    "exe_name": "servertool"
+  },
+  "tnameserv": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\tnameserv.exe",
+    "type": "exe",
+    "exe_name": "tnameserv"
+  },
+  "unpack200": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\unpack200.exe",
+    "type": "exe",
+    "exe_name": "unpack200"
+  },
+  "wsgen": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\wsgen.exe",
+    "type": "exe",
+    "exe_name": "wsgen"
+  },
+  "wsimport": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\wsimport.exe",
+    "type": "exe",
+    "exe_name": "wsimport"
+  },
+  "xjc": {
+    "path": "C:\\Program Files\\Java\\jdk1.8.0_202\\bin\\xjc.exe",
+    "type": "exe",
+    "exe_name": "xjc"
+  },
+  "idea64": {
+    "path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.1\\bin\\idea64.exe",
+    "type": "exe",
+    "exe_name": "idea64"
+  },
+  "jetbrains_client64": {
+    "path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.1\\bin\\jetbrains_client64.exe",
+    "type": "exe",
+    "exe_name": "jetbrains_client64"
+  },
+  "runnerw": {
+    "path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA Community Edition 2024.3.2.1\\bin\\runnerw.exe",
+    "type": "exe",
+    "exe_name": "runnerw"
+  },
+  "pycharm64": {
+    "path": "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2024.1.1\\bin\\pycharm64.exe",
+    "type": "exe",
+    "exe_name": "pycharm64"
+  },
+  "repair": {
+    "path": "C:\\Program Files\\JetBrains\\PyCharm Community Edition 2024.1.1\\bin\\repair.exe",
+    "type": "exe",
+    "exe_name": "repair"
+  },
+  "webadvisor": {
+    "path": "C:\\Program Files\\McAfee\\WebAdvisor\\browserhost.exe",
+    "type": "exe",
+    "exe_name": "browserhost"
+  },
+  "wpsmigration": {
+    "path": "C:\\Program Files\\McAfee\\WPSMigration\\WpsMigrator.exe",
+    "type": "exe",
+    "exe_name": "wpsmigrator"
+  },
+  "azureattestservice": {
+    "path": "C:\\Program Files\\Microsoft\\AzureAttestService\\AzureAttestServiceInstaller.exe",
+    "type": "exe",
+    "exe_name": "azureattestserviceinstaller"
+  },
+  "client": {
+    "path": "C:\\Program Files\\Microsoft Office\\root\\Client\\AppVDllSurrogate.exe",
+    "type": "exe",
+    "exe_name": "appvdllsurrogate"
+  },
+  "integration": {
+    "path": "C:\\Program Files\\Microsoft Office\\root\\Integration\\Integrator.exe",
+    "type": "exe",
+    "exe_name": "integrator"
+  },
+  "clientx64": {
+    "path": "C:\\Program Files\\Microsoft Office 15\\ClientX64\\IntegratedOffice.exe",
+    "type": "exe",
+    "exe_name": "integratedoffice"
+  },
+  "26.012.0119.0002": {
+    "path": "C:\\Program Files\\Microsoft OneDrive\\26.012.0119.0002\\FileCoAuth.exe",
+    "type": "exe",
+    "exe_name": "filecoauth"
+  },
+  "microsoft onedrive": {
+    "path": "C:\\Program Files\\Microsoft OneDrive\\OneDrive.App.exe",
+    "type": "exe",
+    "exe_name": "onedrive.app"
+  },
+  "shared": {
+    "path": "C:\\Program Files\\Microsoft SQL Server\\160\\Shared\\SqlDumper.exe",
+    "type": "exe",
+    "exe_name": "sqldumper"
+  },
+  "microsoft update health tools": {
+    "path": "C:\\Program Files\\Microsoft Update Health Tools\\expediteupdater.exe",
+    "type": "exe",
+    "exe_name": "expediteupdater"
+  },
+  "ibd2sdi": {
+    "path": "C:\\Program Files\\mysql\\bin\\ibd2sdi.exe",
+    "type": "exe",
+    "exe_name": "ibd2sdi"
+  },
+  "innochecksum": {
+    "path": "C:\\Program Files\\mysql\\bin\\innochecksum.exe",
+    "type": "exe",
+    "exe_name": "innochecksum"
+  },
+  "lz4_decompress": {
+    "path": "C:\\Program Files\\mysql\\bin\\lz4_decompress.exe",
+    "type": "exe",
+    "exe_name": "lz4_decompress"
+  },
+  "myisamchk": {
+    "path": "C:\\Program Files\\mysql\\bin\\myisamchk.exe",
+    "type": "exe",
+    "exe_name": "myisamchk"
+  },
+  "myisamlog": {
+    "path": "C:\\Program Files\\mysql\\bin\\myisamlog.exe",
+    "type": "exe",
+    "exe_name": "myisamlog"
+  },
+  "myisampack": {
+    "path": "C:\\Program Files\\mysql\\bin\\myisampack.exe",
+    "type": "exe",
+    "exe_name": "myisampack"
+  },
+  "myisam_ftdump": {
+    "path": "C:\\Program Files\\mysql\\bin\\myisam_ftdump.exe",
+    "type": "exe",
+    "exe_name": "myisam_ftdump"
+  },
+  "mysql": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql.exe",
+    "type": "exe",
+    "exe_name": "mysql"
+  },
+  "mysqladmin": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqladmin.exe",
+    "type": "exe",
+    "exe_name": "mysqladmin"
+  },
+  "mysqlbinlog": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlbinlog.exe",
+    "type": "exe",
+    "exe_name": "mysqlbinlog"
+  },
+  "mysqlcheck": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlcheck.exe",
+    "type": "exe",
+    "exe_name": "mysqlcheck"
+  },
+  "mysqld": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqld.exe",
+    "type": "exe",
+    "exe_name": "mysqld"
+  },
+  "mysqldump": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqldump.exe",
+    "type": "exe",
+    "exe_name": "mysqldump"
+  },
+  "mysqlimport": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlimport.exe",
+    "type": "exe",
+    "exe_name": "mysqlimport"
+  },
+  "mysqlpump": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlpump.exe",
+    "type": "exe",
+    "exe_name": "mysqlpump"
+  },
+  "mysqlshow": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlshow.exe",
+    "type": "exe",
+    "exe_name": "mysqlshow"
+  },
+  "mysqlslap": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysqlslap.exe",
+    "type": "exe",
+    "exe_name": "mysqlslap"
+  },
+  "mysql_config_editor": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_config_editor.exe",
+    "type": "exe",
+    "exe_name": "mysql_config_editor"
+  },
+  "mysql_migrate_keyring": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_migrate_keyring.exe",
+    "type": "exe",
+    "exe_name": "mysql_migrate_keyring"
+  },
+  "mysql_secure_installation": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_secure_installation.exe",
+    "type": "exe",
+    "exe_name": "mysql_secure_installation"
+  },
+  "mysql_ssl_rsa_setup": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_ssl_rsa_setup.exe",
+    "type": "exe",
+    "exe_name": "mysql_ssl_rsa_setup"
+  },
+  "mysql_tzinfo_to_sql": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_tzinfo_to_sql.exe",
+    "type": "exe",
+    "exe_name": "mysql_tzinfo_to_sql"
+  },
+  "mysql_upgrade": {
+    "path": "C:\\Program Files\\mysql\\bin\\mysql_upgrade.exe",
+    "type": "exe",
+    "exe_name": "mysql_upgrade"
+  },
+  "my_print_defaults": {
+    "path": "C:\\Program Files\\mysql\\bin\\my_print_defaults.exe",
+    "type": "exe",
+    "exe_name": "my_print_defaults"
+  },
+  "perror": {
+    "path": "C:\\Program Files\\mysql\\bin\\perror.exe",
+    "type": "exe",
+    "exe_name": "perror"
+  },
+  "zlib_decompress": {
+    "path": "C:\\Program Files\\mysql\\bin\\zlib_decompress.exe",
+    "type": "exe",
+    "exe_name": "zlib_decompress"
+  },
+  "mysql workbench 8.0 ce": {
+    "path": "C:\\Program Files\\mysql\\MySQL Workbench 8.0 CE\\ccapiserver.exe",
+    "type": "exe",
+    "exe_name": "ccapiserver"
+  },
+  "nodejs": {
+    "path": "C:\\Program Files\\nodejs\\node.exe",
+    "type": "exe",
+    "exe_name": "node"
+  },
+  "python312": {
+    "path": "C:\\Program Files\\Python312\\python.exe",
+    "type": "exe",
+    "exe_name": "python"
+  },
+  "scripts": {
+    "path": "C:\\Program Files\\Python312\\Scripts\\pip.exe",
+    "type": "exe",
+    "exe_name": "pip"
+  },
+  "nmake": {
+    "path": "C:\\Program Files\\Python312\\tcl\\nmake\\x86_64-w64-mingw32-nmakehlp.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-nmakehlp"
+  },
+  "sts-4.32.2.release": {
+    "path": "C:\\Program Files\\sts-4.32.2.RELEASE\\SpringToolSuite4.exe",
+    "type": "exe",
+    "exe_name": "springtoolsuite4"
+  },
+  "teamviewer": {
+    "path": "C:\\Program Files\\TeamViewer\\TeamViewer.exe",
+    "type": "exe",
+    "exe_name": "teamviewer"
+  },
+  "windows defender": {
+    "path": "C:\\Program Files\\Windows Defender\\ConfigSecurityPolicy.exe",
+    "type": "exe",
+    "exe_name": "configsecuritypolicy"
+  },
+  "offline": {
+    "path": "C:\\Program Files\\Windows Defender\\Offline\\OfflineScannerShell.exe",
+    "type": "exe",
+    "exe_name": "offlinescannershell"
+  },
+  "windows mail": {
+    "path": "C:\\Program Files\\Windows Mail\\wab.exe",
+    "type": "exe",
+    "exe_name": "wab"
+  },
+  "windows media player": {
+    "path": "C:\\Program Files\\Windows Media Player\\setup_wm.exe",
+    "type": "exe",
+    "exe_name": "setup_wm"
+  },
+  "windows photo viewer": {
+    "path": "C:\\Program Files\\Windows Photo Viewer\\ImagingDevices.exe",
+    "type": "exe",
+    "exe_name": "imagingdevices"
+  },
+  "wsl": {
+    "path": "C:\\Program Files\\WSL\\msal.wsl.proxy.exe",
+    "type": "exe",
+    "exe_name": "msal.wsl.proxy"
+  },
+  "wslsettings": {
+    "path": "C:\\Program Files\\WSL\\wslsettings\\createdump.exe",
+    "type": "exe",
+    "exe_name": "createdump"
+  },
+  "installer": {
+    "path": "C:\\Program Files (x86)\\Common Files\\McAfee\\Installer\\McInst.exe",
+    "type": "exe",
+    "exe_name": "mcinst"
+  },
+  "dcf": {
+    "path": "C:\\Program Files (x86)\\Dell\\UpdateService\\DCF\\Dell.Update.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.update.subagent"
+  },
+  "updateservice": {
+    "path": "C:\\Program Files (x86)\\Dell\\UpdateService\\ServiceShell.exe",
+    "type": "exe",
+    "exe_name": "serviceshell"
+  },
+  "dell digital delivery services": {
+    "path": "C:\\Program Files (x86)\\Dell Digital Delivery Services\\Dell.D3.WinSvc.exe",
+    "type": "exe",
+    "exe_name": "dell.d3.winsvc"
+  },
+  "astyle": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\AStyle\\AStyle.exe",
+    "type": "exe",
+    "exe_name": "astyle"
+  },
+  "dev-cpp": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\ConsolePauser.exe",
+    "type": "exe",
+    "exe_name": "consolepauser"
+  },
+  "addr2line": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\addr2line.exe",
+    "type": "exe",
+    "exe_name": "addr2line"
+  },
+  "ar": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\ar.exe",
+    "type": "exe",
+    "exe_name": "ar"
+  },
+  "as": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\as.exe",
+    "type": "exe",
+    "exe_name": "as"
+  },
+  "c++": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\c++.exe",
+    "type": "exe",
+    "exe_name": "c++"
+  },
+  "c++filt": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\c++filt.exe",
+    "type": "exe",
+    "exe_name": "c++filt"
+  },
+  "cpp": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\cpp.exe",
+    "type": "exe",
+    "exe_name": "cpp"
+  },
+  "dlltool": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\dlltool.exe",
+    "type": "exe",
+    "exe_name": "dlltool"
+  },
+  "dllwrap": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\dllwrap.exe",
+    "type": "exe",
+    "exe_name": "dllwrap"
+  },
+  "elfedit": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\elfedit.exe",
+    "type": "exe",
+    "exe_name": "elfedit"
+  },
+  "g++": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\g++.exe",
+    "type": "exe",
+    "exe_name": "g++"
+  },
+  "gcc-ar": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcc-ar.exe",
+    "type": "exe",
+    "exe_name": "gcc-ar"
+  },
+  "gcc-nm": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcc-nm.exe",
+    "type": "exe",
+    "exe_name": "gcc-nm"
+  },
+  "gcc-ranlib": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcc-ranlib.exe",
+    "type": "exe",
+    "exe_name": "gcc-ranlib"
+  },
+  "gcc": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcc.exe",
+    "type": "exe",
+    "exe_name": "gcc"
+  },
+  "gcov": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gcov.exe",
+    "type": "exe",
+    "exe_name": "gcov"
+  },
+  "gdb": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gdb.exe",
+    "type": "exe",
+    "exe_name": "gdb"
+  },
+  "gdb32": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gdb32.exe",
+    "type": "exe",
+    "exe_name": "gdb32"
+  },
+  "gdbserver": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gdbserver.exe",
+    "type": "exe",
+    "exe_name": "gdbserver"
+  },
+  "gdbserver32": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gdbserver32.exe",
+    "type": "exe",
+    "exe_name": "gdbserver32"
+  },
+  "gprof": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\gprof.exe",
+    "type": "exe",
+    "exe_name": "gprof"
+  },
+  "ld.bfd": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\ld.bfd.exe",
+    "type": "exe",
+    "exe_name": "ld.bfd"
+  },
+  "ld": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\ld.exe",
+    "type": "exe",
+    "exe_name": "ld"
+  },
+  "mingw32-make": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\mingw32-make.exe",
+    "type": "exe",
+    "exe_name": "mingw32-make"
+  },
+  "nm": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\nm.exe",
+    "type": "exe",
+    "exe_name": "nm"
+  },
+  "objcopy": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\objcopy.exe",
+    "type": "exe",
+    "exe_name": "objcopy"
+  },
+  "objdump": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\objdump.exe",
+    "type": "exe",
+    "exe_name": "objdump"
+  },
+  "ranlib": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\ranlib.exe",
+    "type": "exe",
+    "exe_name": "ranlib"
+  },
+  "readelf": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\readelf.exe",
+    "type": "exe",
+    "exe_name": "readelf"
+  },
+  "size": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\size.exe",
+    "type": "exe",
+    "exe_name": "size"
+  },
+  "strings": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\strings.exe",
+    "type": "exe",
+    "exe_name": "strings"
+  },
+  "strip": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\strip.exe",
+    "type": "exe",
+    "exe_name": "strip"
+  },
+  "windmc": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\windmc.exe",
+    "type": "exe",
+    "exe_name": "windmc"
+  },
+  "windres": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\windres.exe",
+    "type": "exe",
+    "exe_name": "windres"
+  },
+  "x86_64-w64-mingw32-c++": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-c++.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-c++"
+  },
+  "x86_64-w64-mingw32-g++": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-g++.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-g++"
+  },
+  "x86_64-w64-mingw32-gcc-4.9.2": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-gcc-4.9.2.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-gcc-4.9.2"
+  },
+  "x86_64-w64-mingw32-gcc-ar": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-gcc-ar.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-gcc-ar"
+  },
+  "x86_64-w64-mingw32-gcc-nm": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-gcc-nm.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-gcc-nm"
+  },
+  "x86_64-w64-mingw32-gcc-ranlib": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-gcc-ranlib.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-gcc-ranlib"
+  },
+  "x86_64-w64-mingw32-gcc": {
+    "path": "C:\\Program Files (x86)\\Dev-Cpp\\MinGW64\\bin\\x86_64-w64-mingw32-gcc.exe",
+    "type": "exe",
+    "exe_name": "x86_64-w64-mingw32-gcc"
+  },
+  "update": {
+    "path": "C:\\Program Files (x86)\\Google\\Update\\GoogleUpdate.exe",
+    "type": "exe",
+    "exe_name": "googleupdate"
+  },
+  "{f66b758e-ec5c-410a-bc09-1f5412f9f00e}": {
+    "path": "C:\\Program Files (x86)\\InstallShield Installation Information\\{F66B758E-EC5C-410A-BC09-1F5412F9F00E}\\Dell.CSD.SubAgent.exe",
+    "type": "exe",
+    "exe_name": "dell.csd.subagent"
+  },
+  "msedge": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+    "type": "exe",
+    "exe_name": "msedge"
+  },
+  "msedge_proxy": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge_proxy.exe",
+    "type": "exe",
+    "exe_name": "msedge_proxy"
+  },
+  "new_edge_proxy": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\new_edge_proxy.exe",
+    "type": "exe",
+    "exe_name": "new_edge_proxy"
+  },
+  "new_msedge": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\new_msedge.exe",
+    "type": "exe",
+    "exe_name": "new_msedge"
+  },
+  "new_pwahelper": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\new_pwahelper.exe",
+    "type": "exe",
+    "exe_name": "new_pwahelper"
+  },
+  "144.0.3719.115": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeCore\\144.0.3719.115\\cookie_exporter.exe",
+    "type": "exe",
+    "exe_name": "cookie_exporter"
+  },
+  "145.0.3800.58": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeCore\\145.0.3800.58\\cookie_exporter.exe",
+    "type": "exe",
+    "exe_name": "cookie_exporter"
+  },
+  "145.0.3800.65": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeCore\\145.0.3800.65\\cookie_exporter.exe",
+    "type": "exe",
+    "exe_name": "cookie_exporter"
+  },
+  "optimized": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeCore\\Optimized\\cookie_exporter.exe",
+    "type": "exe",
+    "exe_name": "cookie_exporter"
+  },
+  "1.3.221.3": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeUpdate\\1.3.221.3\\CopilotUpdate.exe",
+    "type": "exe",
+    "exe_name": "copilotupdate"
+  },
+  "edgeupdate": {
+    "path": "C:\\Program Files (x86)\\Microsoft\\EdgeUpdate\\CopilotUpdate.exe",
+    "type": "exe",
+    "exe_name": "copilotupdate"
+  },
+  "gdbkillproc": {
+    "path": "C:\\Program Files (x86)\\NetBeans 8.0.2\\cnd\\bin\\GdbKillProc.exe",
+    "type": "exe",
+    "exe_name": "gdbkillproc"
+  },
+  "regsvr32": {
+    "path": "C:\\Program Files (x86)\\Oracle\\bin\\regsvr32.exe",
+    "type": "exe",
+    "exe_name": "regsvr32"
+  },
+  "emulator": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Android\\Sdk\\emulator\\crashpad_handler.exe",
+    "type": "exe",
+    "exe_name": "crashpad_handler"
+  },
+  "platform-tools": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Android\\Sdk\\platform-tools\\adb.exe",
+    "type": "exe",
+    "exe_name": "adb"
+  },
+  "brave": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\BraveSoftware\\Brave-Browser\\Application\\brave.exe",
+    "type": "exe",
+    "exe_name": "brave"
+  },
+  "1.3.361.151": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\BraveSoftware\\Update\\1.3.361.151\\BraveCrashHandler.exe",
+    "type": "exe",
+    "exe_name": "bravecrashhandler"
+  },
+  "app-3.4.21": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\GitHubDesktop\\app-3.4.21\\GitHubDesktop.exe",
+    "type": "exe",
+    "exe_name": "githubdesktop"
+  },
+  "app-3.5.0": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\GitHubDesktop\\app-3.5.0\\GitHubDesktop.exe",
+    "type": "exe",
+    "exe_name": "githubdesktop"
+  },
+  "githubdesktop": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\GitHubDesktop\\GitHubDesktop.exe",
+    "type": "exe",
+    "exe_name": "githubdesktop"
+  },
+  "restart": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\JetBrains\\PyCharmCE2023.1\\restart\\restarter.exe",
+    "type": "exe",
+    "exe_name": "restarter"
+  },
+  "91750d7e.slack_8she8kybcnzg4": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\91750D7E.Slack_8she8kybcnzg4\\Slack.exe",
+    "type": "exe",
+    "exe_name": "slack"
+  },
+  "windowsapps": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\ActionsMcpHost.exe",
+    "type": "exe",
+    "exe_name": "actionsmcphost"
+  },
+  "microsoft.desktopappinstaller_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\python.exe",
+    "type": "exe",
+    "exe_name": "python"
+  },
+  "microsoft.gamingapp_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.GamingApp_8wekyb3d8bbwe\\XboxPcAppAdminServer.exe",
+    "type": "exe",
+    "exe_name": "xboxpcappadminserver"
+  },
+  "microsoft.gethelp_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.GetHelp_8wekyb3d8bbwe\\GetHelp.exe",
+    "type": "exe",
+    "exe_name": "gethelp"
+  },
+  "microsoft.outlookforwindows_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.OutlookForWindows_8wekyb3d8bbwe\\olk.exe",
+    "type": "exe",
+    "exe_name": "olk"
+  },
+  "microsoft.paint_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.Paint_8wekyb3d8bbwe\\mspaint.exe",
+    "type": "exe",
+    "exe_name": "mspaint"
+  },
+  "microsoft.screensketch_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.ScreenSketch_8wekyb3d8bbwe\\SnippingTool.exe",
+    "type": "exe",
+    "exe_name": "snippingtool"
+  },
+  "microsoft.windowsnotepad_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.WindowsNotepad_8wekyb3d8bbwe\\notepad.exe",
+    "type": "exe",
+    "exe_name": "notepad"
+  },
+  "microsoft.windowsstore_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.WindowsStore_8wekyb3d8bbwe\\microsoftstore.exe",
+    "type": "exe",
+    "exe_name": "microsoftstore"
+  },
+  "microsoft.windowsterminal_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\wt.exe",
+    "type": "exe",
+    "exe_name": "wt"
+  },
+  "microsoft.xboxgamingoverlay_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.XboxGamingOverlay_8wekyb3d8bbwe\\GameBarElevatedFT_Alias.exe",
+    "type": "exe",
+    "exe_name": "gamebarelevatedft_alias"
+  },
+  "microsoft.zunemusic_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\Microsoft.ZuneMusic_8wekyb3d8bbwe\\MediaPlayer.exe",
+    "type": "exe",
+    "exe_name": "mediaplayer"
+  },
+  "microsoftcorporationii.windowssubsystemforlinux_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\MicrosoftCorporationII.WindowsSubsystemForLinux_8wekyb3d8bbwe\\bash.exe",
+    "type": "exe",
+    "exe_name": "bash"
+  },
+  "microsoftwindows.client.cbs_cw5n1h2txyewy": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\\ActionsMcpHost.exe",
+    "type": "exe",
+    "exe_name": "actionsmcphost"
+  },
+  "msteams_8wekyb3d8bbwe": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Microsoft\\WindowsApps\\MSTeams_8wekyb3d8bbwe\\ms-teams.exe",
+    "type": "exe",
+    "exe_name": "ms-teams"
+  },
+  "app-1.45.3": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\MongoDBCompass\\app-1.45.3\\MongoDBCompass.exe",
+    "type": "exe",
+    "exe_name": "mongodbcompass"
+  },
+  "app-1.48.2": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\MongoDBCompass\\app-1.48.2\\MongoDBCompass.exe",
+    "type": "exe",
+    "exe_name": "mongodbcompass"
+  },
+  "mongodbcompass": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\MongoDBCompass\\MongoDBCompass.exe",
+    "type": "exe",
+    "exe_name": "mongodbcompass"
+  },
+  "1.50.1": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\ms-playwright-go\\1.50.1\\node.exe",
+    "type": "exe",
+    "exe_name": "node"
+  },
+  "{5ee4d2b6-a5dc-4321-b6bd-3ebc98120a51}": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Package Cache\\{5ee4d2b6-a5dc-4321-b6bd-3ebc98120a51}\\python-3.12.3-amd64.exe",
+    "type": "exe",
+    "exe_name": "python-3.12.3-amd64"
+  },
+  "pending": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\parakeetai-desktop-updater\\pending\\pmodule-Setup-3.2.6.exe",
+    "type": "exe",
+    "exe_name": "pmodule-setup-3.2.6"
+  },
+  "antigravity": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\Antigravity\\Antigravity.exe",
+    "type": "exe",
+    "exe_name": "antigravity"
+  },
+  "tools": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\Antigravity\\tools\\inno_updater.exe",
+    "type": "exe",
+    "exe_name": "inno_updater"
+  },
+  "cursor": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\cursor\\Cursor.exe",
+    "type": "exe",
+    "exe_name": "cursor"
+  },
+  "code-tunnel": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\Microsoft VS Code\\bin\\code-tunnel.exe",
+    "type": "exe",
+    "exe_name": "code-tunnel"
+  },
+  "microsoft vs code": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+    "type": "exe",
+    "exe_name": "code"
+  },
+  "parakeetai-desktop": {
+    "path": "C:\\Users\\Nagashree K S\\AppData\\Local\\Programs\\parakeetai-desktop\\pmodule.exe",
+    "type": "exe",
+    "exe_name": "pmodule"
+  }
+}

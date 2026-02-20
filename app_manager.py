@@ -134,31 +134,59 @@ class AppManager:
         return len(apps)
 
     def _scan_shortcuts(self, directory: Path, apps: dict) -> None:
-        """Scan Start Menu .lnk files to resolve app names and paths."""
+        """Scan Start Menu .lnk files to resolve app names and paths in bulk."""
         try:
-            for lnk in directory.rglob("*.lnk"):
-                try:
-                    name = lnk.stem.lower().strip()
-                    # Skip uninstall shortcuts
-                    if any(skip in name for skip in ["uninstall", "uninst", "readme", "help", "manual", "license"]):
-                        continue
-                    # Resolve the .lnk target using PowerShell
-                    result = subprocess.run(
-                        ["powershell", "-NoProfile", "-Command",
-                         f"(New-Object -ComObject WScript.Shell).CreateShortcut('{lnk}').TargetPath"],
-                        capture_output=True, text=True, timeout=5,
-                    )
-                    target = result.stdout.strip()
-                    if target and target.lower().endswith(".exe") and os.path.isfile(target):
-                        exe_name = Path(target).stem.lower()
-                        if Path(target).name.lower() not in _IGNORE_EXES:
-                            apps[name] = {
-                                "path": target,
-                                "type": "exe",
-                                "exe_name": exe_name,
-                            }
-                except Exception:
-                    continue
+            links = list(directory.rglob("*.lnk"))
+            if not links:
+                return
+
+            log.debug("Resolving %d shortcuts in %s ...", len(links), directory)
+            
+            # Prepare a single PowerShell script to resolve all paths at once
+            # This is MUCH faster than calling powershell in a loop
+            ps_script = (
+                "$shell = New-Object -ComObject WScript.Shell; "
+                "foreach ($lnk in $args) { "
+                "  try { "
+                "    $target = $shell.CreateShortcut($lnk).TargetPath; "
+                "    if ($target -and $target.ToLower().EndsWith('.exe')) { "
+                "       Write-Output \"$lnk|$target\" "
+                "    } "
+                "  } catch {} "
+                "}"
+            )
+
+            # Pass all link paths as arguments to PowerShell
+            # Windows command line limit is around 8191 chars, so we may need to batch if there are thousands
+            # But usually Start Menu has < 500 links.
+            link_paths = [str(lnk) for lnk in links]
+            
+            # Batch in 50s just to be safe with command length
+            for i in range(0, len(link_paths), 50):
+                batch = link_paths[i:i+50]
+                result = subprocess.run(
+                    ["powershell", "-NoProfile", "-Command", ps_script, "--"] + batch,
+                    capture_output=True, text=True, timeout=30,
+                )
+                
+                if result.stdout:
+                    for line in result.stdout.strip().split("\n"):
+                        if "|" in line:
+                            lnk_path, target = line.split("|", 1)
+                            lnk_path = Path(lnk_path)
+                            name = lnk_path.stem.lower().strip()
+                            
+                            if any(skip in name for skip in ["uninstall", "uninst", "readme", "help", "manual", "license"]):
+                                continue
+                                
+                            if os.path.isfile(target):
+                                exe_name = Path(target).stem.lower()
+                                if Path(target).name.lower() not in _IGNORE_EXES:
+                                    apps[name] = {
+                                        "path": target,
+                                        "type": "exe",
+                                        "exe_name": exe_name,
+                                    }
         except Exception as exc:
             log.debug("Shortcut scan error in %s: %s", directory, exc)
 

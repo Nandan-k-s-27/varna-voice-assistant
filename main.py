@@ -214,6 +214,11 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         _handle_typing(result, speaker, tray)
         return
 
+    # --- Key press (v1.5 polish) ---
+    if result.is_key_press:
+        _handle_key_press(result, speaker, tray)
+        return
+
     # --- Monitor ---
     if result.is_monitor:
         _handle_monitor(result, monitor, speaker, tray)
@@ -348,7 +353,17 @@ _SYMBOL_MAP = {
     "enter key": "\n",
     "tab key": "\t",
     "space": " ",
+    # Multi-character symbols
+    "three periods": "...",
+    "triple dot": "...",
+    "triple dots": "...",
+    "dot dot dot": "...",
+    "ellipsis": "...",
+    "three dots": "...",
 }
+
+# Punctuation characters that should NOT have a leading space
+_NO_SPACE_BEFORE = set(".,!?;:)]}\"'>…")
 
 
 def _replace_symbols(text: str) -> str:
@@ -357,7 +372,25 @@ def _replace_symbols(text: str) -> str:
     for name in sorted(_SYMBOL_MAP.keys(), key=len, reverse=True):
         if name in text.lower():
             text = re.sub(re.escape(name), _SYMBOL_MAP[name], text, flags=re.IGNORECASE)
-    return text
+
+    # Handle number + symbol patterns like "3 periods" → "...", "2 exclamation marks" → "!!"
+    def _expand_number(m):
+        count = int(m.group(1))
+        sym = m.group(2).rstrip("s")  # remove trailing 's'
+        char = _SYMBOL_MAP.get(sym, _SYMBOL_MAP.get(sym + " mark", sym))
+        return char * min(count, 10)  # cap at 10 to be safe
+
+    text = re.sub(
+        r"(\d+)\s+(period|dot|exclamation mark|exclamation|question mark|question|hash|star|asterisk|dash|hyphen|underscore)s?",
+        _expand_number, text, flags=re.IGNORECASE
+    )
+
+    return text.strip()
+
+
+def _is_only_punctuation(text: str) -> bool:
+    """Check if text is purely punctuation/symbols (no letters or digits)."""
+    return bool(text) and all(not c.isalnum() and not c.isspace() for c in text)
 
 
 # ====================================================================== #
@@ -503,7 +536,7 @@ def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
 
 def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Type text into the active window."""
+    """Type text into the active window with smart spacing."""
     if not _HAS_AUTO:
         speaker.say("Voice typing requires pyautogui. Install it with pip install pyautogui.")
         return
@@ -516,11 +549,61 @@ def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
         speaker.say(f"Typing: {text}")
         time.sleep(0.5)  # Small delay to let TTS finish before typing
 
-        # Add a space before typing (for consecutive type commands)
-        pyautogui.press("space")
-        pyautogui.write(text, interval=0.03)
+        # Smart spacing: only add a leading space if text starts with words, not punctuation
+        if _is_only_punctuation(text) or (text and text[0] in _NO_SPACE_BEFORE):
+            # Pure punctuation like "?" or "..." — stick to previous word
+            pyautogui.write(text, interval=0.03)
+        else:
+            # Normal words — add a leading space to separate from previous text
+            pyautogui.press("space")
+            pyautogui.write(text, interval=0.03)
+
         log.info("Typed: '%s'", text)
         tray.update_result(f"⌨️ Typed: {text[:30]}")
+
+
+def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Press a keyboard key or hotkey combo."""
+    if not _HAS_AUTO:
+        speaker.say("Key press requires pyautogui.")
+        return
+
+    key = result.key_name
+    if not key:
+        return
+
+    # Hotkey combos
+    hotkey_map = {
+        "select_all": ("ctrl", "a"),
+        "undo": ("ctrl", "z"),
+        "redo": ("ctrl", "y"),
+        "copy": ("ctrl", "c"),
+        "paste": ("ctrl", "v"),
+        "cut": ("ctrl", "x"),
+    }
+
+    if key in hotkey_map:
+        pyautogui.hotkey(*hotkey_map[key])
+    else:
+        pyautogui.press(key)
+
+    key_labels = {
+        "enter": "Pressed Enter",
+        "escape": "Pressed Escape",
+        "tab": "Pressed Tab",
+        "backspace": "Pressed Backspace",
+        "delete": "Pressed Delete",
+        "select_all": "Selected all",
+        "undo": "Undo",
+        "redo": "Redo",
+        "copy": "Copied",
+        "paste": "Pasted",
+        "cut": "Cut",
+    }
+    msg = key_labels.get(key, f"Pressed {key}")
+    speaker.say(msg)
+    tray.update_result(f"⌨️ {msg}")
+    log.info("Key press: %s", key)
 
 
 def _try_in_tab_search(query: str, win_mgr: WindowManager,
