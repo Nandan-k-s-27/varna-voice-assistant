@@ -1,15 +1,9 @@
 """
-VARNA v1.4 - NLP Lite (Rule-Based Natural Language Processing)
-Flexible command recognition without LLM.
-
-Provides:
-  - Filler word removal  ("can you please open notepad for me" → "open notepad")
-  - Fuzzy matching        (using difflib — handles speech recognition errors)
-  - Intent extraction     (extracts intent + object + parameter from natural speech)
+VARNA v2.0 - Text Normalizer
+Filler word removal and text cleaning for command recognition.
 """
 
 import re
-from difflib import get_close_matches
 from utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -106,6 +100,19 @@ _OBJECT_ALIASES = {
 }
 
 
+def clean_text(text: str) -> str:
+    """
+    Convenience function for quick text cleaning.
+    
+    Args:
+        text: Raw user input.
+    
+    Returns:
+        Cleaned text with filler words removed.
+    """
+    return TextNormalizer.clean(text)
+
+
 class TextNormalizer:
     """Rule-based NLP for flexible command recognition."""
 
@@ -138,6 +145,8 @@ class TextNormalizer:
     def fuzzy_match(text: str, candidates: list[str], threshold: float = 0.7) -> str | None:
         """
         Find the closest matching command from candidates.
+        
+        DEPRECATED: Use FuzzyMatcher.match() instead.
 
         Uses difflib.get_close_matches with a configurable threshold.
 
@@ -149,6 +158,8 @@ class TextNormalizer:
         Returns:
             Best matching candidate, or None.
         """
+        from difflib import get_close_matches
+        
         if not text or not candidates:
             return None
 
@@ -233,3 +244,18 @@ class TextNormalizer:
         param = parts[1] if len(parts) > 1 else None
 
         return intent, obj, param
+    
+    # ------------------------------------------------------------------ #
+    @staticmethod
+    def normalize_app_name(name: str) -> str:
+        """
+        Normalize an application name to its canonical form.
+        
+        Args:
+            name: Raw app name from user input.
+        
+        Returns:
+            Canonical app name if alias exists, else original.
+        """
+        name_lower = name.lower().strip()
+        return _OBJECT_ALIASES.get(name_lower, name_lower)

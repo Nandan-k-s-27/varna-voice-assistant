@@ -1,6 +1,7 @@
-# VARNA v1.5 — Dependencies
+# VARNA v2.0 — Dependencies
 # Install with:  pip install -r requirements.txt
 
+# === Core Dependencies ===
 SpeechRecognition>=3.10.0
 PyAudio>=0.2.14
 pyttsx3>=2.90
@@ -10,3 +11,19 @@ Pillow>=10.0.0
 PyGetWindow>=0.0.9
 PyAutoGUI>=0.9.54
 psutil>=5.9.0
+pywin32>=306
+
+# === Offline STT (Speech-to-Text) ===
+# Choose ONE of the following:
+# Option 1: faster-whisper (recommended - better accuracy, ~150MB model)
+faster-whisper>=1.0.0
+
+# Option 2: vosk (lighter weight, faster, ~50MB model)
+# vosk>=0.3.45
+
+# === Enhanced NLP ===
+# Semantic matching for better command recognition
+sentence-transformers>=2.2.0
+
+# === Optional Performance ===
+# watchdog>=3.0.0  # For incremental app scanning (optional)

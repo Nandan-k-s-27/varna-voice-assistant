@@ -1,14 +1,27 @@
 # VARNA Voice Assistant
 
-**VARNA (Voice Activated Responsive Network Assistant)** is a secure, fully offline Windows desktop voice assistant. It uses speech recognition for high-accuracy STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system with window intelligence and natural language understanding.
+**VARNA (Voice Activated Responsive Network Assistant)** is a secure, **fully offline** Windows desktop voice assistant. It uses **Whisper/Vosk** for high-accuracy offline STT and pyttsx3 for TTS feedback, featuring a robust whitelist-based execution system with window intelligence, **layered NLP** with semantic understanding, and natural language processing.
 
 ## Features
 
-### v1.0 — Core Assistant
-- **Offline STT**: Speech recognition for reliable speech-to-text.
-- **Offline TTS**: pyttsx3 for immediate voice response.
-- **Command Whitelist**: Only safe, predefined commands are executed.
-- **Customizable**: Extend via `commands.json`.
+### v2.0 — Offline STT + Layered NLP (Latest)
+- **True Offline STT**: Whisper or Vosk for completely offline speech recognition.
+  - No internet required — works in airplane mode.
+  - Configurable: choose between Whisper (accuracy) or Vosk (speed).
+  - Automatic Google fallback if offline engines unavailable.
+- **Layered NLP Pipeline**: Multi-tier command matching for maximum accuracy.
+  - Exact match → Fuzzy matching → Phonetic matching → Semantic similarity.
+  - Phonetic matching handles pronunciation variants ("crome" → "chrome").
+  - Semantic matching understands paraphrases ("launch browser" → "open chrome").
+- **Enhanced Configuration**: `config.json` for all tunable parameters.
+  - STT engine selection, NLP thresholds, TTS settings.
+  - Wake words, timeouts, and performance options.
+- **Async TTS Queue**: Non-blocking speech with proper queue management.
+  - `say_async()` returns immediately, speech plays in background.
+  - Queue management: clear, pause, resume speech.
+- **Performance Improvements**: Faster startup and response times.
+  - Lazy model loading, pre-compiled patterns.
+  - Parse result caching for repeated commands.
 
 ### v1.1 — Smarter Commands
 - **Parameterized Commands**: `"search React hooks"` → Google search.
@@ -29,6 +42,17 @@
 - **Smart Screenshot**: `"screenshot as ReactBug"` → saves `ReactBug.png` to Desktop.
 - **File Search**: `"find PDF downloaded yesterday"` with type + date filters.
 - **System Tray UI**: Floating overlay showing mic status, last command, result.
+
+### v1.6 — Smarter NLP + Context Awareness + Speed
+- **Natural Language (60+ fillers)**: `"can you help me to open edge"` / `"i want to close chrome"` → just works.
+- **Typing Bug Fix**: `"type the quick brown fox"` correctly preserves `"the"` (not stripped by NLP).
+- **Context Commands**: `"repeat"` / `"do it again"` / `"close this"` / `"minimize this"` / `"maximize this"`.
+- **Fuzzy Window Switching**: `"switch to antigravity"` → fuzzy-matches against all open window titles.
+- **40+ Key Press Commands**: `"select all text"` / `"delete"` / `"save"` / `"press space"` / `"arrow up"` / etc.
+- **Faster Processing**: Async TTS (190 wpm), pre-compiled regex patterns, lower fuzzy threshold (65%).
+- **System Diagnostics**: Say "run diagnostics" or "check system" for internal self-tests.
+- **Standalone Debugger**: Includes `debug_varna.py` for troubleshooting hardware/deps.
+- **More Exit Phrases**: `"stop listening"` / `"that's all"` / `"i'm done"` / `"go to sleep"`.
 
 ### v1.5 — Universal App Control + Advanced Interactions
 - **Open ANY App**: `"open whatsapp"` / `"open spotify"` — scans your entire PC.
@@ -53,8 +77,8 @@
 - **Voice Typing**: `"type hello world"` → types text in any active application.
 - **Tab Control**: `"close tab"` / `"new tab"` / `"next tab"` / `"previous tab"` / `"reopen tab"`.
 - **Flexible NLP** (no LLM):
-  - **Filler removal**: `"can you please open notepad for me"` → `"open notepad"`.
-  - **Fuzzy matching**: Handles speech recognition errors (75%+ similarity).
+  - **60+ filler phrases**: `"can you help me to open notepad"` → `"open notepad"`.
+  - **Fuzzy matching**: Handles speech recognition errors (65%+ similarity).
   - **Intent extraction**: `"launch chrome"` / `"fire up vscode"` → all understood.
 - **Smart Search Routing**: If browser is active → searches in current tab (Ctrl+L → type → Enter).
 - **Natural Chains**: `"open edge and search React hooks"` → executes both in sequence.
@@ -112,23 +136,35 @@ For the full list of **160+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | `listener.py` | Speech recognition + yes/no confirmation |
 | `parser.py` | 20-step command matching pipeline with NLP preprocessing |
 | `executor.py` | Safe PowerShell execution |
-| `speaker.py` | Text-to-speech |
+| `speaker.py` | Text-to-speech with async queue 🆕 |
 | `context.py` | Session state + browser tracking + pronoun resolution |
 | `monitor.py` | Background process monitoring |
 | `macros.py` | Custom macro manager |
 | `tray.py` | System tray icon + floating overlay |
 | `window_manager.py` | Smart window control (pygetwindow) + AppManager fallback |
-| `nlp.py` | Rule-based NLP — filler removal, fuzzy match, intent extract |
-| `app_manager.py` | Universal app scan, index, fuzzy match, launch, close 🆕 |
-| `apps.json` | Auto-generated installed app cache 🆕 |
+| `nlp.py` | Legacy NLP (use `nlp/` package for v2.0) |
+| `stt_engine.py` | Offline STT engine (Whisper/Vosk) 🆕 |
+| `config.json` | Centralized configuration 🆕 |
+| `nlp/` | Enhanced NLP package 🆕 |
+| `nlp/__init__.py` | Unified NLP API with layered matching |
+| `nlp/normalizer.py` | Filler removal, intent extraction |
+| `nlp/fuzzy_matcher.py` | Fuzzy + phonetic matching |
+| `nlp/semantic_matcher.py` | ML-based semantic similarity |
+| `app_manager.py` | Universal app scan, index, fuzzy match, launch, close |
+| `apps.json` | Auto-generated installed app cache |
 | `commands.json` | Structured command whitelist |
 | `macros.json` | User-defined macros storage |
 
 ## Architecture
 
 ```
-🎤 Microphone → 📝 STT → 🧹 NLP Clean → 🧠 Parser (20 steps) → 🛡 Whitelist
-                                                    ↓
+🎤 Microphone → 📝 Offline STT (Whisper/Vosk) → 🧹 NLP Pipeline → 🧠 Parser → 🛡 Whitelist
+                         ↓                            ↓
+                   [Google Fallback]           ┌──────┴──────┐
+                                              ↓              ↓
+                                        Fuzzy Match   Semantic Match
+                                        + Phonetic     (ML-based)
+                                              ↓
                     ┌───────────────────────────────┼───────────────────────┐
                     ↓                               ↓                       ↓
              🪟 WindowManager              ⚡ PowerShell              ⌨️ PyAutoGUI
@@ -155,3 +191,48 @@ For the full list of **160+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
 | v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |
 | v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, drive/folder nav, clipboard history, WhatsApp nav, 160+ commands |
+| v1.6 | Smarter NLP (60+ fillers), context commands, 40+ key press commands, diagnostics |
+| v2.0 | **Offline STT + Layered NLP** — Whisper/Vosk offline speech, phonetic + semantic matching, async TTS queue, config system |
+
+## Installation
+
+### Standard Installation
+```bash
+git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git
+cd varna-voice-assistant
+pip install -r requirements.txt
+```
+
+### First Run (Model Download)
+On first run, VARNA will download the Whisper model (~150MB). This is a one-time download:
+```bash
+python main.py
+```
+
+### Optional: Use Vosk Instead (Lighter)
+If you prefer faster startup with smaller models:
+1. Download a Vosk model from https://alphacephei.com/vosk/models
+2. Extract to `models/vosk-model-small-en-us/`
+3. Update `config.json`: `"engine": "vosk"`
+
+## Configuration
+
+VARNA v2.0 uses `config.json` for all settings:
+
+```json
+{
+  "stt": {
+    "engine": "whisper",       // "whisper", "vosk", or "hybrid"
+    "whisper_model": "base"    // "tiny", "base", "small", "medium"
+  },
+  "nlp": {
+    "fuzzy_threshold": 0.70,   // 0.0-1.0, lower = more lenient
+    "semantic_threshold": 0.65,
+    "use_semantic_fallback": true
+  },
+  "tts": {
+    "rate": 190,               // Words per minute
+    "volume": 1.0
+  }
+}
+```

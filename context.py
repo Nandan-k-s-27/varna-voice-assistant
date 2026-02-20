@@ -1,13 +1,15 @@
 """
-VARNA v1.2 - Session Context Manager
+VARNA v1.6 - Session Context Manager
 Tracks state across the session for context-aware command resolution.
 
 Provides:
   - Last opened/closed app tracking
-  - Last opened project/folder tracking
+  - Active foreground window detection (win32gui)
   - Last browser tracking  (search uses last browser, not always Chrome)
   - Current working directory
-  - Pronoun resolution  ("close it" → last app)
+  - Pronoun resolution  ("close it/this" → last app / active window)
+  - Repeat / do it again support
+  - Last search query tracking
 """
 
 import re
@@ -15,6 +17,15 @@ from pathlib import Path
 from utils.logger import get_logger
 
 log = get_logger(__name__)
+
+# Try to import win32gui for active window detection
+try:
+    import win32gui
+    _HAS_WIN32 = True
+except ImportError:
+    _HAS_WIN32 = False
+    log.warning("win32gui not available — active window detection disabled. "
+                "Install pywin32: pip install pywin32")
 
 
 # Apps whose process names differ from their Start-Process names
@@ -62,8 +73,23 @@ class SessionContext:
         self.last_project: str | None = None       # e.g. "E:\\Projects\\react-app"
         self.cwd: str = str(Path.cwd())
         self.last_command_key: str | None = None   # e.g. "open chrome"
+        self.last_command_text: str | None = None  # raw text for "repeat"
+        self.last_search_query: str | None = None  # for "search again"
+        self.last_typed_text: str | None = None    # for context in typing
         log.info("SessionContext initialised. CWD = %s, default browser = %s",
                  self.cwd, self.last_browser)
+
+    # ------------------------------------------------------------------ #
+    def get_active_window_title(self) -> str | None:
+        """Get the title of the currently active (foreground) window."""
+        if not _HAS_WIN32:
+            return None
+        try:
+            hwnd = win32gui.GetForegroundWindow()
+            title = win32gui.GetWindowText(hwnd)
+            return title if title else None
+        except Exception:
+            return None
 
     # ------------------------------------------------------------------ #
     def update_after_command(self, command_key: str, ps_command: str) -> None:
@@ -102,7 +128,6 @@ class SessionContext:
             log.info("Context: last_app (closed) = '%s'", self.last_app)
 
         # Detect browser from command itself (e.g. search/website commands)
-        # If the PS command starts a specific browser, track it
         browser_in_cmd = re.search(r"Start-Process\s+(chrome|firefox|msedge)", ps_command, re.IGNORECASE)
         if browser_in_cmd:
             browser_exec = browser_in_cmd.group(1).lower()
@@ -116,6 +141,12 @@ class SessionContext:
             self.last_project = detected_path
             log.info("Context: last_project = '%s'", self.last_project)
 
+        # Track search queries
+        search_match = re.match(r"^search\s+(.+)$", key)
+        if search_match:
+            self.last_search_query = search_match.group(1).strip()
+            log.info("Context: last_search = '%s'", self.last_search_query)
+
     # ------------------------------------------------------------------ #
     def resolve_pronoun(self, text: str) -> tuple[str, str] | None:
         """
@@ -123,8 +154,14 @@ class SessionContext:
 
         Supported phrases:
           "close it"     → Stop-Process for last_app
+          "close this"   → Stop-Process for active foreground window
+          "minimize this" → minimize foreground app
+          "maximize this" → maximize foreground app
           "open it again" → Start-Process for last_app
           "go back"      → Open last_project folder
+          "repeat"       → re-execute last command
+          "do it again"  → re-execute last command
+          "search again" → repeat last search
 
         Returns:
             (matched_key, ps_command) or None if no pronoun detected.
@@ -171,7 +208,7 @@ class SessionContext:
                 return None
 
         # "go back" / "open last project"
-        if text in ("go back", "open last project", "open last folder"):
+        if text in ("open last project", "open last folder"):
             if self.last_project:
                 cmd = f"Start-Process explorer '{self.last_project}'"
                 log.info("Pronoun resolved: '%s' → open %s", text, self.last_project)
@@ -192,5 +229,9 @@ class SessionContext:
             parts.append(f"Active browser: {self.last_browser}")
         if self.last_project:
             parts.append(f"Last project: {self.last_project}")
+        active = self.get_active_window_title()
+        if active:
+            parts.append(f"Active window: {active}")
         parts.append(f"Working directory: {self.cwd}")
         return ". ".join(parts) if parts else "No context yet."
+

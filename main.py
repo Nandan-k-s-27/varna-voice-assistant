@@ -17,6 +17,7 @@ import sys
 import os
 import re
 import time
+import threading
 from listener import Listener
 from parser import Parser, ParseResult
 from executor import Executor
@@ -31,9 +32,12 @@ from utils.logger import get_logger
 
 log = get_logger("VARNA")
 
-VERSION = "1.5"
+VERSION = "1.6"
 
-EXIT_PHRASES = {"exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening"}
+EXIT_PHRASES = {
+    "exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening",
+    "that's all", "i'm done", "go to sleep", "shut down", "close varna",
+}
 
 # Try to import pyautogui
 try:
@@ -45,6 +49,9 @@ except ImportError:
     log.warning("pyautogui not installed — typing/tab/search features disabled.")
 
 
+# Thread-safe console printing
+PRINT_LOCK = threading.Lock()
+
 def main() -> None:
     """Run the VARNA assistant loop."""
 
@@ -54,7 +61,7 @@ def main() -> None:
 
     # --- Initialise components -------------------------------------------
     try:
-        speaker = Speaker(rate=170, volume=1.0)
+        speaker = Speaker(rate=190, volume=1.0)
         listener = Listener()
         parser = Parser()
         executor = Executor()
@@ -107,7 +114,9 @@ def main() -> None:
             break
 
         # Help
-        if text in {"help", "list commands", "what can you do"}:
+        if text in {"help", "list commands", "what can you do",
+                     "what commands do you have", "show commands",
+                     "commands", "what do you do"}:
             cmds = parser.list_commands()
             summary = ", ".join(cmds[:10])
             speaker.say(f"I can do things like: {summary}, and more.")
@@ -177,6 +186,21 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         return
 
     tray.update_command(result.matched_key or text)
+
+    # --- Repeat / Do it again ---
+    if result.is_repeat:
+        if context.last_command_text:
+            speaker.say("Repeating.")
+            tray.update_command(f"repeat: {context.last_command_text}")
+            _process_single(context.last_command_text, parser, executor, context,
+                            monitor, macros, win_mgr, app_mgr, speaker, tray, listener)
+        else:
+            speaker.say("Nothing to repeat yet.")
+            tray.update_result("❌ Nothing to repeat")
+        return
+
+    # Track last command for repeat (skip repeat itself)
+    context.last_command_text = text
 
     # --- Info response ---
     if result.is_info:
@@ -267,6 +291,11 @@ def _process_single(text: str, parser: Parser, executor: Executor,
     # --- Macros ---
     if result.is_macro:
         _handle_macro(result, macros, parser, executor, context, speaker, tray)
+        return
+
+    # --- Diagnostics (v1.6 robustness) ---
+    if result.is_diagnostics:
+        _handle_diagnostics(speaker, context, win_mgr, app_mgr, tray)
         return
 
     # --- Confirmation layer ---
@@ -467,6 +496,38 @@ def _handle_dynamic_close(result: ParseResult, app_mgr: AppManager,
         tray.update_result(f"🚫 Closed {target}")
 
 
+def _handle_diagnostics(speaker: Speaker, context: SessionContext, 
+                        win_mgr: WindowManager, app_mgr: AppManager, tray: TrayUI):
+    """Run internal self-tests to verify system health."""
+    speaker.say("Starting system diagnostics.")
+    tray.update_status("🧠 Diagnostics ...")
+    
+    results = []
+    
+    # 1. Check Window Tracking
+    active = context.get_active_window_title()
+    if active:
+        results.append("Window tracking OK")
+    else:
+        results.append("Window tracking WARNING (No active window found)")
+        
+    # 2. Check App Index
+    count = app_mgr.count()
+    if count > 0:
+        results.append(f"App index OK ({count} apps)")
+    else:
+        results.append("App index EMPTY (Try saying 'scan apps')")
+        
+    # 3. Check Mic/Speaker (Implicitly working if we got here, but log it)
+    results.append("Speaker/Parser OK")
+    
+    summary = ". ".join(results)
+    log.info("DIAGNOSTICS: %s", summary)
+    speaker.say(f"Diagnostics complete. {summary}")
+    tray.update_result("✅ Diagnostics OK")
+    tray.update_status("🎤 Listening ...")
+
+
 def _handle_window(result: ParseResult, win_mgr: WindowManager,
                    context: SessionContext, speaker: Speaker, tray: TrayUI):
     """Handle window intelligence commands."""
@@ -477,6 +538,35 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
         msg = win_mgr.show_desktop()
         speaker.say(msg)
         tray.update_result("🖥 Desktop")
+        return
+
+    # v1.6: close/minimize/maximize THIS (foreground) window
+    if action == "close_this":
+        if _HAS_AUTO:
+            title = context.get_active_window_title() or "window"
+            pyautogui.hotkey("alt", "F4")
+            speaker.say(f"Closed {title.split(' - ')[-1] if ' - ' in title else 'window'}")
+            tray.update_result("🚫 Closed active window")
+        else:
+            speaker.say("Cannot close — pyautogui not available.")
+        return
+
+    if action == "minimize_this":
+        if _HAS_AUTO:
+            pyautogui.hotkey("win", "down")
+            speaker.say("Minimized this window")
+            tray.update_result("🪟 Minimized active")
+        else:
+            speaker.say("Cannot minimize — pyautogui not available.")
+        return
+
+    if action == "maximize_this":
+        if _HAS_AUTO:
+            pyautogui.hotkey("win", "up")
+            speaker.say("Maximized this window")
+            tray.update_result("🪟 Maximized active")
+        else:
+            speaker.say("Cannot maximize — pyautogui not available.")
         return
 
     if action == "restore_last":
@@ -620,6 +710,8 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
         "copy": ("ctrl", "c"),
         "paste": ("ctrl", "v"),
         "cut": ("ctrl", "x"),
+        "save": ("ctrl", "s"),
+        "find": ("ctrl", "f"),
     }
 
     if key in hotkey_map:
@@ -632,13 +724,22 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
         "escape": "Pressed Escape",
         "tab": "Pressed Tab",
         "backspace": "Pressed Backspace",
-        "delete": "Pressed Delete",
+        "delete": "Deleted",
+        "space": "Pressed Space",
         "select_all": "Selected all",
         "undo": "Undo",
         "redo": "Redo",
         "copy": "Copied",
         "paste": "Pasted",
         "cut": "Cut",
+        "save": "Saved",
+        "find": "Opened Find",
+        "up": "Arrow Up",
+        "down": "Arrow Down",
+        "left": "Arrow Left",
+        "right": "Arrow Right",
+        "home": "Home",
+        "end": "End",
     }
     msg = key_labels.get(key, f"Pressed {key}")
     speaker.say(msg)

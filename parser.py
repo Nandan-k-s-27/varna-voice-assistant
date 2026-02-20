@@ -111,6 +111,9 @@ class ParseResult:
     whatsapp_action: str | None = None    # "open_chat" | "search_contact" | "new_chat"
     whatsapp_target: str | None = None    # chat number or contact name
     chat_number: int = 1                  # which chat (1-based)
+    # v1.6 context
+    is_repeat: bool = False               # repeat last command
+    is_diagnostics: bool = False          # system self-test
 
     @property
     def matched(self) -> bool:
@@ -175,6 +178,17 @@ class Parser:
 
         # v1.4 — NLP preprocessing: clean filler words
         original = text.lower().strip()
+
+        # IMPORTANT: Check typing BEFORE NLP cleaning to preserve user's text
+        # "type the quick brown fox" must keep "the" — NLP would strip it
+        typing_match = re.match(r"^(?:type|write|enter)\s+(.+)$", original)
+        if typing_match:
+            content = typing_match.group(1).strip()
+            if content:
+                log.info("Voice typing (pre-NLP): '%s'", content)
+                return ParseResult(matched_key=f"type: {content}",
+                                   is_typing=True, typing_text=content)
+
         text = _nlp.clean(original)
 
         if text != original:
@@ -185,6 +199,26 @@ class Parser:
             if context:
                 return ParseResult(matched_key=text, is_info=True, info_text=context.get_status())
             return ParseResult(matched_key=text, is_info=True, info_text="No context tracking available.")
+
+        # 0.1 Repeat / do it again
+        if text in ("repeat", "do it again", "do that again", "say that again",
+                    "again", "one more time", "repeat that", "repeat command"):
+            return ParseResult(matched_key=text, is_repeat=True)
+
+        # 0.2 Close/minimize/maximize THIS (active foreground window)
+        if text in ("close this", "close this window"):
+            return ParseResult(matched_key=text, is_window=True,
+                               window_action="close_this")
+        if text in ("minimize this", "minimize this window", "minimize", "minimise", "minimise this"):
+            return ParseResult(matched_key=text, is_window=True,
+                               window_action="minimize_this")
+        if text in ("maximize this", "maximize this window", "maximize", "maximise", "maximise this"):
+            return ParseResult(matched_key=text, is_window=True,
+                               window_action="maximize_this")
+
+        # 0.3 System Diagnostics
+        if text in ("run diagnostics", "system test", "check status", "diagnostics", "check system"):
+            return ParseResult(matched_key=text, is_diagnostics=True)
 
         # 1. Context — pronoun resolution
         if context and text in self.context_cmds:
@@ -227,6 +261,7 @@ class Parser:
 
         # 5.6 Key press commands (v1.5 polish)
         key_map = {
+            # Enter / Submit
             "press enter": "enter",
             "hit enter": "enter",
             "send it": "enter",
@@ -234,17 +269,60 @@ class Parser:
             "send message": "enter",
             "search now": "enter",
             "submit": "enter",
+            # Escape
             "press escape": "escape",
+            "cancel": "escape",
+            # Backspace / Delete
             "press backspace": "backspace",
             "undo typing": "backspace",
             "press delete": "delete",
+            "delete": "delete",
+            "delete this": "delete",
+            "delete that": "delete",
+            "delete selected": "delete",
+            "remove this": "delete",
+            "remove that": "delete",
+            # Tab
             "press tab key": "tab",
+            "press tab": "tab",
+            # Select All
             "select all": "select_all",
+            "select all text": "select_all",
+            "select everything": "select_all",
+            # Undo / Redo
             "undo": "undo",
+            "undo that": "undo",
             "redo": "redo",
+            "redo that": "redo",
+            # Copy / Paste / Cut
             "copy this": "copy",
+            "copy that": "copy",
+            "copy": "copy",
             "paste it": "paste",
+            "paste": "paste",
+            "paste here": "paste",
             "cut this": "cut",
+            "cut that": "cut",
+            "cut": "cut",
+            # Space
+            "press space": "space",
+            "space": "space",
+            # Arrow keys
+            "press up": "up",
+            "press down": "down",
+            "press left": "left",
+            "press right": "right",
+            "arrow up": "up",
+            "arrow down": "down",
+            "arrow left": "left",
+            "arrow right": "right",
+            # Home / End
+            "press home": "home",
+            "press end": "end",
+            # Save
+            "save": "save",
+            "save this": "save",
+            "save file": "save",
         }
         if text in key_map:
             key = key_map[text]
@@ -437,19 +515,20 @@ class Parser:
                                window_action="switch", window_target=app)
 
         # "minimize X"
-        m = re.match(r"^minimize\s+(.+)$", text)
+        m = re.match(r"^(?:minimize|minimise)\s+(.+)$", text)
         if m:
             app = m.group(1).strip()
-            if app not in ("all",):
+            if app not in ("all", "this", "it"):
                 return ParseResult(matched_key=f"minimize {app}", is_window=True,
                                    window_action="minimize", window_target=app)
 
         # "maximize X"
-        m = re.match(r"^maximize\s+(.+)$", text)
+        m = re.match(r"^(?:maximize|maximise)\s+(.+)$", text)
         if m:
             app = m.group(1).strip()
-            return ParseResult(matched_key=f"maximize {app}", is_window=True,
-                               window_action="maximize", window_target=app)
+            if app not in ("this", "it"):
+                return ParseResult(matched_key=f"maximize {app}", is_window=True,
+                                   window_action="maximize", window_target=app)
 
         # "restore X"
         m = re.match(r"^restore\s+(.+)$", text)

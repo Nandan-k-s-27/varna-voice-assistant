@@ -1,6 +1,6 @@
-# VARNA v1.5 — Full Command List
+# VARNA v1.6 — Full Command List
 
-All commands supported by VARNA v1.5, organized by category.
+All commands supported by VARNA v1.6, organized by category.
 
 ---
 
@@ -220,8 +220,9 @@ If a browser is currently active, "search X" uses **Ctrl+L → type → Enter** 
 ## 17. Flexible NLP — 🆕 v1.4 (automatic)
 
 All commands now support natural language:
-- **Filler removal**: "can you please open notepad for me" → "open notepad"
-- **Fuzzy matching**: Handles speech recognition errors (75%+ similarity)
+- **Filler removal**: "can you help me to open notepad" → "open notepad"
+- **60+ filler phrases**: "i want to", "help me", "could you please", etc.
+- **Fuzzy matching**: Handles speech recognition errors (65%+ similarity)
 - **Intent extraction**: "launch chrome" → understood as "open chrome"
 - **Synonym support**: "bring up", "fire up", "start" all map to "open"
 
@@ -404,4 +405,59 @@ Say multiple commands in one sentence:
 | **Search Results** 🆕 | **4** | **v1.5** |
 | **Clipboard History** 🆕 | **5** | **v1.5** |
 | **WhatsApp Nav** 🆕 | **5** | **v1.5** |
-| **Total** | **~160+** | |
+| **Key Press (expanded)** 🆕 | **40+** | **v1.6** |
+| **Context Commands** 🆕 | **10** | **v1.6** |
+| **Total** | **~210+** | |
+
+---
+
+## v1.6 Additions
+
+### Expanded Key Press Commands (40+)
+
+| Command | Action |
+|---------|--------|
+| select all text / select everything | Ctrl+A |
+| delete / delete this / delete that | Delete key |
+| delete selected / remove this | Delete key |
+| copy / copy this / copy that | Ctrl+C |
+| paste / paste it / paste here | Ctrl+V |
+| cut / cut this / cut that | Ctrl+X |
+| undo / undo that | Ctrl+Z |
+| redo / redo that | Ctrl+Y |
+| save / save this / save file | Ctrl+S |
+| press space / space | Space key |
+| press up/down/left/right | Arrow keys |
+| arrow up/down/left/right | Arrow keys |
+| press home / press end | Home/End |
+| press tab | Tab key |
+| cancel | Escape |
+
+### Context-Aware Commands (v1.6)
+
+| Command | Action |
+|---------|--------|
+| repeat / do it again / again | Re-executes the last command |
+| do that again / one more time | Re-executes the last command |
+| run diagnostics / system test | Runs internal self-test on hardware/software |
+| close this / close this window | Closes the active foreground window (Alt+F4) |
+| minimize this / minimize this window | Minimizes the active window (Win+Down) |
+| maximize this / maximize this window | Maximizes the active window (Win+Up) |
+
+### Improved Window Switching (v1.6)
+
+"switch to `{app}`" now uses **fuzzy matching** against all open window titles.
+Examples:
+- "switch to antigravity" → matches window with "Antigravity" in title
+- "switch to code" → matches VS Code window
+
+### Natural Language (v1.6)
+
+60+ filler phrases stripped automatically:
+- "can you help me to open edge" → "open edge" ✅
+- "i want to close chrome" → "close chrome" ✅
+- "would you please minimize this" → "minimize this" ✅
+- "hey varna type the quick brown fox" → "type the quick brown fox" ✅
+
+**Typing preserves content**: "type the command" correctly types "the command" (not stripped).
+

@@ -88,15 +88,44 @@ class WindowManager:
     # ------------------------------------------------------------------ #
     @staticmethod
     def _find_windows(app_name: str) -> list:
-        """Find windows whose title contains the app hint."""
+        """Find windows whose title contains the app hint with fuzzy fallback."""
         if not _HAS_GW:
             return []
 
         hint = _TITLE_HINTS.get(app_name.lower(), app_name)
+
+        # 1. Exact substring match (fast)
         windows = []
         for w in gw.getAllWindows():
+            # Exclude VARNA's own window to avoid self-focusing loops
+            if w.title and "varna" in w.title.lower():
+                continue
             if w.title and hint.lower() in w.title.lower():
                 windows.append(w)
+        if windows:
+            return windows
+
+        # 2. Fuzzy fallback — match against all window titles
+        import difflib
+        all_windows = [w for w in gw.getAllWindows() if w.title and w.title.strip()]
+        for w in all_windows:
+            title_lower = w.title.lower()
+            if "varna" in title_lower:
+                continue
+                
+            # Check if any word in the title fuzzy-matches the app name
+            title_words = title_lower.split()
+            for word in title_words:
+                ratio = difflib.SequenceMatcher(None, app_name.lower(), word).ratio()
+                if ratio > 0.7:  # Tightened from 0.5
+                    windows.append(w)
+                    break
+            # Also check whole title similarity
+            if not windows or w not in windows:
+                ratio = difflib.SequenceMatcher(None, app_name.lower(), title_lower).ratio()
+                if ratio > 0.6:  # Tightened from 0.3
+                    windows.append(w)
+
         return windows
 
     # ------------------------------------------------------------------ #

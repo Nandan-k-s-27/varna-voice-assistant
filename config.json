@@ -1,0 +1,45 @@
+{
+    "version": "2.0",
+    "stt": {
+        "engine": "whisper",
+        "whisper_model": "base",
+        "vosk_model_path": "models/vosk-model-small-en-us",
+        "language": "en",
+        "compute_type": "int8"
+    },
+    "tts": {
+        "rate": 190,
+        "volume": 1.0,
+        "voice_index": 1
+    },
+    "nlp": {
+        "fuzzy_threshold": 0.70,
+        "semantic_threshold": 0.65,
+        "phonetic_enabled": true,
+        "use_semantic_fallback": true
+    },
+    "listener": {
+        "energy_threshold": 300,
+        "pause_threshold": 1.0,
+        "timeout": 7,
+        "phrase_time_limit": 10,
+        "calibration_duration": 1.0
+    },
+    "performance": {
+        "cache_parse_results": true,
+        "parse_cache_size": 50,
+        "lazy_load_models": true,
+        "preload_common_apps": true
+    },
+    "wake_words": [
+        "hey varna",
+        "hi varna",
+        "hello varna",
+        "ok varna",
+        "varna"
+    ],
+    "logging": {
+        "level": "INFO",
+        "file": "logs/varna.log"
+    }
+}

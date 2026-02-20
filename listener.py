@@ -1,17 +1,45 @@
 """
-VARNA v1.2 - Speech-to-Text Listener
+VARNA v2.0 - Speech-to-Text Listener
 Uses the `speech_recognition` library for microphone capture
-and Google's free Web Speech API for recognition.
+with offline STT (Whisper/Vosk) or Google fallback.
 
-v1.2 additions:
+v2.0 additions:
+  • Offline STT support (Whisper/Vosk)
+  • Configurable STT engine selection
+  • Improved error handling and fallback
   • Wake-word detection  ("hey varna" / "hi varna")
-  • Yes/No confirmation   listener for the safety layer
+  • Yes/No confirmation listener for the safety layer
 """
 
+import json
+from pathlib import Path
 import speech_recognition as sr
 from utils.logger import get_logger
 
 log = get_logger(__name__)
+
+# Try to import offline STT engine
+_OFFLINE_STT_AVAILABLE = False
+_stt_engine = None
+
+
+def _init_stt_engine():
+    """Initialize the offline STT engine."""
+    global _OFFLINE_STT_AVAILABLE, _stt_engine
+    try:
+        from stt_engine import get_stt_engine
+        _stt_engine = get_stt_engine()
+        _OFFLINE_STT_AVAILABLE = _stt_engine.is_available()
+        if _OFFLINE_STT_AVAILABLE:
+            log.info("Offline STT engine initialized")
+        else:
+            log.warning("Offline STT engine not available, using Google fallback")
+    except ImportError as e:
+        log.warning("Offline STT not available: %s", e)
+        _OFFLINE_STT_AVAILABLE = False
+    except Exception as e:
+        log.warning("Failed to initialize offline STT: %s", e)
+        _OFFLINE_STT_AVAILABLE = False
 
 # Wake-word phrases that activate VARNA
 WAKE_WORDS = {"hey varna", "hi varna", "hello varna", "ok varna", "varna"}
@@ -74,7 +102,11 @@ class Listener:
                     source, timeout=timeout, phrase_time_limit=phrase_time_limit
                 )
 
-            text = self.recogniser.recognize_google(audio).lower().strip()
+            text = self._recognize_audio(audio)
+            if not text:
+                return False
+            
+            text = text.lower().strip()
             log.debug("Wake-word listener heard: '%s'", text)
 
             # Check if any wake word is present in what was said
@@ -117,9 +149,10 @@ class Listener:
                 )
 
             log.info("Processing audio …")
-            text = self.recogniser.recognize_google(audio)
-            text = text.lower().strip()
-            log.info("Recognised: \"%s\"", text)
+            text = self._recognize_audio(audio)
+            if text:
+                text = text.lower().strip()
+                log.info("Recognised: \"%s\"", text)
             return text
 
         except sr.WaitTimeoutError:
@@ -133,6 +166,45 @@ class Listener:
             return None
         except Exception as exc:
             log.error("Unexpected listener error: %s", exc)
+            return None
+
+    # ------------------------------------------------------------------ #
+    def _recognize_audio(self, audio) -> str | None:
+        """
+        Recognize audio using configured STT engine.
+        
+        Tries offline engine first (Whisper/Vosk), falls back to Google.
+        
+        Args:
+            audio: AudioData from speech_recognition.
+        
+        Returns:
+            Transcribed text or None.
+        """
+        global _OFFLINE_STT_AVAILABLE, _stt_engine
+        
+        # Initialize STT engine on first use (lazy loading)
+        if _stt_engine is None:
+            _init_stt_engine()
+        
+        # Try offline STT first
+        if _OFFLINE_STT_AVAILABLE and _stt_engine is not None:
+            try:
+                result = _stt_engine.transcribe(audio)
+                if result:
+                    log.debug("Offline STT recognized: '%s'", result)
+                    return result
+                log.debug("Offline STT returned empty, trying Google fallback")
+            except Exception as e:
+                log.warning("Offline STT error: %s, falling back to Google", e)
+        
+        # Fallback to Google
+        try:
+            return self.recogniser.recognize_google(audio)
+        except sr.UnknownValueError:
+            return None
+        except sr.RequestError as e:
+            log.error("Google API error: %s", e)
             return None
 
     # ------------------------------------------------------------------ #
@@ -155,7 +227,12 @@ class Listener:
                     source, timeout=timeout, phrase_time_limit=phrase_time_limit
                 )
 
-            text = self.recogniser.recognize_google(audio).lower().strip()
+            text = self._recognize_audio(audio)
+            if not text:
+                log.warning("Could not understand confirmation audio.")
+                return None
+            
+            text = text.lower().strip()
             log.info("Confirmation response: '%s'", text)
 
             # Check for yes
@@ -185,3 +262,22 @@ class Listener:
         except Exception as exc:
             log.error("Unexpected error in ask_yes_no: %s", exc)
             return None
+
+    # ------------------------------------------------------------------ #
+    def get_stt_status(self) -> dict:
+        """
+        Get status of STT engine.
+        
+        Returns:
+            Dict with STT engine status info.
+        """
+        global _OFFLINE_STT_AVAILABLE, _stt_engine
+        
+        if _stt_engine is None:
+            _init_stt_engine()
+        
+        return {
+            "offline_available": _OFFLINE_STT_AVAILABLE,
+            "engine_type": type(_stt_engine).__name__ if _stt_engine else "Google",
+            "fallback": "Google" if not _OFFLINE_STT_AVAILABLE else None
+        }
