@@ -244,6 +244,11 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         _handle_clipboard_history(result, speaker, tray)
         return
 
+    # --- WhatsApp navigation (v1.5) ---
+    if result.is_whatsapp:
+        _handle_whatsapp(result, speaker, tray)
+        return
+
     # --- Monitor ---
     if result.is_monitor:
         _handle_monitor(result, monitor, speaker, tray)
@@ -830,6 +835,58 @@ def _handle_clipboard_history(result: ParseResult, speaker: Speaker, tray: TrayU
         speaker.say(f"Pasted item {n}")
         tray.update_result(f"📋 Pasted item {n}")
         log.info("Clipboard: pasted item #%d", n)
+
+
+def _handle_whatsapp(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle WhatsApp Desktop navigation using keyboard shortcuts."""
+    if not _HAS_AUTO:
+        speaker.say("WhatsApp navigation requires pyautogui.")
+        return
+
+    action = result.whatsapp_action
+
+    if action == "open_chat":
+        n = result.chat_number
+        # Navigate to the chat list area and select Nth chat
+        # In WhatsApp Desktop: Alt+F4 to ensure focus, then use arrow keys
+        # First, press Escape to clear any open dialog/search
+        pyautogui.press("escape")
+        time.sleep(0.2)
+
+        # Press Ctrl+F to focus search, then Escape to focus chat list
+        pyautogui.hotkey("ctrl", "f")
+        time.sleep(0.2)
+        pyautogui.press("escape")
+        time.sleep(0.2)
+
+        # Now press Down arrow N times to reach Nth chat, then Enter
+        for i in range(n):
+            pyautogui.press("down")
+            time.sleep(0.1)
+        pyautogui.press("enter")
+
+        speaker.say(f"Opened chat {n}")
+        tray.update_result(f"💬 Opened chat {n}")
+        log.info("WhatsApp: opened chat #%d", n)
+
+    elif action == "search_contact":
+        contact = result.whatsapp_target
+        # Ctrl+K opens WhatsApp search / new chat search
+        pyautogui.hotkey("ctrl", "k")
+        time.sleep(0.5)
+        pyautogui.typewrite(contact, interval=0.04)
+        time.sleep(0.8)  # Wait for search results to appear
+        pyautogui.press("enter")  # Open the first matching contact
+
+        speaker.say(f"Opening chat with {contact}")
+        tray.update_result(f"💬 Chat: {contact}")
+        log.info("WhatsApp: searched contact '%s'", contact)
+
+    elif action == "new_chat":
+        pyautogui.hotkey("ctrl", "n")
+        speaker.say("Starting new chat")
+        tray.update_result("💬 New chat")
+        log.info("WhatsApp: new chat")
 
 
 def _try_in_tab_search(query: str, win_mgr: WindowManager,

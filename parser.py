@@ -106,6 +106,10 @@ class ParseResult:
     clipboard_action: str | None = None   # "open" | "paste_nth"
     clipboard_index: int = 1              # which clipboard item (1-based)
     tab_number: int | None = None         # numbered tab (1-9)
+    is_whatsapp: bool = False             # WhatsApp navigation
+    whatsapp_action: str | None = None    # "open_chat" | "search_contact" | "new_chat"
+    whatsapp_target: str | None = None    # chat number or contact name
+    chat_number: int = 1                  # which chat (1-based)
 
     @property
     def matched(self) -> bool:
@@ -272,6 +276,11 @@ class Parser:
 
         # 6.9 Clipboard history (v1.5 polish)
         result = self._match_clipboard_history(text)
+        if result.matched:
+            return result
+
+        # 6.10 WhatsApp navigation (v1.5)
+        result = self._match_whatsapp(text)
         if result.matched:
             return result
 
@@ -715,6 +724,67 @@ class Parser:
             n = ordinal_paste[text]
             return ParseResult(matched_key=text, is_clipboard_history=True,
                                clipboard_action="paste_nth", clipboard_index=n)
+
+        return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    def _match_whatsapp(self, text: str) -> ParseResult:
+        """
+        Match WhatsApp Desktop navigation:
+          "open first chat"        → navigate to 1st chat
+          "open 2nd chat"          → navigate to 2nd chat
+          "open chat 5"            → navigate to 5th chat
+          "search contact john"    → Ctrl+K → type name
+          "new chat"               → Ctrl+N (WhatsApp Desktop)
+        """
+        # "new chat" (WhatsApp context)
+        if text in ("new chat", "start new chat", "new conversation"):
+            return ParseResult(matched_key=text, is_whatsapp=True,
+                               whatsapp_action="new_chat")
+
+        # "open chat N" / "open Nth chat"
+        m = re.match(r"^open\s+chat\s+(\d+)$", text)
+        if m:
+            n = int(m.group(1))
+            return ParseResult(matched_key=f"open chat {n}", is_whatsapp=True,
+                               whatsapp_action="open_chat", chat_number=n)
+
+        m = re.match(r"^open\s+(\d+)(?:st|nd|rd|th)?\s+chat$", text)
+        if m:
+            n = int(m.group(1))
+            return ParseResult(matched_key=f"open chat {n}", is_whatsapp=True,
+                               whatsapp_action="open_chat", chat_number=n)
+
+        # Ordinal: "open first chat", "open second chat"
+        ordinal_chats = {
+            "open first chat": 1, "open 1st chat": 1,
+            "open second chat": 2, "open 2nd chat": 2,
+            "open third chat": 3, "open 3rd chat": 3,
+            "open fourth chat": 4, "open 4th chat": 4,
+            "open fifth chat": 5, "open 5th chat": 5,
+            "open sixth chat": 6, "open 6th chat": 6,
+            "open seventh chat": 7, "open 7th chat": 7,
+            "open eighth chat": 8, "open 8th chat": 8,
+            "open ninth chat": 9, "open 9th chat": 9,
+            "open tenth chat": 10, "open 10th chat": 10,
+            "open top chat": 1,
+            "open last chat": 1,  # most recent = top chat
+        }
+        if text in ordinal_chats:
+            n = ordinal_chats[text]
+            return ParseResult(matched_key=text, is_whatsapp=True,
+                               whatsapp_action="open_chat", chat_number=n)
+
+        # "search contact X" / "find contact X" / "message X"
+        m = re.match(r"^(?:search|find|message)\s+(?:contact\s+)?(.+)$", text)
+        if m:
+            contact = m.group(1).strip()
+            # Avoid matching generic "search X" / "find X" (handled elsewhere)
+            # Only match if it contains "contact" OR starts with "message"
+            if "contact" in text or text.startswith("message"):
+                return ParseResult(matched_key=f"search contact {contact}",
+                                   is_whatsapp=True, whatsapp_action="search_contact",
+                                   whatsapp_target=contact)
 
         return ParseResult()
 

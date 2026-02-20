@@ -346,6 +346,24 @@ Say multiple commands in one sentence:
 
 ---
 
+## 🆕 v1.5 — WhatsApp Navigation (5 commands)
+
+| # | Command | Example | Action |
+|---|---------|---------|--------|
+| 146 | open `{ordinal}` chat | "open 2nd chat" | Arrow-down × N → Enter |
+| 147 | open chat `{N}` | "open chat 5" | Arrow-down × 5 → Enter |
+| 148 | open top chat | "open top chat" | Opens most recent chat |
+| 149 | search contact `{name}` | "search contact john" | Ctrl+K → type name → Enter |
+| 150 | new chat | "new chat" | Ctrl+N → starts new conversation |
+
+**Full flow:**
+1. `"open whatsapp"` → launches WhatsApp
+2. `"open 2nd chat"` → opens 2nd chat
+3. `"type hello how are you"` → types message
+4. `"send it"` → presses Enter to send
+
+---
+
 ## Legend
 
 | Symbol | Meaning |
@@ -381,5 +399,5 @@ Say multiple commands in one sentence:
 | **Browser Navigation** 🆕 | **6** | **v1.5** |
 | **Search Results** 🆕 | **4** | **v1.5** |
 | **Clipboard History** 🆕 | **5** | **v1.5** |
-| **Total** | **~150+** | |
-
+| **WhatsApp Nav** 🆕 | **5** | **v1.5** |
+| **Total** | **~155+** | |

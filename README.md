@@ -43,6 +43,7 @@
 - **Search Result Clicking**: `"open result 1"` / `"open first result"` — Tab-navigates to Nth search result.
 - **Clipboard History**: `"open clipboard"` (Win+V) / `"paste 3rd item"` — access Windows clipboard history.
 - **Key Press Commands**: `"press enter"` / `"send it"` / `"undo"` / `"redo"` / `"copy this"` / `"paste it"`.
+- **WhatsApp Navigation**: `"open 2nd chat"` → arrow-navigates to chat. `"search contact john"` → finds contact. Then `"type hello"` + `"send it"` to message.
 
 ### v1.4 — Smart Application Control + Natural Parsing
 - **Window Intelligence**: Smart open (restores if minimized, focuses if running, launches if not).
@@ -100,7 +101,7 @@ Speak commands naturally — VARNA now understands flexible language.
 | **Key Press** 🆕 | "press enter" / "send it" | Press Enter to send/search |
 | **System** | "shutdown system" | Shuts down (with confirmation) |
 
-For the full list of **150+ commands**, see [`COMMANDS.md`](COMMANDS.md).
+For the full list of **155+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 
 ## Repository Structure
 
@@ -152,4 +153,4 @@ For the full list of **150+ commands**, see [`COMMANDS.md`](COMMANDS.md).
 | v1.2 | Context tracking, confirmation, scheduler, monitoring |
 | v1.3 | Custom macros, clipboard, smart screenshot, file search, tray UI |
 | v1.4 | Window intelligence, voice typing, tab control, flexible NLP, smart search, natural chains |
-| v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, browser nav, clipboard history, 150+ commands |
+| v1.5 | **Universal App Manager** — open/close ANY app, text selection, smart scrolling, browser nav, clipboard history, WhatsApp nav, 155+ commands |
