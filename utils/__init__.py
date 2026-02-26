@@ -1,1 +1,1 @@
-# VARNA v1 - Utilities Package
+# VARNA v2.3 - Utilities Package

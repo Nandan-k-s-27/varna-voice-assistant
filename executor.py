@@ -1,5 +1,5 @@
 """
-VARNA v1.1 - Safe PowerShell Executor
+VARNA v2.3 - Safe PowerShell Executor
 Runs ONLY whitelisted commands via subprocess.
 Never accepts raw user text — all input must pass through the Parser first.
 

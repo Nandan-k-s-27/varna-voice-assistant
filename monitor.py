@@ -1,5 +1,5 @@
 """
-VARNA v1.2 - Process Monitor
+VARNA v2.3 - Process Monitor
 Monitors a named process in a background thread and alerts
 via TTS when memory usage exceeds a configurable threshold.
 """

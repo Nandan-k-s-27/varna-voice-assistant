@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Intent Pre-Classification Router
+VARNA v2.3 - Intent Pre-Classification Router
 Lightweight classifier that routes commands to specific handlers
 before running full NLP pipeline.
 
@@ -51,30 +51,41 @@ _ROUTING_PATTERNS: list[tuple[re.Pattern, IntentCategory, str, bool]] = [
     (re.compile(r'^switch\s+to\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'switch_app', True),
     (re.compile(r'^minimize\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'minimize_app', True),
     (re.compile(r'^maximize\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'maximize_app', True),
-    (re.compile(r'^(launch|start|fire up|bring up)\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'open_app', True),
+    (re.compile(r'^(launch|start|fire up|bring up|run|load|activate|execute)\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'open_app', True),
+    (re.compile(r'^(quit|exit|kill|stop|shut|terminate|end|turn off)\s+(.+)$', re.I), IntentCategory.APP_CONTROL, 'close_app', True),
     
     # SEARCH - Skip semantic
     (re.compile(r'^search\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_web', True),
     (re.compile(r'^google\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_web', True),
+    (re.compile(r'^look\s+up\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_web', True),
+    (re.compile(r'^find\s+online\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_web', True),
     (re.compile(r'^search\s+youtube\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_youtube', True),
     (re.compile(r'^youtube\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_youtube', True),
+    (re.compile(r'^search\s+(?:on\s+)?(?:google|amazon|flipkart|github|wikipedia)\s+(.+)$', re.I), IntentCategory.SEARCH, 'search_site', True),
     
     # NAVIGATION - Skip semantic
     (re.compile(r'^scroll\s+(up|down|left|right)', re.I), IntentCategory.NAVIGATION, 'scroll', True),
     (re.compile(r'^go\s+to\s+tab\s+(\d+)$', re.I), IntentCategory.NAVIGATION, 'go_to_tab', True),
-    (re.compile(r'^(next|previous)\s+tab$', re.I), IntentCategory.NAVIGATION, 'tab_nav', True),
+    (re.compile(r'^(next|previous|prev)\s+tab$', re.I), IntentCategory.NAVIGATION, 'tab_nav', True),
     (re.compile(r'^(new|close|reopen)\s+tab$', re.I), IntentCategory.NAVIGATION, 'tab_control', True),
     (re.compile(r'^go\s+(back|forward)$', re.I), IntentCategory.NAVIGATION, 'browser_nav', True),
-    (re.compile(r'^refresh$', re.I), IntentCategory.NAVIGATION, 'refresh', True),
+    (re.compile(r'^(refresh|reload)(\s+page)?$', re.I), IntentCategory.NAVIGATION, 'refresh', True),
+    (re.compile(r'^go\s+to\s+(.+)$', re.I), IntentCategory.NAVIGATION, 'navigate', True),
+    (re.compile(r'^navigate\s+to\s+(.+)$', re.I), IntentCategory.NAVIGATION, 'navigate', True),
     
     # TYPING - Skip semantic
     (re.compile(r'^(type|write|enter)\s+(.+)$', re.I), IntentCategory.TYPING, 'type_text', True),
     
     # SYSTEM - Skip semantic
-    (re.compile(r'^(increase|decrease|mute)\s+volume$', re.I), IntentCategory.SYSTEM, 'volume', True),
-    (re.compile(r'^screenshot', re.I), IntentCategory.SYSTEM, 'screenshot', True),
-    (re.compile(r'^(shutdown|restart|log off)$', re.I), IntentCategory.SYSTEM, 'power', False),  # Keep confirmation
-    (re.compile(r'^lock\s+screen$', re.I), IntentCategory.SYSTEM, 'lock', True),
+    (re.compile(r'^(increase|decrease|mute|unmute)\s+(volume|sound)$', re.I), IntentCategory.SYSTEM, 'volume', True),
+    (re.compile(r'^volume\s+(up|down)$', re.I), IntentCategory.SYSTEM, 'volume', True),
+    (re.compile(r'^(louder|quieter|silence)$', re.I), IntentCategory.SYSTEM, 'volume', True),
+    (re.compile(r'^(take\s+)?screenshot', re.I), IntentCategory.SYSTEM, 'screenshot', True),
+    (re.compile(r'^capture\s+screen', re.I), IntentCategory.SYSTEM, 'screenshot', True),
+    (re.compile(r'^(shutdown|restart|reboot|log\s*off|sign\s*out)$', re.I), IntentCategory.SYSTEM, 'power', False),
+    (re.compile(r'^lock\s+(screen|computer|pc|system|this)$', re.I), IntentCategory.SYSTEM, 'lock', True),
+    (re.compile(r'^(battery|check battery|battery status|how much battery)$', re.I), IntentCategory.SYSTEM, 'battery', True),
+    (re.compile(r'^(time|date|what time|what date|current time|current date)$', re.I), IntentCategory.SYSTEM, 'datetime', True),
     
     # FILE_OPERATION - Skip semantic
     (re.compile(r'^(copy|cut|paste|delete|undo|redo|save)(\s+.+)?$', re.I), IntentCategory.FILE_OPERATION, 'file_op', True),
@@ -85,17 +96,21 @@ _ROUTING_PATTERNS: list[tuple[re.Pattern, IntentCategory, str, bool]] = [
     
     # CLIPBOARD
     (re.compile(r'^(read\s+)?clipboard$', re.I), IntentCategory.CLIPBOARD, 'clipboard', True),
+    (re.compile(r'^(what did i copy|what is in clipboard|show clipboard)$', re.I), IntentCategory.CLIPBOARD, 'clipboard', True),
     (re.compile(r'^paste\s+(\d+)', re.I), IntentCategory.CLIPBOARD, 'paste_item', True),
     
     # DEVELOPER
     (re.compile(r'^git\s+(.+)$', re.I), IntentCategory.DEVELOPER, 'git', True),
     (re.compile(r'^npm\s+(.+)$', re.I), IntentCategory.DEVELOPER, 'npm', True),
-    (re.compile(r'^kill\s+port\s+(\d+)$', re.I), IntentCategory.DEVELOPER, 'kill_port', True),
+    (re.compile(r'^(kill|stop|free)\s+port\s+(\d+)$', re.I), IntentCategory.DEVELOPER, 'kill_port', True),
+    (re.compile(r'^(start|run)\s+(server|dev|flask|django|vite)', re.I), IntentCategory.DEVELOPER, 'dev_server', True),
+    (re.compile(r'^(docker|yarn)\s+(.+)$', re.I), IntentCategory.DEVELOPER, 'dev_tool', True),
     
     # CONTEXT - Need some NLP
-    (re.compile(r'^(repeat|again|do it again|one more time)$', re.I), IntentCategory.CONTEXT, 'repeat', True),
-    (re.compile(r'^(undo|redo)\s+(that|this)?$', re.I), IntentCategory.CONTEXT, 'undo_redo', True),
-    (re.compile(r'^(close|minimize|maximize)\s+this$', re.I), IntentCategory.CONTEXT, 'this_window', True),
+    (re.compile(r'^(repeat|again|do it again|one more time|repeat that)$', re.I), IntentCategory.CONTEXT, 'repeat', True),
+    (re.compile(r'^(undo|redo)\s*(that|this)?$', re.I), IntentCategory.CONTEXT, 'undo_redo', True),
+    (re.compile(r'^(close|minimize|maximize)\s+(this|it)$', re.I), IntentCategory.CONTEXT, 'this_window', True),
+    (re.compile(r'^(play|pause|next|previous|skip)\s*(track|song|music)?$', re.I), IntentCategory.CONTEXT, 'media', True),
 ]
 
 

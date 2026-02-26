@@ -1,5 +1,5 @@
 """
-VARNA v1.3 - System Tray UI
+VARNA v2.3 - System Tray UI
 Provides a minimal floating overlay and system tray icon.
 
 Shows:
@@ -82,7 +82,7 @@ class TrayUI:
 
         # Header
         header = tk.Label(
-            frame, text="🎙 VARNA v1.3", font=("Segoe UI", 13, "bold"),
+            frame, text="🎤 VARNA v2.3", font=("Segoe UI", 13, "bold"),
             fg="#e94560", bg="#1a1a2e", anchor="w",
         )
         header.pack(fill=tk.X)

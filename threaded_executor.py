@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Threaded Execution Layer
+VARNA v2.3 - Threaded Execution Layer
 Non-blocking command execution with parallel TTS preparation.
 
 Architecture:

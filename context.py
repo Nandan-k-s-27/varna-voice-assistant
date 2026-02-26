@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Session Context Manager (Enhanced State Machine)
+VARNA v2.3 - Session Context Manager (Enhanced State Machine)
 Tracks state across the session for context-aware command resolution.
 
 Provides:

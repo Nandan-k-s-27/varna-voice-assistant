@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Intent Scoring Engine
+VARNA v2.3 - Intent Scoring Engine
 Weighted scoring system for intelligent command matching.
 
 Replaces rigid thresholds with weighted composite scoring:
@@ -31,10 +31,10 @@ class IntentScore:
     # Weights for each scoring component
     WEIGHTS = {
         "exact": 1.0,
-        "fuzzy": 0.6,
-        "phonetic": 0.5,
+        "fuzzy": 0.75,
+        "phonetic": 0.65,
         "semantic": 0.8,
-        "context": 0.3,
+        "context": 0.35,
         "grammar": 0.7,
     }
     
@@ -86,7 +86,7 @@ class IntentScoringEngine:
     """
     
     # Minimum total score to consider a match valid
-    MIN_CONFIDENCE = 0.45
+    MIN_CONFIDENCE = 0.40
     
     # Score boost for recently used commands
     RECENCY_BOOST = 0.15

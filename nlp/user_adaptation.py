@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - User Adaptation Memory
+VARNA v2.3 - User Adaptation Memory
 Stores learned user preferences and pronunciation variants.
 
 Features:

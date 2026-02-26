@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Startup Prewarmer
+VARNA v2.3 - Startup Prewarmer
 Pre-loads all expensive resources at startup for instant first-command response.
 
 Loads:

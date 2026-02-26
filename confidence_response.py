@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Confidence-Based Response Handler
+VARNA v2.3 - Confidence-Based Response Handler
 Tiered execution based on match confidence.
 
 Response Tiers:

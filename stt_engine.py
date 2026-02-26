@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Offline Speech-to-Text Engine
+VARNA v2.3 - Offline Speech-to-Text Engine
 Provides fully offline STT using either Whisper or Vosk.
 
 Supported engines:
@@ -312,8 +312,14 @@ class WhisperEngine(STTEngine):
                 file_path,
                 language="en",
                 beam_size=5,
+                best_of=3,
+                temperature=0.0,
+                condition_on_previous_text=False,
                 vad_filter=True,
-                vad_parameters=dict(min_silence_duration_ms=500)
+                vad_parameters=dict(
+                    min_silence_duration_ms=300,
+                    speech_pad_ms=200,
+                )
             )
 
             # Collect all segments and calculate confidence

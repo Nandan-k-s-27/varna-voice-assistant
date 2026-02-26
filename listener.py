@@ -1,14 +1,7 @@
 """
-VARNA v2.0 - Speech-to-Text Listener
+VARNA v2.3 - Speech-to-Text Listener
 Uses the `speech_recognition` library for microphone capture
 with offline STT (Whisper/Vosk) or Google fallback.
-
-v2.0 additions:
-  • Offline STT support (Whisper/Vosk)
-  • Configurable STT engine selection
-  • Improved error handling and fallback
-  • Wake-word detection  ("hey varna" / "hi varna")
-  • Yes/No confirmation listener for the safety layer
 """
 
 import json

@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - System Optimization Mode
+VARNA v2.3 - System Optimization Mode
 Background optimization commands for system management.
 
 Commands:

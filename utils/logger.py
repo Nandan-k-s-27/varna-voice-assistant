@@ -1,5 +1,5 @@
 """
-VARNA v1 - Centralized Logger
+VARNA v2.3 - Centralized Logger
 Provides a pre-configured logger for all modules.
 """
 

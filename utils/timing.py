@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Performance Timing Utilities
+VARNA v2.3 - Performance Timing Utilities
 Debug timing for end-to-end latency measurement.
 
 Tracks:

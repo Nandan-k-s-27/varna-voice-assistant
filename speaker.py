@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Text-to-Speech Module
+VARNA v2.3 - Text-to-Speech Module
 Uses pyttsx3 for completely offline speech synthesis.
 Supports async (non-blocking) speech with queue management.
 
@@ -150,7 +150,6 @@ class Speaker:
         finally:
             self._is_speaking = False
             self._current_text = None
-            log.error("TTS error: %s", exc)
 
     # ------------------------------------------------------------------ #
     def say(self, text: str) -> None:

@@ -1,12 +1,10 @@
 """
-VARNA v1.6.1 - Standalone Debug Script
+VARNA v2.3 - Standalone Debug Script
 Run this to troubleshoot hardware or dependency issues.
 """
 
 import sys
 import os
-import time
-import subprocess
 import json
 from pathlib import Path
 
@@ -17,7 +15,7 @@ def print_header(text):
 
 def check_dependencies():
     print_header("1. Checking Dependencies")
-    deps = ["speech_recognition", "pyttsx3", "pyautogui", "psutil", "win32gui", "pythoncom", "difflib", "PIL", "pystray"]
+    deps = ["speech_recognition", "pyttsx3", "pyautogui", "psutil", "win32gui", "pythoncom", "PIL", "pystray"]
     missing = []
     for d in deps:
         try:

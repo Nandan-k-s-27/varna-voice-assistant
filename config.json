@@ -1,12 +1,12 @@
 {
-    "version": "2.2",
+    "version": "2.3",
     "stt": {
         "engine": "whisper",
         "whisper_model": "base",
         "vosk_model_path": "models/vosk-model-small-en-us",
         "language": "en",
         "compute_type": "int8",
-        "confidence_threshold": 0.6,
+        "confidence_threshold": 0.45,
         "fallback_model": "base",
         "enable_hybrid_fallback": true
     },
@@ -17,12 +17,12 @@
         "interruptible": true
     },
     "nlp": {
-        "fuzzy_threshold": 0.70,
+        "fuzzy_threshold": 0.65,
         "semantic_threshold": 0.65,
         "phonetic_enabled": true,
-        "use_semantic_fallback": true,
+        "use_semantic_fallback": false,
         "use_grammar_patterns": true,
-        "min_confidence": 0.45,
+        "min_confidence": 0.50,
         "use_intent_routing": true,
         "skip_semantic_for_obvious": true
     },
@@ -34,10 +34,10 @@
     },
     "listener": {
         "energy_threshold": 300,
-        "pause_threshold": 1.0,
+        "pause_threshold": 0.8,
         "timeout": 7,
-        "phrase_time_limit": 10,
-        "calibration_duration": 1.0
+        "phrase_time_limit": 12,
+        "calibration_duration": 1.5
     },
     "performance": {
         "mode": "balanced",
@@ -45,10 +45,10 @@
         "cpu_threshold_high": 70,
         "cpu_threshold_low": 50,
         "cache_parse_results": true,
-        "parse_cache_size": 50,
-        "lazy_load_models": false,
+        "parse_cache_size": 100,
+        "lazy_load_models": true,
         "preload_common_apps": true,
-        "prewarm_on_startup": true
+        "prewarm_on_startup": false
     },
     "execution": {
         "threaded": true,

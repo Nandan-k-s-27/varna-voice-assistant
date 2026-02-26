@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Enhanced Fuzzy Matcher
+VARNA v2.3 - Enhanced Fuzzy Matcher
 Advanced fuzzy string matching with phonetic support.
 
 Features:
@@ -245,20 +245,41 @@ class FuzzyMatcher:
         
         if _HAS_RAPIDFUZZ:
             # Use rapidfuzz for faster matching (10x faster than difflib)
+            # Try token_set_ratio first (handles word reordering + partial matches)
             result = process.extractOne(
                 text, 
                 candidates,
-                scorer=fuzz.ratio,
+                scorer=fuzz.token_set_ratio,
                 score_cutoff=threshold * 100  # rapidfuzz uses 0-100 scale
             )
             
             if result:
                 match_text, score, _ = result
-                score = score / 100.0  # Convert back to 0-1 scale
-                result = (match_text, score)
-                log.info("Fuzzy match: '%s' → '%s' (score=%.2f)", text, match_text, score)
-            else:
-                result = None
+                # Verify with standard ratio to avoid false positives
+                verify_score = fuzz.ratio(text, match_text)
+                # Use the higher of the two scores, but penalize if standard ratio is very low
+                if verify_score < threshold * 50:  # Standard ratio too low = probably wrong match
+                    result = None
+                else:
+                    score = max(score, verify_score) / 100.0
+                    result = (match_text, score)
+                    log.info("Fuzzy match: '%s' → '%s' (score=%.2f)", text, match_text, score)
+            
+            if not result:
+                # Fallback to partial_ratio for substring matches
+                result = process.extractOne(
+                    text, 
+                    candidates,
+                    scorer=fuzz.partial_ratio,
+                    score_cutoff=max(threshold * 100, 70)
+                )
+                if result:
+                    match_text, score, _ = result
+                    score = score / 100.0 * 0.95  # Slightly penalize partial matches
+                    result = (match_text, score)
+                    log.info("Fuzzy partial match: '%s' → '%s' (score=%.2f)", text, match_text, score)
+            
+            if not result:
                 log.debug("No fuzzy match for '%s' (threshold=%.2f)", text, threshold)
         else:
             # Fallback to difflib
@@ -356,13 +377,15 @@ class FuzzyMatcher:
         length = len(text)
         
         if length <= 3:
-            return 0.90  # Very strict for short inputs
+            return 0.85  # Strict for very short inputs
         elif length <= 6:
-            return 0.80  # Strict for short-medium
+            return 0.75  # Moderate for short
         elif length <= 12:
-            return 0.70  # Normal threshold
+            return 0.65  # Relaxed for medium
+        elif length <= 20:
+            return 0.58  # More relaxed for longer
         else:
-            return 0.65  # Relaxed for longer inputs
+            return 0.55  # Most relaxed for long inputs
     
     def levenshtein_distance(self, s1: str, s2: str) -> int:
         """

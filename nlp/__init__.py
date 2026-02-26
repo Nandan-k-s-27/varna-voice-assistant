@@ -1,5 +1,5 @@
 """
-VARNA v2.0 - Enhanced NLP Package
+VARNA v2.3 - Enhanced NLP Package
 Provides layered natural language processing for command recognition.
 
 Architecture:
@@ -137,9 +137,9 @@ class NLPProcessor:
         if text_lower in candidates_lower:
             return candidates_lower[text_lower], 1.0, "exact"
         
-        # 2. High-confidence fuzzy match (≥0.85)
+        # 2. High-confidence fuzzy match (≥0.80)
         fuzzy_result = self.fuzzy_matcher.match(
-            text_lower, candidates, threshold=0.85
+            text_lower, candidates, threshold=0.80
         )
         if fuzzy_result:
             return fuzzy_result[0], fuzzy_result[1], "fuzzy"
@@ -152,9 +152,9 @@ class NLPProcessor:
             if phonetic_result:
                 return phonetic_result[0], phonetic_result[1], "phonetic"
         
-        # 4. Lower-threshold fuzzy match (≥0.70)
+        # 4. Lower-threshold fuzzy match (≥0.55)
         fuzzy_result = self.fuzzy_matcher.match(
-            text_lower, candidates, threshold=self.fuzzy_threshold
+            text_lower, candidates, threshold=max(0.55, self.fuzzy_threshold - 0.15)
         )
         if fuzzy_result:
             return fuzzy_result[0], fuzzy_result[1], "fuzzy"

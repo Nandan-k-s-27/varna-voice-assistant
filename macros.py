@@ -1,5 +1,5 @@
 """
-VARNA v1.3 - Custom Macro Manager
+VARNA v2.3 - Custom Macro Manager
 Allows users to define, save, and replay personal command sequences.
 
 Usage (voice):

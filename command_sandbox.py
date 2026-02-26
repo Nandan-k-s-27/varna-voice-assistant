@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Command Sandboxing Layer
+VARNA v2.3 - Command Sandboxing Layer
 Security validation before executing PowerShell commands.
 
 Features:

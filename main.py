@@ -1,16 +1,10 @@
 """
-VARNA v1.5 — Voice-Activated Resource & Navigation Assistant
+VARNA v2.3 — Voice-Activated Resource & Navigation Assistant
 Main entry point.
 
 Pipeline:
   🎤 Always Listening  →  🧹 NLP Clean  →  🧠 Parser  →  🛡 Whitelist
   →  ⚡ Executor / Window Manager / AppManager / PyAutoGUI  →  🔊 TTS Response
-
-v1.5 additions:
-  • Universal App Manager (open/close ANY installed app)
-  • App scanning & indexing (Start Menu, Program Files, UWP)
-  • Dynamic close via psutil
-  • All v1.4 features (window, typing, tabs, NLP, search, chains)
 """
 
 import sys
@@ -18,6 +12,8 @@ import os
 import re
 import time
 import threading
+import datetime
+import platform
 from listener import Listener
 from parser import Parser, ParseResult
 from executor import Executor
@@ -32,12 +28,185 @@ from utils.logger import get_logger
 
 log = get_logger("VARNA")
 
-VERSION = "1.6"
+VERSION = "2.3"
 
 EXIT_PHRASES = {
     "exit", "quit", "stop", "goodbye", "bye", "shut up", "stop listening",
     "that's all", "i'm done", "go to sleep", "shut down", "close varna",
 }
+
+# ====================================================================== #
+# Conversational Query Handler — VARNA speaks answers directly
+# ====================================================================== #
+
+# Pre-built trigger sets (don't rebuild on every call)
+_TIME_TRIGGERS = frozenset({
+    "what time is it", "what time", "what is the time", "current time",
+    "show time", "tell me time", "tell me the time", "time",
+    "show me the time", "tell the time", "what's the time",
+    "time please", "whats the time",
+})
+_DATE_TRIGGERS = frozenset({
+    "what date is it", "what is the date", "current date", "today's date",
+    "tell me date", "tell me the date", "show date", "date",
+    "what is today", "what day is it", "today", "show me the date",
+    "what's the date", "whats the date", "what day is today",
+})
+_DAY_TRIGGERS = frozenset({"what day", "which day", "what day of the week"})
+_DATETIME_TRIGGERS = frozenset({
+    "date and time", "time and date", "what is the date and time",
+    "tell me date and time", "show date and time",
+})
+_BATTERY_TRIGGERS = frozenset({
+    "battery", "battery level", "battery status", "check battery",
+    "how much battery", "battery percentage", "battery life",
+    "how much charge", "charge level", "power level",
+})
+_HOSTNAME_TRIGGERS = frozenset({
+    "my hostname", "what is my hostname", "computer name",
+    "what is my computer name", "my computer name", "pc name",
+})
+_USERNAME_TRIGGERS = frozenset({
+    "my username", "who am i", "what is my username",
+    "logged in user", "which user", "my user",
+})
+_GREETING_TRIGGERS = frozenset({
+    "hello", "hi", "hey", "good morning", "good afternoon",
+    "good evening", "hey varna", "hello varna", "hi varna",
+})
+_HOW_ARE_YOU_TRIGGERS = frozenset({
+    "how are you", "how are you doing", "what's up", "whats up",
+    "how do you do", "how is it going",
+})
+_THANKS_TRIGGERS = frozenset({
+    "thank you", "thanks", "thanks varna", "thank you varna",
+    "thank you so much", "thanks a lot",
+})
+_CAPABILITY_TRIGGERS = frozenset({
+    "what can you do", "what do you do", "your capabilities",
+    "what are your features",
+})
+_IDENTITY_TRIGGERS = frozenset({
+    "who are you", "what is your name", "what's your name",
+    "your name", "introduce yourself",
+})
+# Pre-compile the punctuation-stripping regex
+_CONV_PUNCT_RE = re.compile(r'[.,!?;:…]+$|^[.,!?;:…]+')
+
+
+def _handle_conversational(text: str, speaker, tray) -> bool:
+    """
+    Handle conversational/informational queries that VARNA should SPEAK
+    directly instead of running in a terminal. Returns True if handled.
+    """
+    # Strip punctuation that Whisper/STT may add (periods, commas, question marks)
+    t = _CONV_PUNCT_RE.sub('', text.lower().strip()).strip()
+
+    # --- Time queries ---
+    if t in _TIME_TRIGGERS:
+        now = datetime.datetime.now()
+        spoken_time = now.strftime("%I:%M %p").lstrip("0")
+        speaker.say(f"The current time is {spoken_time}.")
+        tray.update_result(f"🕐 {spoken_time}")
+        log.info("Conversational: time → %s", spoken_time)
+        return True
+
+    # --- Date queries ---
+    if t in _DATE_TRIGGERS:
+        now = datetime.datetime.now()
+        spoken_date = now.strftime("%A, %B %d, %Y")
+        speaker.say(f"Today is {spoken_date}.")
+        tray.update_result(f"📅 {spoken_date}")
+        log.info("Conversational: date → %s", spoken_date)
+        return True
+
+    # --- Day of week ---
+    if t in _DAY_TRIGGERS:
+        day = datetime.datetime.now().strftime("%A")
+        speaker.say(f"Today is {day}.")
+        tray.update_result(f"📅 {day}")
+        return True
+
+    # --- Date and Time combined ---
+    if t in _DATETIME_TRIGGERS:
+        now = datetime.datetime.now()
+        spoken = f"It's {now.strftime('%I:%M %p').lstrip('0')} on {now.strftime('%A, %B %d, %Y')}."
+        speaker.say(spoken)
+        tray.update_result(f"🕐📅 {now.strftime('%I:%M %p - %b %d')}")
+        return True
+
+    # --- Battery ---
+    if t in _BATTERY_TRIGGERS:
+        try:
+            import psutil
+            bat = psutil.sensors_battery()
+            if bat:
+                pct = bat.percent
+                plugged = "and charging" if bat.power_plugged else "on battery"
+                speaker.say(f"Battery is at {pct} percent, {plugged}.")
+                tray.update_result(f"🔋 {pct}% {plugged}")
+            else:
+                speaker.say("I couldn't read the battery status. You might be on a desktop.")
+                tray.update_result("🔋 N/A")
+        except Exception:
+            speaker.say("Battery information is not available.")
+        return True
+
+    # --- Hostname / Computer name ---
+    if t in _HOSTNAME_TRIGGERS:
+        name = platform.node()
+        speaker.say(f"Your computer name is {name}.")
+        tray.update_result(f"💻 {name}")
+        return True
+
+    # --- Username ---
+    if t in _USERNAME_TRIGGERS:
+        user = os.getlogin()
+        speaker.say(f"You are logged in as {user}.")
+        tray.update_result(f"👤 {user}")
+        return True
+
+    # --- Greetings ---
+    if t in _GREETING_TRIGGERS:
+        hour = datetime.datetime.now().hour
+        if hour < 12:
+            greeting = "Good morning"
+        elif hour < 17:
+            greeting = "Good afternoon"
+        else:
+            greeting = "Good evening"
+        speaker.say(f"{greeting}! How can I help you?")
+        tray.update_result(f"👋 {greeting}")
+        return True
+
+    # --- How are you ---
+    if t in _HOW_ARE_YOU_TRIGGERS:
+        speaker.say("I'm doing great, thank you! Ready for your commands.")
+        tray.update_result("😊 Doing great")
+        return True
+
+    # --- Thank you ---
+    if t in _THANKS_TRIGGERS:
+        speaker.say("You're welcome! Let me know if you need anything else.")
+        tray.update_result("🙏 Welcome")
+        return True
+
+    # --- What can you do ---
+    if t in _CAPABILITY_TRIGGERS:
+        speaker.say("I can open apps, search the web, manage windows, type text, "
+                     "tell you the time and date, check battery, control media, "
+                     "and much more. Just say a command!")
+        tray.update_result("ℹ️ Capabilities")
+        return True
+
+    # --- Who are you ---
+    if t in _IDENTITY_TRIGGERS:
+        speaker.say("I am VARNA, your Voice Activated Resource and Navigation Assistant.")
+        tray.update_result("ℹ️ VARNA")
+        return True
+
+    return False
+
 
 # Try to import pyautogui
 try:
@@ -82,7 +251,7 @@ def main() -> None:
 
     # --- Calibrate mic ---------------------------------------------------
     speaker.say("Calibrating microphone. Please wait.")
-    listener.calibrate(duration=2.0)
+    listener.calibrate(duration=1.5)
 
     # --- Greet -----------------------------------------------------------
     speaker.greet()
@@ -94,7 +263,7 @@ def main() -> None:
 
     while True:
         tray.update_status("🎤 Listening …")
-        text = listener.listen(timeout=7, phrase_time_limit=10)
+        text = listener.listen(timeout=7, phrase_time_limit=12)
 
         if text is None:
             continue
@@ -144,14 +313,23 @@ def main() -> None:
                     if not part:
                         continue
                     print(f"   ⛓ Step {i}: {part}")
-                    _process_single(part, parser, executor, context, monitor,
-                                    macros, win_mgr, app_mgr, speaker, tray, listener)
+                    try:
+                        _process_single(part, parser, executor, context, monitor,
+                                        macros, win_mgr, app_mgr, speaker, tray, listener)
+                    except Exception as exc:
+                        log.error("Error processing chain step '%s': %s", part, exc, exc_info=True)
+                        speaker.say("Something went wrong with that step. Skipping.")
                     time.sleep(0.8)  # Small delay between steps
                 continue
 
         # Single command
-        _process_single(text, parser, executor, context, monitor,
-                        macros, win_mgr, app_mgr, speaker, tray, listener)
+        try:
+            _process_single(text, parser, executor, context, monitor,
+                            macros, win_mgr, app_mgr, speaker, tray, listener)
+        except Exception as exc:
+            log.error("Error processing command '%s': %s", text, exc, exc_info=True)
+            speaker.say("Sorry, something went wrong. Please try again.")
+            tray.update_result(f"❌ Error: {type(exc).__name__}")
 
     log.info("VARNA v%s shut down cleanly.", VERSION)
     print(f"\n👋  VARNA v{VERSION} has shut down.\n")
@@ -166,6 +344,12 @@ def _should_split(text: str) -> bool:
     # Don't split known chain commands
     if "and my react project" in text:
         return False
+    # Don't split conversational queries
+    if text in ("date and time", "time and date"):
+        return False
+    # Don't split typing commands (preserve "type X and Y")
+    if text.startswith(("type ", "write ", "send ", "just type ")):
+        return False
     # Split if contains " and " or " then "
     return bool(re.search(r"\s+and\s+|\s+then\s+", text))
 
@@ -176,14 +360,53 @@ def _process_single(text: str, parser: Parser, executor: Executor,
                     macros: MacroManager, win_mgr: WindowManager,
                     app_mgr: AppManager,
                     speaker: Speaker, tray: TrayUI, listener: Listener) -> None:
-    """Process a single command."""
+    """Process a single command with safety gates and voice interaction."""
+
+    # --- v3.2: Conversational queries (time, date, greetings, etc.) ---
+    # Handle these FIRST so VARNA speaks directly instead of running PS commands
+    if _handle_conversational(text, speaker, tray):
+        context.last_command_text = text
+        return
 
     result: ParseResult = parser.parse(text, context=context, macro_manager=macros)
 
+    # --- v2.0: Safety blocked --- 
+    if result.safety_blocked:
+        msg = result.voice_response or result.safety_reason or f"I couldn't match '{text}' confidently."
+        speaker.say(msg)
+        log.warning("Safety blocked: %s → %s", text, result.safety_reason)
+        tray.update_result(f"🛡️ Blocked: {text}")
+        return
+
     if not result.matched:
-        speaker.say(f"Sorry, I don't recognise the command: {text}")
+        # Voice interaction: tell the user clearly
+        speaker.say(f"I didn't catch that. Could you repeat the command?")
         tray.update_result(f"❌ Unknown: {text}")
         return
+
+    # --- v2.0: Voice confirmation for fuzzy/low-confidence matches ---
+    if result.voice_response and result.needs_confirmation and not result.is_repeat:
+        speaker.say(result.voice_response)
+        tray.update_result(f"❓ Confirm: {result.matched_key}")
+        print(f"   ❓ Confirm: {result.matched_key} (confidence: {result.match_confidence:.0%})")
+        
+        confirmed = listener.ask_yes_no(timeout=6)
+        if confirmed is True:
+            speaker.say("Confirmed.")
+            result.needs_confirmation = False  # Already confirmed
+        elif confirmed is False:
+            speaker.say("Cancelled.")
+            tray.update_result("🚫 Cancelled")
+            return
+        else:
+            speaker.say("No response. Cancelled for safety.")
+            tray.update_result("⏰ Timed out")
+            return
+
+    # v3.1: Log active app mode for debugging
+    active_mode = _get_active_app()
+    log.info("Active app mode: %s | Command: %s (confidence=%.2f method=%s)", 
+             active_mode, result.matched_key or text, result.match_confidence, result.match_method)
 
     tray.update_command(result.matched_key or text)
 
@@ -340,6 +563,28 @@ def _process_single(text: str, parser: Parser, executor: Executor,
             tray.update_result(f"❌ Failed")
     else:
         ps_command = result.commands[0]
+
+        # Voice-reply commands: speak the PS output aloud (time, date, battery, wifi, etc.)
+        if result.is_voice_reply:
+            success, output = executor.run(ps_command)
+            if success and output and output != "Command executed successfully.":
+                # Clean up for speech (strip PS formatting noise)
+                spoken = output.strip().replace('\r\n', ', ').replace('\n', ', ')
+                # Truncate if too long for speech
+                if len(spoken) > 400:
+                    spoken = spoken[:400] + "... and more."
+                log.info("Voice reply: %s → %s", result.matched_key, spoken[:100])
+                speaker.say(spoken)
+                tray.update_result(f"🗣️ {spoken[:50]}")
+            elif success:
+                speaker.say("Done, but no output was returned.")
+                tray.update_result("✅ Done (no output)")
+            else:
+                speaker.say(f"Something went wrong: {output}")
+                tray.update_result(f"❌ Error")
+            context.update_after_command(result.matched_key, ps_command)
+            return
+
         speaker.say(f"Running: {result.matched_key}")
 
         success, output = executor.run(ps_command)
@@ -424,13 +669,24 @@ _SYMBOL_MAP = {
 # Punctuation characters that should NOT have a leading space
 _NO_SPACE_BEFORE = set(".,!?;:)]}\"'>…")
 
+# Pre-compile symbol replacement patterns at module load (v3.2 optimization)
+_COMPILED_SYMBOL_PATTERNS = []
+for _name in sorted(_SYMBOL_MAP.keys(), key=len, reverse=True):
+    _pat = re.compile(r'\b' + re.escape(_name) + r'\b', flags=re.IGNORECASE)
+    _COMPILED_SYMBOL_PATTERNS.append((_pat, _SYMBOL_MAP[_name]))
+
+# Pre-compile the number+symbol expansion pattern
+_NUMBER_SYMBOL_PATTERN = re.compile(
+    r"(\d+)\s+(period|dot|exclamation mark|exclamation|question mark|question|hash|star|asterisk|dash|hyphen|underscore)s?",
+    flags=re.IGNORECASE
+)
+
 
 def _replace_symbols(text: str) -> str:
     """Replace spoken punctuation/symbol names with actual characters."""
-    # Sort by length (longest first) to match "exclamation mark" before "mark"
-    for name in sorted(_SYMBOL_MAP.keys(), key=len, reverse=True):
-        if name in text.lower():
-            text = re.sub(re.escape(name), _SYMBOL_MAP[name], text, flags=re.IGNORECASE)
+    for pattern, replacement in _COMPILED_SYMBOL_PATTERNS:
+        if pattern.search(text):
+            text = pattern.sub(replacement, text)
 
     # Handle number + symbol patterns like "3 periods" → "...", "2 exclamation marks" → "!!"
     def _expand_number(m):
@@ -439,10 +695,7 @@ def _replace_symbols(text: str) -> str:
         char = _SYMBOL_MAP.get(sym, _SYMBOL_MAP.get(sym + " mark", sym))
         return char * min(count, 10)  # cap at 10 to be safe
 
-    text = re.sub(
-        r"(\d+)\s+(period|dot|exclamation mark|exclamation|question mark|question|hash|star|asterisk|dash|hyphen|underscore)s?",
-        _expand_number, text, flags=re.IGNORECASE
-    )
+    text = _NUMBER_SYMBOL_PATTERN.sub(_expand_number, text)
 
     return text.strip()
 
@@ -627,10 +880,13 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
 
 
 def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Handle tab control commands via keyboard shortcuts."""
+    """Handle tab control commands via keyboard shortcuts with focus reset."""
     if not _HAS_AUTO:
         speaker.say("Tab control requires pyautogui. Install it with pip install pyautogui.")
         return
+
+    # Focus reset: dismiss any popup before tab operation
+    _focus_reset()
 
     action = result.tab_action
     tab_shortcuts = {
@@ -666,15 +922,19 @@ def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
 
 def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Type text into the active window with smart spacing."""
+    """Type text into the active window with smart spacing and optional Enter press."""
     if not _HAS_AUTO:
         speaker.say("Voice typing requires pyautogui. Install it with pip install pyautogui.")
         return
 
     text = result.typing_text
+    press_enter = getattr(result, 'typing_press_enter', True)
     if text:
         # Map spoken punctuation/symbol names to actual characters
         text = _replace_symbols(text)
+
+        # Focus reset: ESC to dismiss any popup/find bar before typing
+        _focus_reset()
 
         speaker.say(f"Typing: {text}")
         time.sleep(0.5)  # Small delay to let TTS finish before typing
@@ -688,12 +948,104 @@ def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
             pyautogui.press("space")
             pyautogui.write(text, interval=0.03)
 
-        log.info("Typed: '%s'", text)
-        tray.update_result(f"⌨️ Typed: {text[:30]}")
+        # Press Enter after typing (useful for ChatGPT, search boxes, etc.)
+        if press_enter:
+            time.sleep(0.2)
+            pyautogui.press("enter")
+            log.info("Typed + Enter: '%s'", text)
+            tray.update_result(f"⌨️ Sent: {text[:30]}")
+        else:
+            log.info("Typed: '%s'", text)
+            tray.update_result(f"⌨️ Typed: {text[:30]}")
+
+
+def _get_active_app() -> str:
+    """Detect the active foreground application category.
+    Returns: 'browser', 'editor', 'explorer', 'terminal', 'unknown'.
+    """
+    try:
+        import ctypes
+        user32 = ctypes.windll.user32
+        hwnd = user32.GetForegroundWindow()
+        length = user32.GetWindowTextLengthW(hwnd)
+        buf = ctypes.create_unicode_buffer(length + 1)
+        user32.GetWindowTextW(hwnd, buf, length + 1)
+        title = buf.value.lower()
+
+        # Also get process name for more reliable matching
+        pid = ctypes.c_ulong()
+        user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+        try:
+            import psutil
+            proc = psutil.Process(pid.value)
+            pname = proc.name().lower()
+        except Exception:
+            pname = ""
+
+        # Browser detection
+        browser_titles = ("chrome", "firefox", "edge", "brave", "opera", "vivaldi", "safari")
+        browser_procs = ("chrome.exe", "firefox.exe", "msedge.exe", "brave.exe", "opera.exe", "vivaldi.exe")
+        if any(b in title for b in browser_titles) or pname in browser_procs:
+            return "browser"
+
+        # File Explorer
+        if pname in ("explorer.exe",) and ("file explorer" in title or "this pc" in title
+                                            or ":\\" in title or "desktop" in title
+                                            or "downloads" in title or "documents" in title):
+            return "explorer"
+
+        # Code editors
+        editor_titles = ("visual studio code", "vs code", "vscode", "pycharm", "sublime",
+                         "atom", "intellij", "webstorm", "eclipse", "android studio")
+        editor_procs = ("code.exe", "pycharm64.exe", "sublime_text.exe", "atom.exe")
+        if any(e in title for e in editor_titles) or pname in editor_procs:
+            return "editor"
+
+        # Terminal
+        terminal_titles = ("command prompt", "powershell", "terminal", "cmd.exe", "windows terminal")
+        terminal_procs = ("cmd.exe", "powershell.exe", "windowsterminal.exe", "wt.exe")
+        if any(t in title for t in terminal_titles) or pname in terminal_procs:
+            return "terminal"
+
+        # Text editors
+        text_titles = ("notepad", "wordpad", "word", "google docs", "libreoffice")
+        text_procs = ("notepad.exe", "wordpad.exe", "winword.exe")
+        if any(t in title for t in text_titles) or pname in text_procs:
+            return "editor"
+
+        return "unknown"
+    except Exception:
+        return "unknown"
+
+
+def _focus_reset():
+    """Send ESC to dismiss any popup/find bar/overlay before executing a command."""
+    if _HAS_AUTO:
+        pyautogui.press("escape")
+        time.sleep(0.08)
+
+
+def _post_cleanup():
+    """Optional ESC after command to dismiss any popup that appeared."""
+    if _HAS_AUTO:
+        time.sleep(0.08)
+        pyautogui.press("escape")
+
+
+# Commands that should NOT get ESC focus reset (ESC itself, or commands that open dialogs)
+_NO_FOCUS_RESET = frozenset({
+    "escape", "find", "emoji_picker", "notification_center",
+    "run_dialog", "task_manager", "close_window",
+})
+
+# Commands that need post-cleanup ESC (they may leave dialogs/overlays)
+_NEEDS_POST_CLEANUP = frozenset({
+    "find", "print", "go_to_line",
+})
 
 
 def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Press a keyboard key or hotkey combo."""
+    """Press a keyboard key or hotkey combo with focus reset."""
     if not _HAS_AUTO:
         speaker.say("Key press requires pyautogui.")
         return
@@ -701,6 +1053,10 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
     key = result.key_name
     if not key:
         return
+
+    # Focus reset: ESC before command to clear popups/find bars
+    if key not in _NO_FOCUS_RESET:
+        _focus_reset()
 
     # Hotkey combos
     hotkey_map = {
@@ -712,12 +1068,138 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
         "cut": ("ctrl", "x"),
         "save": ("ctrl", "s"),
         "find": ("ctrl", "f"),
+        "new": ("ctrl", "n"),
+        "print": ("ctrl", "p"),
+        "zoom_in": ("ctrl", "+"),
+        "zoom_out": ("ctrl", "-"),
+        "zoom_reset": ("ctrl", "0"),
+        "bold": ("ctrl", "b"),
+        "italic": ("ctrl", "i"),
+        "underline": ("ctrl", "u"),
+        "fullscreen": ("f11",),
+        "alt_tab": ("alt", "tab"),
+        "task_manager": ("ctrl", "shift", "escape"),
+        "snap_left": ("win", "left"),
+        "snap_right": ("win", "right"),
+        "show_desktop": ("win", "d"),
+        "win_screenshot": ("win", "shift", "s"),
+        "lock_pc": ("win", "l"),
+        "emoji_picker": ("win", "."),
+        "open_explorer": ("win", "e"),
+        "open_settings": ("win", "i"),
+        "run_dialog": ("win", "r"),
+        "notification_center": ("win", "n"),
+        "close_window": ("alt", "f4"),
+        "rename": ("f2",),
+        "address_bar": ("alt", "d"),
+        "refresh": ("f5",),
+        "pageup": ("pageup",),
+        "pagedown": ("pagedown",),
+
+        # --------- Browser navigation (v3.1) ---------
+        "focus_address_bar": ("ctrl", "l"),
+        "go_back": ("alt", "left"),
+        "go_forward": ("alt", "right"),
+        "hard_refresh": ("ctrl", "shift", "r"),
+        "open_history": ("ctrl", "h"),
+        "open_downloads": ("ctrl", "j"),
+        "dev_tools": ("f12",),
+        "close_tab": ("ctrl", "w"),
+        "new_tab": ("ctrl", "t"),
+        "reopen_tab": ("ctrl", "shift", "t"),
+        "next_tab": ("ctrl", "tab"),
+        "prev_tab": ("ctrl", "shift", "tab"),
+        "bookmark": ("ctrl", "d"),
+        "open_bookmarks": ("ctrl", "shift", "o"),
+        "incognito": ("ctrl", "shift", "n"),
+        "view_source": ("ctrl", "u"),
+        "search_bar": ("ctrl", "k"),
+
+        # --------- Text navigation (v3.1) ---------
+        "next_word": ("ctrl", "right"),
+        "prev_word": ("ctrl", "left"),
+        "select_next_word": ("ctrl", "shift", "right"),
+        "select_prev_word": ("ctrl", "shift", "left"),
+        "delete_word": ("ctrl", "backspace"),
+        "delete_next_word": ("ctrl", "delete"),
+        "go_top": ("ctrl", "Home"),
+        "go_bottom": ("ctrl", "End"),
+        "select_to_start": ("shift", "Home"),
+        "select_to_end": ("shift", "End"),
+        "select_to_top": ("ctrl", "shift", "Home"),
+        "select_to_bottom": ("ctrl", "shift", "End"),
+        "move_line_up": ("alt", "up"),
+        "move_line_down": ("alt", "down"),
+        "duplicate_line": ("ctrl", "shift", "d"),
+        "delete_line": ("ctrl", "shift", "k"),
+        "go_to_line_dialog": ("ctrl", "g"),
+        "toggle_comment": ("ctrl", "/"),
+        "indent": ("tab",),
+        "outdent": ("shift", "tab"),
+
+        # --------- File Explorer (v3.1) ---------
+        "new_folder": ("ctrl", "shift", "n"),
+        "properties": ("alt", "enter"),
+        "permanent_delete": ("shift", "delete"),
+        "preview_pane": ("alt", "p"),
+        "nav_pane": ("alt", "d"),
+        "go_up_folder": ("alt", "up"),
+
+        # --------- System / Global (v3.1) ---------
+        "print_screen": ("printscreen",),
+        "alt_print_screen": ("alt", "printscreen"),
+        "win_search": ("win", "s"),
+        "action_center": ("win", "a"),
+        "new_virtual_desktop": ("win", "ctrl", "d"),
+        "next_virtual_desktop": ("win", "ctrl", "right"),
+        "prev_virtual_desktop": ("win", "ctrl", "left"),
+        "close_virtual_desktop": ("win", "ctrl", "f4"),
+        "task_view": ("win", "tab"),
+        "dictation": ("win", "h"),
+
+        # --------- Result navigation (v3.1) ---------
+        "next_link": ("tab",),
+        "prev_link": ("shift", "tab"),
+
+        # --------- Media controls (v3.2) ---------
+        "play_pause": ("playpause",),
+        "next_track": ("nexttrack",),
+        "prev_track": ("prevtrack",),
+
+        # --------- Additional shortcuts (v3.2) ---------
+        "replace": ("ctrl", "h"),
+        "go_to_file": ("ctrl", "p"),
+        "command_palette": ("ctrl", "shift", "p"),
+        "toggle_sidebar": ("ctrl", "b"),
+        "toggle_terminal": ("ctrl", "`"),
+        "close_all_tabs": ("ctrl", "shift", "w"),
+        "pin_tab": ("ctrl", "shift", "p"),  # Chrome-specific
     }
 
-    if key in hotkey_map:
+    # Special multi-step key commands (not simple hotkeys)
+    if key == "select_line":
+        pyautogui.press("home")
+        time.sleep(0.05)
+        pyautogui.hotkey("shift", "end")
+    elif key == "copy_all":
+        pyautogui.hotkey("ctrl", "a")
+        time.sleep(0.1)
+        pyautogui.hotkey("ctrl", "c")
+    elif key == "go_back":
+        # Context-aware: Backspace in Settings/Explorer, Alt+Left in browsers
+        active = _get_active_app()
+        if active in ("explorer",):
+            pyautogui.press("backspace")
+        else:
+            pyautogui.hotkey("alt", "left")
+    elif key in hotkey_map:
         pyautogui.hotkey(*hotkey_map[key])
     else:
         pyautogui.press(key)
+
+    # Post-cleanup: dismiss any popup that the command may have opened
+    if key in _NEEDS_POST_CLEANUP:
+        _post_cleanup()
 
     key_labels = {
         "enter": "Pressed Enter",
@@ -734,12 +1216,112 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
         "cut": "Cut",
         "save": "Saved",
         "find": "Opened Find",
+        "new": "New file",
+        "print": "Print",
+        "zoom_in": "Zoomed in",
+        "zoom_out": "Zoomed out",
+        "zoom_reset": "Reset zoom",
+        "bold": "Bold",
+        "italic": "Italic",
+        "underline": "Underline",
+        "fullscreen": "Full screen",
+        "alt_tab": "Switched window",
+        "task_manager": "Task Manager",
+        "snap_left": "Snapped left",
+        "snap_right": "Snapped right",
+        "show_desktop": "Show desktop",
+        "win_screenshot": "Screen snip",
+        "lock_pc": "Locking PC",
+        "emoji_picker": "Emoji picker",
+        "open_explorer": "File Explorer",
+        "open_settings": "Settings",
+        "run_dialog": "Run dialog",
+        "notification_center": "Notifications",
+        "close_window": "Closed window",
+        "rename": "Rename",
+        "address_bar": "Address bar",
+        "refresh": "Refreshed",
+        "pageup": "Page Up",
+        "pagedown": "Page Down",
         "up": "Arrow Up",
         "down": "Arrow Down",
         "left": "Arrow Left",
         "right": "Arrow Right",
         "home": "Home",
         "end": "End",
+        # Browser (v3.1)
+        "focus_address_bar": "Address bar",
+        "go_back": "Went back",
+        "go_forward": "Went forward",
+        "hard_refresh": "Hard refresh",
+        "open_history": "History",
+        "open_downloads": "Downloads",
+        "dev_tools": "Developer tools",
+        "close_tab": "Closed tab",
+        "new_tab": "New tab",
+        "reopen_tab": "Reopened tab",
+        "next_tab": "Next tab",
+        "prev_tab": "Previous tab",
+        "bookmark": "Bookmarked",
+        "open_bookmarks": "Bookmarks",
+        "incognito": "Incognito window",
+        "view_source": "View source",
+        "search_bar": "Search bar",
+        # Text navigation (v3.1)
+        "next_word": "Next word",
+        "prev_word": "Previous word",
+        "select_next_word": "Selected next word",
+        "select_prev_word": "Selected previous word",
+        "delete_word": "Deleted word",
+        "delete_next_word": "Deleted next word",
+        "go_top": "Top of document",
+        "go_bottom": "Bottom of document",
+        "select_line": "Selected line",
+        "select_to_start": "Selected to start",
+        "select_to_end": "Selected to end",
+        "select_to_top": "Selected to top",
+        "select_to_bottom": "Selected to bottom",
+        "move_line_up": "Moved line up",
+        "move_line_down": "Moved line down",
+        "duplicate_line": "Duplicated line",
+        "delete_line": "Deleted line",
+        "go_to_line_dialog": "Go to line",
+        "toggle_comment": "Toggled comment",
+        "indent": "Indented",
+        "outdent": "Outdented",
+        # File Explorer (v3.1)
+        "new_folder": "New folder",
+        "properties": "Properties",
+        "permanent_delete": "Permanently deleted",
+        "preview_pane": "Preview pane",
+        "nav_pane": "Navigation pane",
+        "go_up_folder": "Up one folder",
+        # System (v3.1)
+        "print_screen": "Screenshot taken",
+        "alt_print_screen": "Window screenshot",
+        "win_search": "Windows search",
+        "action_center": "Action center",
+        "new_virtual_desktop": "New virtual desktop",
+        "next_virtual_desktop": "Next desktop",
+        "prev_virtual_desktop": "Previous desktop",
+        "close_virtual_desktop": "Closed virtual desktop",
+        "task_view": "Task view",
+        "dictation": "Dictation",
+        # Result navigation (v3.1)
+        "next_link": "Next link",
+        "prev_link": "Previous link",
+        # Media controls (v3.2)
+        "play_pause": "Play/Pause",
+        "next_track": "Next track",
+        "prev_track": "Previous track",
+        # Additional shortcuts (v3.2)
+        "replace": "Find & Replace",
+        "go_to_file": "Quick Open",
+        "command_palette": "Command Palette",
+        "toggle_sidebar": "Toggle Sidebar",
+        "toggle_terminal": "Toggle Terminal",
+        "close_all_tabs": "Closed all tabs",
+        "pin_tab": "Pin tab",
     }
     msg = key_labels.get(key, f"Pressed {key}")
     speaker.say(msg)
@@ -748,12 +1330,16 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
 
 def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Handle text selection commands using keyboard shortcuts."""
+    """Handle text selection commands using keyboard shortcuts with focus reset."""
     if not _HAS_AUTO:
         speaker.say("Text selection requires pyautogui.")
         return
 
     action = result.selection_action
+
+    # Focus reset before selection commands (dismiss any popup/find bar)
+    if action != "select_word_name":  # select_word_name does its own ESC handling
+        _focus_reset()
 
     if action == "select_line":
         pyautogui.press("home")
@@ -786,9 +1372,11 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
     elif action == "go_to_line":
         line_num = result.selection_target
-        # Ctrl+G works in Notepad, VS Code, most editors
+        # ESC first to dismiss any popup, then Ctrl+G
+        pyautogui.press("escape")
+        time.sleep(0.1)
         pyautogui.hotkey("ctrl", "g")
-        time.sleep(0.3)
+        time.sleep(0.4)
         pyautogui.typewrite(str(line_num), interval=0.03)
         time.sleep(0.1)
         pyautogui.press("enter")
@@ -797,28 +1385,58 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
     elif action == "select_word_name":
         target = result.selection_target
-        # Use Ctrl+F (Find) to locate the word, which highlights it
+        if not target or len(target.strip()) == 0:
+            speaker.say("No word specified to select.")
+            return
+
+        # v3.1 Fix: Defensive execution with focus reset
+        # Step 1: ESC to dismiss any existing popup/find bar
+        pyautogui.press("escape")
+        time.sleep(0.15)
+
+        # Step 2: Click on the document body to ensure text area has focus
+        # (This helps prevent find bar from retaining focus)
+        pyautogui.press("escape")
+        time.sleep(0.1)
+
+        # Step 3: Open Find dialog
         pyautogui.hotkey("ctrl", "f")
-        time.sleep(0.3)
-        # Clear any existing search text
+        time.sleep(0.4)
+
+        # Step 4: Clear any existing search text and type the target
         pyautogui.hotkey("ctrl", "a")
         time.sleep(0.05)
         pyautogui.typewrite(target, interval=0.03)
+        time.sleep(0.15)
+
+        # Step 5: Press Enter to find the word (highlights match if found)
+        pyautogui.press("enter")
+        time.sleep(0.2)
+
+        # Step 6: Close Find dialog — selection stays on found text
+        # Press ESC to close Find bar/dialog
+        pyautogui.press("escape")
+        time.sleep(0.15)
+
+        # Step 7: If Notepad's "Cannot find" dialog appeared, ESC dismisses it
+        # Send one more ESC to be safe (handles both dialog and find bar)
+        pyautogui.press("escape")
         time.sleep(0.1)
-        pyautogui.press("enter")  # Find next — highlights the match
-        time.sleep(0.1)
-        pyautogui.press("escape")  # Close find dialog — selection stays
-        speaker.say(f"Selected {target}")
-        tray.update_result(f"📝 Selected: {target}")
+
+        speaker.say(f"Found {target}")
+        tray.update_result(f"📝 Found: {target}")
 
     log.info("Selection: %s", action)
 
 
 def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Handle scroll commands with sensitivity."""
+    """Handle scroll commands with sensitivity and focus reset."""
     if not _HAS_AUTO:
         speaker.say("Scrolling requires pyautogui.")
         return
+
+    # Focus reset: dismiss popups before scrolling
+    _focus_reset()
 
     special = result.scroll_special
     if special:
@@ -857,10 +1475,13 @@ def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
 
 
 def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
-    """Handle browser / file explorer navigation including drives and folders."""
+    """Handle browser / file explorer navigation including drives and folders with focus reset."""
     if not _HAS_AUTO:
         speaker.say("Navigation requires pyautogui.")
         return
+
+    # Focus reset: dismiss any popup before navigation
+    _focus_reset()
 
     action = result.nav_action
 

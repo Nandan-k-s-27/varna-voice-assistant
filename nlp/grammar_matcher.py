@@ -1,5 +1,5 @@
 """
-VARNA v2.1 - Grammar Pattern Matcher
+VARNA v2.3 - Grammar Pattern Matcher
 Template-based command recognition using grammar patterns.
 
 Patterns like:
@@ -32,17 +32,17 @@ class GrammarMatch:
 _GRAMMAR_PATTERNS = {
     # App control
     "open_app": {
-        "pattern": r"^(?:open|launch|start|run|fire up|bring up)\s+(?P<app>.+)$",
+        "pattern": r"^(?:open|launch|start|run|fire up|bring up|load|execute|activate|boot up|pull up|access)\s+(?P<app>.+)$",
         "intent": "open",
         "confidence": 0.95,
     },
     "close_app": {
-        "pattern": r"^(?:close|quit|exit|kill|terminate|stop|end)\s+(?P<app>.+)$",
+        "pattern": r"^(?:close|quit|exit|kill|terminate|stop|end|shut|shut down|turn off)\s+(?P<app>.+)$",
         "intent": "close",
         "confidence": 0.95,
     },
     "switch_app": {
-        "pattern": r"^(?:switch to|go to|focus|activate)\s+(?P<app>.+)$",
+        "pattern": r"^(?:switch to|go to|focus|activate|jump to|move to|change to)\s+(?P<app>.+)$",
         "intent": "switch",
         "confidence": 0.90,
     },
@@ -59,20 +59,40 @@ _GRAMMAR_PATTERNS = {
         "confidence": 0.95,
     },
     "minimize_this": {
-        "pattern": r"^minimize\s+(?:this|it)$",
+        "pattern": r"^minimize\s+(?:this|this window|it|current window)$",
         "intent": "minimize_this",
         "confidence": 0.95,
     },
     "maximize_this": {
-        "pattern": r"^maximize\s+(?:this|it)$",
+        "pattern": r"^maximize\s+(?:this|this window|it|current window)$",
         "intent": "maximize_this",
         "confidence": 0.95,
+    },
+    "fullscreen": {
+        "pattern": r"^(?:full\s*screen|go\s+full\s*screen|enter\s+full\s*screen|make\s+(?:it\s+)?full\s*screen|toggle\s+full\s*screen|f11)$",
+        "intent": "fullscreen",
+        "confidence": 0.95,
+    },
+    "show_desktop": {
+        "pattern": r"^(?:show\s+desktop|minimize\s+all(?:\s+windows)?|hide\s+all(?:\s+windows)?|clear\s+desktop|desktop)$",
+        "intent": "show_desktop",
+        "confidence": 0.90,
     },
     
     # Search
     "search_web": {
-        "pattern": r"^(?:search|google|look up|find)\s+(?:for\s+)?(?P<query>.+)$",
+        "pattern": r"^(?:search|google|look up|find|find online|search for|search online|web search)\s+(?:for\s+)?(?P<query>.+)$",
         "intent": "search",
+        "confidence": 0.90,
+    },
+    "search_youtube": {
+        "pattern": r"^(?:search\s+youtube|search\s+on\s+youtube|youtube\s+search|find\s+on\s+youtube)\s+(?:for\s+)?(?P<query>.+)$",
+        "intent": "search_youtube",
+        "confidence": 0.90,
+    },
+    "search_site": {
+        "pattern": r"^search\s+(?:on\s+)?(?P<site>amazon|flipkart|github|wikipedia|stackoverflow)\s+(?:for\s+)?(?P<query>.+)$",
+        "intent": "search_site",
         "confidence": 0.90,
     },
     
@@ -85,19 +105,24 @@ _GRAMMAR_PATTERNS = {
     
     # Navigation
     "go_back": {
-        "pattern": r"^go\s+back$",
+        "pattern": r"^(?:go\s+back|back|go\s+previous|previous\s+page|page\s+back)$",
         "intent": "go_back",
         "confidence": 0.95,
     },
     "go_forward": {
-        "pattern": r"^go\s+forward$",
+        "pattern": r"^(?:go\s+forward|forward|next\s+page|page\s+forward)$",
         "intent": "go_forward",
         "confidence": 0.95,
     },
-    "go_to_location": {
-        "pattern": r"^go\s+to\s+(?P<location>.+)$",
-        "intent": "go_to",
+    "navigate_to": {
+        "pattern": r"^(?:navigate to|go to|browse to|visit)\s+(?P<url>.+)$",
+        "intent": "navigate",
         "confidence": 0.90,
+    },
+    "refresh": {
+        "pattern": r"^(?:refresh|reload|refresh\s+page|reload\s+page)$",
+        "intent": "refresh",
+        "confidence": 0.95,
     },
     
     # Tab control
@@ -117,8 +142,28 @@ _GRAMMAR_PATTERNS = {
         "confidence": 0.95,
     },
     "prev_tab": {
-        "pattern": r"^(?:previous|prev|left)\s+tab$",
+        "pattern": r"^(?:previous|prev|left|last)\s+tab$",
         "intent": "prev_tab",
+        "confidence": 0.95,
+    },
+    "reopen_tab": {
+        "pattern": r"^(?:reopen|restore|recover|bring back)\s+(?:closed\s+)?tab$",
+        "intent": "reopen_tab",
+        "confidence": 0.95,
+    },
+    "close_all_tabs": {
+        "pattern": r"^close\s+all\s+tabs?$",
+        "intent": "close_all_tabs",
+        "confidence": 0.95,
+    },
+    "duplicate_tab": {
+        "pattern": r"^(?:duplicate|clone|copy)\s+tab$",
+        "intent": "duplicate_tab",
+        "confidence": 0.95,
+    },
+    "pin_tab": {
+        "pattern": r"^(?:pin|unpin)\s+tab$",
+        "intent": "pin_tab",
         "confidence": 0.95,
     },
     "tab_number": {
@@ -168,29 +213,34 @@ _GRAMMAR_PATTERNS = {
     
     # Clipboard
     "copy": {
-        "pattern": r"^(?:copy|copy this)$",
+        "pattern": r"^(?:copy|copy this|copy it|copy that|copy text|copy selection)$",
         "intent": "copy",
         "confidence": 0.95,
     },
     "paste": {
-        "pattern": r"^(?:paste|paste it)$",
+        "pattern": r"^(?:paste|paste it|paste here|paste that|paste text)$",
         "intent": "paste",
         "confidence": 0.95,
     },
     "cut": {
-        "pattern": r"^(?:cut|cut this)$",
+        "pattern": r"^(?:cut|cut this|cut it|cut that|cut text|cut selection)$",
         "intent": "cut",
         "confidence": 0.95,
+    },
+    "clipboard": {
+        "pattern": r"^(?:read\s+clipboard|what did i copy|what is in clipboard|show clipboard|clipboard\s+content|clipboard\s+history)$",
+        "intent": "clipboard",
+        "confidence": 0.90,
     },
     
     # Undo/Redo
     "undo": {
-        "pattern": r"^undo$",
+        "pattern": r"^(?:undo|undo that|undo this|undo last|take it back|revert)$",
         "intent": "undo",
         "confidence": 0.95,
     },
     "redo": {
-        "pattern": r"^redo$",
+        "pattern": r"^(?:redo|redo that|redo this|do again|redo last)$",
         "intent": "redo",
         "confidence": 0.95,
     },
@@ -228,48 +278,117 @@ _GRAMMAR_PATTERNS = {
     
     # System
     "shutdown": {
-        "pattern": r"^(?:shutdown|shut down)\s+(?:system|computer)?$",
+        "pattern": r"^(?:shutdown|shut\s+down)(?:\s+(?:system|computer|pc|this))?$",
         "intent": "shutdown",
         "confidence": 0.90,
     },
     "restart": {
-        "pattern": r"^restart\s+(?:system|computer)?$",
+        "pattern": r"^(?:restart|reboot)(?:\s+(?:system|computer|pc|this))?$",
         "intent": "restart",
         "confidence": 0.90,
     },
     "lock": {
-        "pattern": r"^lock\s+(?:screen|computer)?$",
+        "pattern": r"^lock(?:\s+(?:screen|computer|pc|system|this))?$",
         "intent": "lock",
+        "confidence": 0.90,
+    },
+    "sleep": {
+        "pattern": r"^(?:sleep|sleep\s+mode|go\s+to\s+sleep|hibernate)(?:\s+(?:system|computer|pc))?$",
+        "intent": "sleep",
+        "confidence": 0.90,
+    },
+    "logoff": {
+        "pattern": r"^(?:log\s*off|sign\s*out|logout)(?:\s+(?:system|computer|pc))?$",
+        "intent": "logoff",
+        "confidence": 0.90,
+    },
+    "battery": {
+        "pattern": r"^(?:battery|check\s+battery|battery\s+status|how\s+much\s+battery|battery\s+level|battery\s+percentage)$",
+        "intent": "battery",
+        "confidence": 0.90,
+    },
+    "datetime": {
+        "pattern": r"^(?:time|date|what\s+time|what\s+date|current\s+time|current\s+date|what\s+is\s+the\s+time|what\s+is\s+the\s+date|today\s+date)$",
+        "intent": "datetime",
         "confidence": 0.90,
     },
     
     # Context commands
     "repeat": {
-        "pattern": r"^(?:repeat|do it again|again)$",
+        "pattern": r"^(?:repeat|do it again|again|one more time|repeat that|repeat last|say again|do that again)$",
         "intent": "repeat",
         "confidence": 0.95,
     },
     "close_this": {
-        "pattern": r"^close\s+(?:this|it)$",
+        "pattern": r"^(?:close|hide|dismiss)\s+(?:this|it|this window|current window)$",
         "intent": "close_this",
         "confidence": 0.95,
     },
     
     # Volume
     "volume_up": {
-        "pattern": r"^(?:volume up|increase volume|louder)$",
+        "pattern": r"^(?:volume\s+up|increase\s+volume|louder|raise\s+volume|turn\s+up\s+volume|make\s+it\s+louder|sound\s+up|increase\s+sound)$",
         "intent": "volume_up",
         "confidence": 0.90,
     },
     "volume_down": {
-        "pattern": r"^(?:volume down|decrease volume|quieter|softer)$",
+        "pattern": r"^(?:volume\s+down|decrease\s+volume|quieter|softer|lower\s+volume|turn\s+down\s+volume|make\s+it\s+quieter|sound\s+down|decrease\s+sound)$",
         "intent": "volume_down",
         "confidence": 0.90,
     },
     "mute": {
-        "pattern": r"^(?:mute|unmute)$",
+        "pattern": r"^(?:mute|unmute|mute\s+sound|unmute\s+sound|silence|toggle\s+mute|mute\s+volume)$",
         "intent": "mute",
         "confidence": 0.95,
+    },
+    "brightness_up": {
+        "pattern": r"^(?:brightness\s+up|increase\s+brightness|brighter|more\s+brightness|turn\s+up\s+brightness)$",
+        "intent": "brightness_up",
+        "confidence": 0.90,
+    },
+    "brightness_down": {
+        "pattern": r"^(?:brightness\s+down|decrease\s+brightness|dimmer|less\s+brightness|turn\s+down\s+brightness|dim)$",
+        "intent": "brightness_down",
+        "confidence": 0.90,
+    },
+    
+    # Media
+    "play_pause": {
+        "pattern": r"^(?:play|pause|play\s+pause|toggle\s+play|resume)$",
+        "intent": "play_pause",
+        "confidence": 0.90,
+    },
+    "next_track": {
+        "pattern": r"^(?:next\s+(?:track|song|music)|skip(?:\s+track)?|skip\s+song)$",
+        "intent": "next_track",
+        "confidence": 0.90,
+    },
+    "prev_track": {
+        "pattern": r"^(?:previous\s+(?:track|song|music)|prev\s+(?:track|song)|go\s+back\s+(?:track|song))$",
+        "intent": "prev_track",
+        "confidence": 0.90,
+    },
+    
+    # Developer
+    "git_command": {
+        "pattern": r"^git\s+(?P<action>.+)$",
+        "intent": "git",
+        "confidence": 0.90,
+    },
+    "npm_command": {
+        "pattern": r"^npm\s+(?P<action>.+)$",
+        "intent": "npm",
+        "confidence": 0.90,
+    },
+    "kill_port": {
+        "pattern": r"^(?:kill|stop|free)\s+port\s+(?P<port>\d+)$",
+        "intent": "kill_port",
+        "confidence": 0.90,
+    },
+    "start_server": {
+        "pattern": r"^(?:start|run)\s+(?:the\s+)?(?P<type>server|dev\s*server|flask|django|vite|react|angular|express)$",
+        "intent": "start_server",
+        "confidence": 0.90,
     },
     
     # Monitor/Check

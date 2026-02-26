@@ -1,5 +1,5 @@
 """
-VARNA v2.0 - Semantic Matcher
+VARNA v2.3 - Semantic Matcher
 ML-based semantic similarity matching using sentence transformers.
 
 Uses pre-trained sentence embeddings to find semantically similar

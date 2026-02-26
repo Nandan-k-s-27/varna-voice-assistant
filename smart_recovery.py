@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Smart Failure Recovery
+VARNA v2.3 - Smart Failure Recovery
 Self-healing behavior when commands fail.
 
 Features:

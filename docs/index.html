@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VARNA — Voice Assistant for Windows</title>
+    <meta name="description" content="VARNA is a free, offline voice assistant for Windows. Control your PC with natural speech — no internet required.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: #0a0a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+        a { color: #e94560; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 80px 20px 60px;
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3e 50%, #0a0a1a 100%);
+        }
+        .hero .logo { font-size: 96px; margin-bottom: 16px; }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #e94560, #f5a623, #e94560);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+        }
+        .hero .tagline {
+            font-size: 1.25rem;
+            color: #aaa;
+            max-width: 640px;
+            margin: 0 auto 36px;
+        }
+        .hero .badges { margin-bottom: 40px; }
+        .hero .badges img { margin: 0 4px; }
+
+        /* Download Button */
+        .btn-download {
+            display: inline-block;
+            padding: 16px 48px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #e94560, #c73650);
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+        }
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(233, 69, 96, 0.4);
+            text-decoration: none;
+        }
+        .btn-download .icon { margin-right: 8px; }
+        .btn-secondary {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 28px;
+            font-size: 0.95rem;
+            color: #e94560;
+            border: 2px solid #e94560;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        .btn-secondary:hover { background: rgba(233,69,96,0.1); text-decoration: none; }
+
+        /* Sections */
+        section { max-width: 960px; margin: 0 auto; padding: 60px 20px; }
+        section h2 {
+            font-size: 2rem;
+            margin-bottom: 32px;
+            text-align: center;
+            color: #fff;
+        }
+
+        /* Features Grid */
+        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+        .feature-card {
+            background: #12122a;
+            border: 1px solid #2a2a4a;
+            border-radius: 16px;
+            padding: 28px;
+            transition: border-color 0.3s, transform 0.2s;
+        }
+        .feature-card:hover { border-color: #e94560; transform: translateY(-4px); }
+        .feature-card .icon { font-size: 2rem; margin-bottom: 12px; }
+        .feature-card h3 { font-size: 1.15rem; color: #fff; margin-bottom: 8px; }
+        .feature-card p { color: #999; font-size: 0.95rem; }
+
+        /* How It Works */
+        .pipeline {
+            background: #12122a;
+            border: 1px solid #2a2a4a;
+            border-radius: 16px;
+            padding: 36px;
+            font-family: 'Cascadia Code', 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: #8888bb;
+            white-space: pre-line;
+            line-height: 1.8;
+            text-align: center;
+        }
+        .pipeline span { color: #e94560; font-weight: bold; }
+
+        /* Comparison Table */
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 14px 20px; text-align: left; border-bottom: 1px solid #2a2a4a; }
+        th { color: #e94560; font-weight: 600; background: #12122a; }
+        td { color: #ccc; }
+        tr:hover td { background: #1a1a3e; }
+
+        /* Requirements */
+        .req-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; text-align: center; }
+        .req-item {
+            background: #12122a;
+            border: 1px solid #2a2a4a;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .req-item .icon { font-size: 2rem; }
+        .req-item .label { color: #999; font-size: 0.85rem; margin-top: 4px; }
+        .req-item .value { color: #fff; font-weight: 700; }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #666;
+            border-top: 1px solid #1a1a3e;
+        }
+        footer a { color: #e94560; }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .hero h1 { font-size: 2rem; }
+            .hero .tagline { font-size: 1rem; }
+            .btn-download { padding: 14px 32px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<div class="hero">
+    <div class="logo">🌻</div>
+    <h1>VARNA</h1>
+    <p class="tagline">
+        A free, fully offline voice assistant for Windows.<br>
+        Control your PC with natural speech — no internet, no cloud, no data collection.
+    </p>
+    <div class="badges">
+        <img src="https://img.shields.io/badge/Version-2.3-e94560?style=flat-square" alt="v2.3">
+        <img src="https://img.shields.io/badge/Windows-10%2F11-0078d4?style=flat-square&logo=windows" alt="Windows">
+        <img src="https://img.shields.io/badge/Python-3.8+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
+        <img src="https://img.shields.io/badge/Offline-100%25-28a745?style=flat-square" alt="Offline">
+        <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT">
+    </div>
+
+    <!-- UPDATE THIS LINK after creating a GitHub Release -->
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest" class="btn-download">
+        <span class="icon">⬇</span> Download for Windows
+    </a>
+    <br>
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant" class="btn-secondary">
+        ⭐ View Source on GitHub
+    </a>
+</div>
+
+<!-- Features -->
+<section>
+    <h2>What Can VARNA Do?</h2>
+    <div class="features">
+        <div class="feature-card">
+            <div class="icon">📦</div>
+            <h3>Open & Close Any App</h3>
+            <p>"open whatsapp", "close spotify" — scans your entire PC, handles typos like "watsapp" automatically.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🪟</div>
+            <h3>Window Intelligence</h3>
+            <p>"switch to chrome", "minimize vscode", "maximize edge" — smart restore, focus, and launch.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">⌨️</div>
+            <h3>Voice Typing</h3>
+            <p>"type hello world" — types in any active app. 40+ key commands: undo, copy, paste, enter.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔍</div>
+            <h3>Smart Search</h3>
+            <p>"search React hooks" — searches in active browser or opens new tab. YouTube search built-in.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🧠</div>
+            <h3>Natural Language</h3>
+            <p>"can you help me open notepad" → just works. 60+ filler phrases understood. Handles accents.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔒</div>
+            <h3>100% Offline & Secure</h3>
+            <p>Voice never leaves your PC. Whitelist-only execution. 4-gate safety architecture.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">⚡</div>
+            <h3>Custom Macros</h3>
+            <p>"whenever I say focus mode, open vscode and open chrome" — chain multiple commands.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🗂️</div>
+            <h3>Drive & Folder Navigation</h3>
+            <p>"go to D drive", "go to downloads", "go back" — navigate your entire filesystem.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">📸</div>
+            <h3>Screenshots & Clipboard</h3>
+            <p>"screenshot as Bug1", "read clipboard", "paste 3rd item" — all managed by voice.</p>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works -->
+<section>
+    <h2>How It Works</h2>
+    <div class="pipeline">
+        🎤 <span>Microphone</span> → 📝 <span>Whisper STT</span> (offline) → 🧹 <span>NLP Pipeline</span> (4 layers)
+        → 🧠 <span>Parser</span> → 🛡️ <span>Safety Check</span> → ⚡ <span>Execute</span> → 🔊 <span>Voice Response</span>
+    </div>
+</section>
+
+<!-- Comparison -->
+<section>
+    <h2>Why Choose VARNA?</h2>
+    <table>
+        <tr><th>Feature</th><th>VARNA</th><th>Cloud Assistants</th></tr>
+        <tr><td>Privacy</td><td>✅ 100% offline</td><td>❌ Sends audio to servers</td></tr>
+        <tr><td>Internet Required</td><td>✅ No</td><td>❌ Yes</td></tr>
+        <tr><td>Cost</td><td>✅ Free forever</td><td>❌ Subscription / data</td></tr>
+        <tr><td>Custom Commands</td><td>✅ Full control</td><td>❌ Limited API</td></tr>
+        <tr><td>Security</td><td>✅ Whitelist-only</td><td>❌ Black-box</td></tr>
+        <tr><td>Latency</td><td>✅ ~1-2s local</td><td>⚠️ Network-dependent</td></tr>
+    </table>
+</section>
+
+<!-- Requirements -->
+<section>
+    <h2>Requirements</h2>
+    <div class="req-grid">
+        <div class="req-item">
+            <div class="icon">💻</div>
+            <div class="value">Windows 10/11</div>
+            <div class="label">Operating System</div>
+        </div>
+        <div class="req-item">
+            <div class="icon">🐍</div>
+            <div class="value">Python 3.8+</div>
+            <div class="label">Runtime</div>
+        </div>
+        <div class="req-item">
+            <div class="icon">🎤</div>
+            <div class="value">Microphone</div>
+            <div class="label">Built-in or External</div>
+        </div>
+        <div class="req-item">
+            <div class="icon">💾</div>
+            <div class="value">4 GB RAM</div>
+            <div class="label">8 GB Recommended</div>
+        </div>
+    </div>
+</section>
+
+<!-- Install -->
+<section>
+    <h2>Quick Start</h2>
+    <div class="pipeline" style="text-align: left; font-size: 1rem; line-height: 2.2;">
+        <strong style="color:#e94560;">Option 1:</strong> Download the installer from the button above
+        <strong style="color:#e94560;">Option 2:</strong> Clone & run from source:
+        <code style="color:#8888bb;">git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git</code>
+        <code style="color:#8888bb;">cd varna-voice-assistant</code>
+        <code style="color:#8888bb;">pip install -r requirements.txt</code>
+        <code style="color:#8888bb;">python main.py</code>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <p>
+        🌻 <strong>VARNA v2.3</strong> — Your voice, your control, your privacy.<br>
+        Made by <a href="https://github.com/Nandan-k-s-27">Nandan K S</a> •
+        <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant">GitHub</a> •
+        MIT License
+    </p>
+</footer>
+
+</body>
+</html>

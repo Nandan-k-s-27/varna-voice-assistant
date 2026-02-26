@@ -153,3 +153,19 @@ Thumbs.db
 # Logs
 logs/
 *.log
+
+# VARNA model files (downloaded at runtime)
+models/
+
+# App cache (auto-generated)
+apps.json
+
+# User data
+macros.json
+user_corrections.json
+
+# Build output
+dist/
+build/
+installer_output/
+*.exe

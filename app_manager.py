@@ -1,5 +1,5 @@
 """
-VARNA v1.5 - Universal App Manager
+VARNA v2.3 - Universal App Manager
 Scans, indexes, fuzzy-matches, launches, and closes ANY installed application.
 
 Scan sources:

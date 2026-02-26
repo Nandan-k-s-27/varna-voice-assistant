@@ -1,5 +1,5 @@
 """
-VARNA v1.5 - Window Manager
+VARNA v2.3 - Window Manager
 Smart application control using pygetwindow + AppManager fallback.
 
 Provides:

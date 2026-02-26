@@ -1,5 +1,5 @@
 """
-VARNA v2.2 - Usage Analytics (Offline)
+VARNA v2.3 - Usage Analytics (Offline)
 Track usage patterns for optimization.
 
 Features:
