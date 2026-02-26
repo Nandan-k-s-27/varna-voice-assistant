@@ -184,11 +184,28 @@ class WhisperEngine(STTEngine):
                      target_model, self.compute_type)
 
             # Use CPU with int8 quantization for best compatibility
+            # Determine model root: use exe's directory when frozen (installed),
+            # otherwise use LOCALAPPDATA\VARNA so downloads never go to protected dirs.
+            import sys as _sys
+            if getattr(_sys, 'frozen', False):
+                _base = Path(_sys.executable).parent
+                _model_root = _base / "models" / "whisper"
+                # If install dir is not writable (e.g. elevated Program Files),
+                # redirect downloads to user app-data instead.
+                if not os.access(str(_base), os.W_OK):
+                    _model_root = (
+                        Path(os.environ.get("LOCALAPPDATA", str(Path.home())))
+                        / "VARNA" / "models" / "whisper"
+                    )
+            else:
+                _model_root = Path(__file__).parent / "models" / "whisper"
+            _model_root.mkdir(parents=True, exist_ok=True)
+
             model = WhisperModel(
                 target_model,
                 device="cpu",
                 compute_type=self.compute_type,
-                download_root=str(Path(__file__).parent / "models" / "whisper")
+                download_root=str(_model_root)
             )
 
             # Cache the model

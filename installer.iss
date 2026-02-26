@@ -23,7 +23,7 @@ LicenseFile=LICENSE
 OutputDir=installer_output
 OutputBaseFilename=VARNA_Setup_v2.3
 SetupIconFile=assets\varna_logo.ico
-UninstallDisplayIcon={app}\assets\varna_logo.ico
+UninstallDisplayIcon={app}\_internal\assets\varna_logo.ico
 Compression=lzma2/ultra64
 SolidCompression=yes
 WizardStyle=modern
@@ -35,7 +35,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
-Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 Name: "startmenu"; Description: "Create Start Menu shortcut"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
@@ -43,9 +43,9 @@ Name: "startmenu"; Description: "Create Start Menu shortcut"; GroupDescription: 
 Source: "dist\VARNA\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{group}\VARNA Voice Assistant"; Filename: "{app}\VARNA.exe"; IconFilename: "{app}\assets\varna_logo.ico"
+Name: "{group}\VARNA Voice Assistant"; Filename: "{app}\VARNA.exe"; IconFilename: "{app}\_internal\assets\varna_logo.ico"
 Name: "{group}\Uninstall VARNA"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\VARNA Voice Assistant"; Filename: "{app}\VARNA.exe"; IconFilename: "{app}\assets\varna_logo.ico"; Tasks: desktopicon
+Name: "{autodesktop}\VARNA Voice Assistant"; Filename: "{app}\VARNA.exe"; IconFilename: "{app}\_internal\assets\varna_logo.ico"; Tasks: desktopicon
 
 [Run]
 Filename: "{app}\VARNA.exe"; Description: "Launch VARNA Voice Assistant"; Flags: nowait postinstall skipifsilent

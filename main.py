@@ -107,7 +107,7 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
         now = datetime.datetime.now()
         spoken_time = now.strftime("%I:%M %p").lstrip("0")
         speaker.say(f"The current time is {spoken_time}.")
-        tray.update_result(f"🕐 {spoken_time}")
+        tray.update_result(f"{spoken_time}")
         log.info("Conversational: time → %s", spoken_time)
         return True
 
@@ -116,7 +116,7 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
         now = datetime.datetime.now()
         spoken_date = now.strftime("%A, %B %d, %Y")
         speaker.say(f"Today is {spoken_date}.")
-        tray.update_result(f"📅 {spoken_date}")
+        tray.update_result(f"{spoken_date}")
         log.info("Conversational: date → %s", spoken_date)
         return True
 
@@ -124,7 +124,7 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
     if t in _DAY_TRIGGERS:
         day = datetime.datetime.now().strftime("%A")
         speaker.say(f"Today is {day}.")
-        tray.update_result(f"📅 {day}")
+        tray.update_result(f"{day}")
         return True
 
     # --- Date and Time combined ---
@@ -132,7 +132,7 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
         now = datetime.datetime.now()
         spoken = f"It's {now.strftime('%I:%M %p').lstrip('0')} on {now.strftime('%A, %B %d, %Y')}."
         speaker.say(spoken)
-        tray.update_result(f"🕐📅 {now.strftime('%I:%M %p - %b %d')}")
+        tray.update_result(f"{now.strftime('%I:%M %p - %b %d')}")
         return True
 
     # --- Battery ---
@@ -144,10 +144,10 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
                 pct = bat.percent
                 plugged = "and charging" if bat.power_plugged else "on battery"
                 speaker.say(f"Battery is at {pct} percent, {plugged}.")
-                tray.update_result(f"🔋 {pct}% {plugged}")
+                tray.update_result(f"Battery: {pct}% {plugged}")
             else:
                 speaker.say("I couldn't read the battery status. You might be on a desktop.")
-                tray.update_result("🔋 N/A")
+                tray.update_result("Battery: N/A")
         except Exception:
             speaker.say("Battery information is not available.")
         return True
@@ -156,14 +156,14 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
     if t in _HOSTNAME_TRIGGERS:
         name = platform.node()
         speaker.say(f"Your computer name is {name}.")
-        tray.update_result(f"💻 {name}")
+        tray.update_result(f"Host: {name}")
         return True
 
     # --- Username ---
     if t in _USERNAME_TRIGGERS:
         user = os.getlogin()
         speaker.say(f"You are logged in as {user}.")
-        tray.update_result(f"👤 {user}")
+        tray.update_result(f"User: {user}")
         return True
 
     # --- Greetings ---
@@ -176,19 +176,19 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
         else:
             greeting = "Good evening"
         speaker.say(f"{greeting}! How can I help you?")
-        tray.update_result(f"👋 {greeting}")
+        tray.update_result(f"{greeting}")
         return True
 
     # --- How are you ---
     if t in _HOW_ARE_YOU_TRIGGERS:
         speaker.say("I'm doing great, thank you! Ready for your commands.")
-        tray.update_result("😊 Doing great")
+        tray.update_result("Doing great")
         return True
 
     # --- Thank you ---
     if t in _THANKS_TRIGGERS:
         speaker.say("You're welcome! Let me know if you need anything else.")
-        tray.update_result("🙏 Welcome")
+        tray.update_result("Welcome")
         return True
 
     # --- What can you do ---
@@ -196,13 +196,13 @@ def _handle_conversational(text: str, speaker, tray) -> bool:
         speaker.say("I can open apps, search the web, manage windows, type text, "
                      "tell you the time and date, check battery, control media, "
                      "and much more. Just say a command!")
-        tray.update_result("ℹ️ Capabilities")
+        tray.update_result("Capabilities")
         return True
 
     # --- Who are you ---
     if t in _IDENTITY_TRIGGERS:
         speaker.say("I am VARNA, your Voice Activated Resource and Navigation Assistant.")
-        tray.update_result("ℹ️ VARNA")
+        tray.update_result("VARNA")
         return True
 
     return False
@@ -255,20 +255,20 @@ def main() -> None:
 
     # --- Greet -----------------------------------------------------------
     speaker.greet()
-    tray.update_result("✅ Ready")
+    tray.update_result("Ready")
 
     # --- Main loop -------------------------------------------------------
     log.info("Entering main loop.")
     print(f"\n🎤  VARNA v{VERSION} is listening. Say a command (or 'exit' to quit).\n")
 
     while True:
-        tray.update_status("🎤 Listening …")
+        tray.update_status("Listening ...")
         text = listener.listen(timeout=7, phrase_time_limit=12)
 
         if text is None:
             continue
 
-        tray.update_status("🧠 Processing …")
+        tray.update_status("Processing ...")
         tray.update_speech(text)
         print(f'   You said: "{text}"')
 
@@ -277,7 +277,7 @@ def main() -> None:
             log.info("Exit phrase detected: '%s'", text)
             if monitor.is_running:
                 monitor.stop()
-            tray.update_result("👋 Shutting down …")
+            tray.update_result("Shutting down ...")
             speaker.goodbye()
             tray.stop()
             break
@@ -329,7 +329,7 @@ def main() -> None:
         except Exception as exc:
             log.error("Error processing command '%s': %s", text, exc, exc_info=True)
             speaker.say("Sorry, something went wrong. Please try again.")
-            tray.update_result(f"❌ Error: {type(exc).__name__}")
+            tray.update_result(f"Error: {type(exc).__name__}")
 
     log.info("VARNA v%s shut down cleanly.", VERSION)
     print(f"\n👋  VARNA v{VERSION} has shut down.\n")
@@ -375,19 +375,19 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         msg = result.voice_response or result.safety_reason or f"I couldn't match '{text}' confidently."
         speaker.say(msg)
         log.warning("Safety blocked: %s → %s", text, result.safety_reason)
-        tray.update_result(f"🛡️ Blocked: {text}")
+        tray.update_result(f"Blocked: {text}")
         return
 
     if not result.matched:
         # Voice interaction: tell the user clearly
         speaker.say(f"I didn't catch that. Could you repeat the command?")
-        tray.update_result(f"❌ Unknown: {text}")
+        tray.update_result(f"Unknown: {text}")
         return
 
     # --- v2.0: Voice confirmation for fuzzy/low-confidence matches ---
     if result.voice_response and result.needs_confirmation and not result.is_repeat:
         speaker.say(result.voice_response)
-        tray.update_result(f"❓ Confirm: {result.matched_key}")
+        tray.update_result(f"Confirm: {result.matched_key}")
         print(f"   ❓ Confirm: {result.matched_key} (confidence: {result.match_confidence:.0%})")
         
         confirmed = listener.ask_yes_no(timeout=6)
@@ -396,11 +396,11 @@ def _process_single(text: str, parser: Parser, executor: Executor,
             result.needs_confirmation = False  # Already confirmed
         elif confirmed is False:
             speaker.say("Cancelled.")
-            tray.update_result("🚫 Cancelled")
+            tray.update_result("Cancelled")
             return
         else:
             speaker.say("No response. Cancelled for safety.")
-            tray.update_result("⏰ Timed out")
+            tray.update_result("Timed out")
             return
 
     # v3.1: Log active app mode for debugging
@@ -419,7 +419,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
                             monitor, macros, win_mgr, app_mgr, speaker, tray, listener)
         else:
             speaker.say("Nothing to repeat yet.")
-            tray.update_result("❌ Nothing to repeat")
+            tray.update_result("Nothing to repeat")
         return
 
     # Track last command for repeat (skip repeat itself)
@@ -428,7 +428,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
     # --- Info response ---
     if result.is_info:
         speaker.say(result.info_text or "No information available.")
-        tray.update_result("ℹ️ Info")
+        tray.update_result("Info")
         return
 
     # --- Clipboard ---
@@ -525,18 +525,18 @@ def _process_single(text: str, parser: Parser, executor: Executor,
     if result.needs_confirmation:
         speaker.say(f"Are you sure you want to {result.matched_key}?")
         print(f"   ⚠️  Dangerous: {result.matched_key}")
-        tray.update_result("⚠️ Confirm?")
+        tray.update_result("Confirm?")
 
         confirmed = listener.ask_yes_no(timeout=6)
         if confirmed is True:
             speaker.say("Confirmed.")
         elif confirmed is False:
             speaker.say("Cancelled.")
-            tray.update_result("🚫 Cancelled")
+            tray.update_result("Cancelled")
             return
         else:
             speaker.say("No response. Cancelled for safety.")
-            tray.update_result("⏰ Timed out")
+            tray.update_result("Timed out")
             return
 
     # --- Smart search routing (v1.4) ---
@@ -552,7 +552,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         success, output = executor.run_chain(result.commands)
         if success:
             context.update_after_command(result.matched_key, result.commands[-1])
-            tray.update_result("✅ Chain done")
+            tray.update_result("Chain done")
             if output and output != "All steps completed successfully.":
                 print(f"   📋 Output:\n{output[:300]}\n")
                 speaker.say("Chain completed. Here is the output.")
@@ -560,7 +560,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
                 speaker.say("Chain completed.")
         else:
             speaker.say(f"Chain failed: {output}")
-            tray.update_result(f"❌ Failed")
+            tray.update_result(f"Failed")
     else:
         ps_command = result.commands[0]
 
@@ -575,13 +575,13 @@ def _process_single(text: str, parser: Parser, executor: Executor,
                     spoken = spoken[:400] + "... and more."
                 log.info("Voice reply: %s → %s", result.matched_key, spoken[:100])
                 speaker.say(spoken)
-                tray.update_result(f"🗣️ {spoken[:50]}")
+                tray.update_result(f"{spoken[:50]}")
             elif success:
                 speaker.say("Done, but no output was returned.")
-                tray.update_result("✅ Done (no output)")
+                tray.update_result("Done (no output)")
             else:
                 speaker.say(f"Something went wrong: {output}")
-                tray.update_result(f"❌ Error")
+                tray.update_result(f"Error")
             context.update_after_command(result.matched_key, ps_command)
             return
 
@@ -590,7 +590,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         success, output = executor.run(ps_command)
         if success:
             context.update_after_command(result.matched_key, ps_command)
-            tray.update_result("✅ Done")
+            tray.update_result("Done")
             if output and output != "Command executed successfully.":
                 print(f"   📋 Output:\n{output[:300]}\n")
                 speaker.say("Done. Here is the output.")
@@ -598,7 +598,7 @@ def _process_single(text: str, parser: Parser, executor: Executor,
                 speaker.say("Done.")
         else:
             speaker.say(f"Something went wrong: {output}")
-            tray.update_result(f"❌ Error")
+            tray.update_result(f"Error")
 
 
 # ====================================================================== #
@@ -714,10 +714,10 @@ def _handle_app_scan(result: ParseResult, app_mgr: AppManager,
     """Handle scan / list installed apps commands."""
     if result.app_scan_action == "scan":
         speaker.say("Scanning installed applications. This may take a moment.")
-        tray.update_result("🔍 Scanning …")
+        tray.update_result("Scanning ...")
         count = app_mgr.scan()
         speaker.say(f"Scan complete. Found {count} applications.")
-        tray.update_result(f"📦 {count} apps indexed")
+        tray.update_result(f"Apps: {count} apps indexed")
     elif result.app_scan_action == "list":
         apps = app_mgr.list_apps()
         if apps:
@@ -727,10 +727,10 @@ def _handle_app_scan(result: ParseResult, app_mgr: AppManager,
             names = ", ".join(shown)
             print(f"   📦 Installed apps ({len(apps)} total): {names}{'...' if more else ''}")
             speaker.say(f"You have {len(apps)} apps indexed. Some include: {names}.")
-            tray.update_result(f"📦 {len(apps)} apps")
+            tray.update_result(f"Apps: {len(apps)} apps")
         else:
             speaker.say("No apps indexed yet. Say 'scan apps' to build the list.")
-            tray.update_result("📦 No apps")
+            tray.update_result("No apps")
 
 
 def _handle_dynamic_close(result: ParseResult, app_mgr: AppManager,
@@ -744,16 +744,16 @@ def _handle_dynamic_close(result: ParseResult, app_mgr: AppManager,
     msg = app_mgr.close(target)
     speaker.say(msg)
     if "not running" in msg.lower():
-        tray.update_result(f"❌ {target} not running")
+        tray.update_result(f"{target} not running")
     else:
-        tray.update_result(f"🚫 Closed {target}")
+        tray.update_result(f"Closed {target}")
 
 
 def _handle_diagnostics(speaker: Speaker, context: SessionContext, 
                         win_mgr: WindowManager, app_mgr: AppManager, tray: TrayUI):
     """Run internal self-tests to verify system health."""
     speaker.say("Starting system diagnostics.")
-    tray.update_status("🧠 Diagnostics ...")
+    tray.update_status("Diagnostics ...")
     
     results = []
     
@@ -777,8 +777,8 @@ def _handle_diagnostics(speaker: Speaker, context: SessionContext,
     summary = ". ".join(results)
     log.info("DIAGNOSTICS: %s", summary)
     speaker.say(f"Diagnostics complete. {summary}")
-    tray.update_result("✅ Diagnostics OK")
-    tray.update_status("🎤 Listening ...")
+    tray.update_result("Diagnostics OK")
+    tray.update_status("Listening ...")
 
 
 def _handle_window(result: ParseResult, win_mgr: WindowManager,
@@ -790,7 +790,7 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
     if action == "show_desktop":
         msg = win_mgr.show_desktop()
         speaker.say(msg)
-        tray.update_result("🖥 Desktop")
+        tray.update_result("Desktop")
         return
 
     # v1.6: close/minimize/maximize THIS (foreground) window
@@ -799,7 +799,7 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
             title = context.get_active_window_title() or "window"
             pyautogui.hotkey("alt", "F4")
             speaker.say(f"Closed {title.split(' - ')[-1] if ' - ' in title else 'window'}")
-            tray.update_result("🚫 Closed active window")
+            tray.update_result("Closed active window")
         else:
             speaker.say("Cannot close — pyautogui not available.")
         return
@@ -808,7 +808,7 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
         if _HAS_AUTO:
             pyautogui.hotkey("win", "down")
             speaker.say("Minimized this window")
-            tray.update_result("🪟 Minimized active")
+            tray.update_result("Minimized active")
         else:
             speaker.say("Cannot minimize — pyautogui not available.")
         return
@@ -817,7 +817,7 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
         if _HAS_AUTO:
             pyautogui.hotkey("win", "up")
             speaker.say("Maximized this window")
-            tray.update_result("🪟 Maximized active")
+            tray.update_result("Maximized active")
         else:
             speaker.say("Cannot maximize — pyautogui not available.")
         return
@@ -826,10 +826,10 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
         if context.last_app:
             msg = win_mgr.restore(context.last_app)
             speaker.say(msg)
-            tray.update_result(f"🪟 Restored {context.last_app}")
+            tray.update_result(f"Restored {context.last_app}")
         else:
             speaker.say("No last window to restore.")
-            tray.update_result("❌ No last window")
+            tray.update_result("No last window")
         return
 
     if not target:
@@ -841,42 +841,42 @@ def _handle_window(result: ParseResult, win_mgr: WindowManager,
         if act == "suggest":
             # Multiple similar apps found — ask user to be specific
             speaker.say(f"I found similar apps: {msg}. Which one did you mean?")
-            tray.update_result(f"❓ Similar: {msg}")
+            tray.update_result(f"Similar: {msg}")
             return
         if act == "not_found":
             speaker.say(msg)
-            tray.update_result(f"❌ {target} not found")
+            tray.update_result(f"{target} not found")
             return
         speaker.say(msg)
         context.update_after_command(f"open {target}", f"Start-Process {target}")
-        tray.update_result(f"🪟 {act}: {target}")
+        tray.update_result(f"{act}: {target}")
 
     elif action == "open_new":
         act, msg = win_mgr.smart_open_new(target)
         speaker.say(msg)
         context.update_after_command(f"open {target}", f"Start-Process {target}")
-        tray.update_result(f"🪟 New: {target}")
+        tray.update_result(f"New: {target}")
 
     elif action == "minimize":
         msg = win_mgr.minimize(target)
         speaker.say(msg)
-        tray.update_result(f"🪟 Minimized {target}")
+        tray.update_result(f"Minimized {target}")
 
     elif action == "maximize":
         msg = win_mgr.maximize(target)
         speaker.say(msg)
-        tray.update_result(f"🪟 Maximized {target}")
+        tray.update_result(f"Maximized {target}")
 
     elif action == "restore":
         msg = win_mgr.restore(target)
         speaker.say(msg)
-        tray.update_result(f"🪟 Restored {target}")
+        tray.update_result(f"Restored {target}")
 
     elif action == "switch":
         msg = win_mgr.switch_to(target)
         speaker.say(msg)
         context.update_after_command(f"switch to {target}", "")
-        tray.update_result(f"🪟 Switched to {target}")
+        tray.update_result(f"Switched to {target}")
 
 
 def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
@@ -903,7 +903,7 @@ def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
         pyautogui.hotkey("ctrl", str(n))
         msg = f"Switched to tab {n}"
         speaker.say(msg)
-        tray.update_result(f"📑 {msg}")
+        tray.update_result(f"Tab: {msg}")
         log.info("Tab action: go to tab %d", n)
         return
 
@@ -917,7 +917,7 @@ def _handle_tab(result: ParseResult, speaker: Speaker, tray: TrayUI):
         }
         msg = action_labels.get(action, "Tab action done")
         speaker.say(msg)
-        tray.update_result(f"📑 {msg}")
+        tray.update_result(f"Tab: {msg}")
         log.info("Tab action: %s → %s", action, shortcut)
 
 
@@ -953,10 +953,10 @@ def _handle_typing(result: ParseResult, speaker: Speaker, tray: TrayUI):
             time.sleep(0.2)
             pyautogui.press("enter")
             log.info("Typed + Enter: '%s'", text)
-            tray.update_result(f"⌨️ Sent: {text[:30]}")
+            tray.update_result(f"Sent: {text[:30]}")
         else:
             log.info("Typed: '%s'", text)
-            tray.update_result(f"⌨️ Typed: {text[:30]}")
+            tray.update_result(f"Typed: {text[:30]}")
 
 
 def _get_active_app() -> str:
@@ -1325,7 +1325,7 @@ def _handle_key_press(result: ParseResult, speaker: Speaker, tray: TrayUI):
     }
     msg = key_labels.get(key, f"Pressed {key}")
     speaker.say(msg)
-    tray.update_result(f"⌨️ {msg}")
+    tray.update_result(f"Key: {msg}")
     log.info("Key press: %s", key)
 
 
@@ -1346,13 +1346,13 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.05)
         pyautogui.hotkey("shift", "end")
         speaker.say("Selected line")
-        tray.update_result("📝 Selected line")
+        tray.update_result("Selected line")
 
     elif action == "select_word":
         # Double-click selects word in most editors; keyboard alternative:
         pyautogui.hotkey("ctrl", "shift", "left")
         speaker.say("Selected word")
-        tray.update_result("📝 Selected word")
+        tray.update_result("Selected word")
 
     elif action == "select_next":
         count = result.selection_count
@@ -1360,7 +1360,7 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
             pyautogui.hotkey("ctrl", "shift", "right")
             time.sleep(0.05)
         speaker.say(f"Selected next {count} words")
-        tray.update_result(f"📝 Selected next {count} words")
+        tray.update_result(f"Selected next {count} words")
 
     elif action == "select_prev":
         count = result.selection_count
@@ -1368,7 +1368,7 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
             pyautogui.hotkey("ctrl", "shift", "left")
             time.sleep(0.05)
         speaker.say(f"Selected previous {count} words")
-        tray.update_result(f"📝 Selected prev {count} words")
+        tray.update_result(f"Selected prev {count} words")
 
     elif action == "go_to_line":
         line_num = result.selection_target
@@ -1381,7 +1381,7 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.1)
         pyautogui.press("enter")
         speaker.say(f"Jumped to line {line_num}")
-        tray.update_result(f"📝 Go to line {line_num}")
+        tray.update_result(f"Go to line {line_num}")
 
     elif action == "select_word_name":
         target = result.selection_target
@@ -1424,7 +1424,7 @@ def _handle_selection(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.1)
 
         speaker.say(f"Found {target}")
-        tray.update_result(f"📝 Found: {target}")
+        tray.update_result(f"Found: {target}")
 
     log.info("Selection: %s", action)
 
@@ -1455,7 +1455,7 @@ def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
         else:
             msg = "Scrolled"
         speaker.say(msg)
-        tray.update_result(f"📜 {msg}")
+        tray.update_result(f"{msg}")
         log.info("Scroll special: %s", special)
         return
 
@@ -1470,7 +1470,7 @@ def _handle_scroll(result: ParseResult, speaker: Speaker, tray: TrayUI):
     msg = f"Scrolled {sensitivity} {direction}".strip()
     msg = " ".join(msg.split())  # clean double spaces
     speaker.say(msg)
-    tray.update_result(f"📜 {msg}")
+    tray.update_result(f"{msg}")
     log.info("Scroll: %s %d clicks", direction, amount)
 
 
@@ -1501,7 +1501,7 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         else:
             pyautogui.hotkey(*keys)
         speaker.say(msg)
-        tray.update_result(f"🧭 {msg}")
+        tray.update_result(f"Nav: {msg}")
         log.info("Navigation: %s", action)
         return
 
@@ -1517,11 +1517,11 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
             time.sleep(0.1)
             pyautogui.press("enter")
             speaker.say(f"Navigated to {drive_letter} drive")
-            tray.update_result(f"📂 {drive_letter}: drive")
+            tray.update_result(f"{drive_letter}: drive")
             log.info("Navigation: drive %s (same window)", target)
         else:
             speaker.say(f"Drive {drive_letter} not found")
-            tray.update_result(f"❌ Drive {drive_letter} not found")
+            tray.update_result(f"Drive {drive_letter} not found")
         return
 
     # This PC — navigate in same window
@@ -1532,7 +1532,7 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.1)
         pyautogui.press("enter")
         speaker.say("Navigated to This PC")
-        tray.update_result("📂 This PC")
+        tray.update_result("This PC")
         log.info("Navigation: This PC (same window)")
         return
 
@@ -1548,11 +1548,11 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
             time.sleep(0.1)
             pyautogui.press("enter")
             speaker.say(f"Navigated to {folder_name}")
-            tray.update_result(f"📂 {folder_name}")
+            tray.update_result(f"{folder_name}")
             log.info("Navigation: %s (same window)", folder_path)
         else:
             speaker.say(f"{folder_name} folder not found")
-            tray.update_result(f"❌ {folder_name} not found")
+            tray.update_result(f"{folder_name} not found")
         return
 
     # Open/select a subfolder by name in current File Explorer
@@ -1570,7 +1570,7 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.3)
         pyautogui.press("enter")               # open the selected folder
         speaker.say(f"Opened {folder_name}")
-        tray.update_result(f"📂 → {folder_name}")
+        tray.update_result(f"{folder_name}")
         log.info("Navigation: open folder '%s'", folder_name)
         return
 
@@ -1583,7 +1583,7 @@ def _handle_navigation(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.2)
         pyautogui.press("enter")
         speaker.say(f"Searching for {query}")
-        tray.update_result(f"🔍 Search: {query}")
+        tray.update_result(f"Search: {query}")
         log.info("Navigation: explorer search '%s'", query)
         return
 
@@ -1608,7 +1608,7 @@ def _handle_result_click(result: ParseResult, speaker: Speaker, tray: TrayUI):
         time.sleep(0.08)
 
     pyautogui.press("enter")
-    tray.update_result(f"🔍 Opened result {n}")
+    tray.update_result(f"Opened result {n}")
     log.info("Result click: #%d (tabbed %d times)", n, tab_count)
 
 
@@ -1623,7 +1623,7 @@ def _handle_clipboard_history(result: ParseResult, speaker: Speaker, tray: TrayU
     if action == "open":
         pyautogui.hotkey("win", "v")
         speaker.say("Opened clipboard history")
-        tray.update_result("📋 Clipboard history")
+        tray.update_result("Clipboard history")
         log.info("Clipboard: opened history")
 
     elif action == "paste_nth":
@@ -1640,7 +1640,7 @@ def _handle_clipboard_history(result: ParseResult, speaker: Speaker, tray: TrayU
         # Press Enter to paste the selected item
         pyautogui.press("enter")
         speaker.say(f"Pasted item {n}")
-        tray.update_result(f"📋 Pasted item {n}")
+        tray.update_result(f"Pasted item {n}")
         log.info("Clipboard: pasted item #%d", n)
 
 
@@ -1673,7 +1673,7 @@ def _handle_whatsapp(result: ParseResult, speaker: Speaker, tray: TrayUI):
         pyautogui.press("enter")
 
         speaker.say(f"Opened chat {n}")
-        tray.update_result(f"💬 Opened chat {n}")
+        tray.update_result(f"Opened chat {n}")
         log.info("WhatsApp: opened chat #%d", n)
 
     elif action == "search_contact":
@@ -1686,13 +1686,13 @@ def _handle_whatsapp(result: ParseResult, speaker: Speaker, tray: TrayUI):
         pyautogui.press("enter")  # Open the first matching contact
 
         speaker.say(f"Opening chat with {contact}")
-        tray.update_result(f"💬 Chat: {contact}")
+        tray.update_result(f"Chat: {contact}")
         log.info("WhatsApp: searched contact '%s'", contact)
 
     elif action == "new_chat":
         pyautogui.hotkey("ctrl", "n")
         speaker.say("Starting new chat")
-        tray.update_result("💬 New chat")
+        tray.update_result("New chat")
         log.info("WhatsApp: new chat")
 
 
@@ -1711,7 +1711,7 @@ def _try_in_tab_search(query: str, win_mgr: WindowManager,
 
     log.info("Smart search: browser '%s' is active — searching in current tab.", browser)
     speaker.say(f"Searching in current tab: {query}")
-    tray.update_result(f"🔍 In-tab search")
+    tray.update_result(f"In-tab search")
 
     time.sleep(0.3)
     pyautogui.hotkey("ctrl", "l")  # Focus address bar
@@ -1731,10 +1731,10 @@ def _handle_clipboard(speaker: Speaker, tray: TrayUI):
         if content and content.strip():
             print(f"   📋 Clipboard:\n{content[:500]}\n")
             speaker.say(f"Your clipboard contains: {content[:200]}")
-            tray.update_result("📋 Clipboard read")
+            tray.update_result("Clipboard read")
         else:
             speaker.say("Your clipboard is empty.")
-            tray.update_result("📋 Empty")
+            tray.update_result("Empty")
     except ImportError:
         speaker.say("Clipboard requires pyperclip. Install with pip install pyperclip.")
     except Exception as exc:
@@ -1763,7 +1763,7 @@ def _handle_screenshot(result: ParseResult, executor: Executor,
     success, output = executor.run(ps_cmd)
     if success:
         speaker.say(f"Screenshot saved as {name} on your desktop.")
-        tray.update_result(f"📸 {name}.png")
+        tray.update_result(f"Screenshot: {name}.png")
     else:
         speaker.say(f"Screenshot failed: {output}")
 
@@ -1800,17 +1800,17 @@ def _handle_file_search(result: ParseResult, executor: Executor,
     ])
 
     speaker.say(f"Searching for {result.file_search_query}")
-    tray.update_result("🔍 Searching …")
+    tray.update_result("Searching ...")
     success, output = executor.run(ps_cmd)
 
     if success and output and output.strip() and output.strip() != "Command executed successfully.":
         print(f"   🔍 Results:\n{output[:500]}\n")
         lines = [l for l in output.strip().split("\n") if l.strip() and not l.startswith("-") and not l.startswith("Name")]
         speaker.say(f"Found {len(lines)} files. Check the console.")
-        tray.update_result(f"🔍 {len(lines)} files")
+        tray.update_result(f"Search: {len(lines)} files")
     else:
         speaker.say("No files found.")
-        tray.update_result("🔍 No results")
+        tray.update_result("No results")
 
 
 def _handle_macro(result: ParseResult, macros: MacroManager, parser: Parser,
@@ -1821,20 +1821,20 @@ def _handle_macro(result: ParseResult, macros: MacroManager, parser: Parser,
         names = macros.list_all()
         if names:
             speaker.say(f"Your macros are: {', '.join(names)}")
-            tray.update_result(f"🔁 {len(names)} macros")
+            tray.update_result(f"Macro: {len(names)} macros")
         else:
             speaker.say("No macros saved yet.")
-            tray.update_result("🔁 None")
+            tray.update_result("No macros")
 
     elif result.macro_action == "record" and result.macro_name:
         msg = macros.record(result.macro_name, result.macro_steps)
         speaker.say(msg)
-        tray.update_result(f"🔁 Recorded: {result.macro_name}")
+        tray.update_result(f"Recorded: {result.macro_name}")
 
     elif result.macro_action == "delete" and result.macro_name:
         msg = macros.delete(result.macro_name)
         speaker.say(msg)
-        tray.update_result(f"🗑 {result.macro_name}")
+        tray.update_result(f"Deleted: {result.macro_name}")
 
     elif result.macro_action == "play" and result.macro_name:
         steps = result.macro_steps
@@ -1842,7 +1842,7 @@ def _handle_macro(result: ParseResult, macros: MacroManager, parser: Parser,
             speaker.say(f"Macro {result.macro_name} has no steps.")
             return
         speaker.say(f"Running macro: {result.macro_name}")
-        tray.update_result(f"🔁 Playing: {result.macro_name}")
+        tray.update_result(f"Playing: {result.macro_name}")
         for i, step_name in enumerate(steps, 1):
             step_result = parser.parse(step_name, context=context)
             if step_result.matched and step_result.commands:
@@ -1864,7 +1864,7 @@ def _handle_macro(result: ParseResult, macros: MacroManager, parser: Parser,
                 return
             time.sleep(0.5)
         speaker.say(f"Macro {result.macro_name} completed.")
-        tray.update_result(f"✅ Macro done")
+        tray.update_result(f"Macro done")
 
 
 def _handle_monitor(result: ParseResult, monitor: ProcessMonitor,
@@ -1873,16 +1873,16 @@ def _handle_monitor(result: ParseResult, monitor: ProcessMonitor,
     if result.monitor_action == "start" and result.monitor_process:
         msg = monitor.start(result.monitor_process)
         speaker.say(msg)
-        tray.update_result(f"📊 Monitoring: {result.monitor_process}")
+        tray.update_result(f"Monitoring: {result.monitor_process}")
     elif result.monitor_action == "stop":
         msg = monitor.stop()
         speaker.say(msg)
-        tray.update_result("📊 Stopped")
+        tray.update_result("Monitor stopped")
     elif result.monitor_action == "check" and result.monitor_process:
         status = monitor.get_status(result.monitor_process)
         speaker.say(f"Here is the status of {result.monitor_process}." if "not running" not in status.lower()
                     else f"{result.monitor_process} is not running.")
-        tray.update_result(f"📊 {result.monitor_process}")
+        tray.update_result(f"Monitor: {result.monitor_process}")
 
 
 # ====================================================================== #
