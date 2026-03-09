@@ -252,9 +252,11 @@ def main() -> None:
     # --- Calibrate mic ---------------------------------------------------
     speaker.say("Calibrating microphone. Please wait.")
     listener.calibrate(duration=1.5)
+    listener.mute(1.0)  # clear startup echo before first listen
 
     # --- Greet -----------------------------------------------------------
     speaker.greet()
+    listener.mute(1.2)  # prevent greeting echo from being mis-recognized
     tray.update_result("Ready")
 
     # --- Main loop -------------------------------------------------------
@@ -289,6 +291,7 @@ def main() -> None:
             cmds = parser.list_commands()
             summary = ", ".join(cmds[:10])
             speaker.say(f"I can do things like: {summary}, and more.")
+            listener.mute(0.8)
             tray.update_command("help")
             continue
 
@@ -296,6 +299,7 @@ def main() -> None:
             dev_cmds = parser.list_developer_commands()
             summary = ", ".join(dev_cmds[:8])
             speaker.say(f"Developer commands include: {summary}.")
+            listener.mute(0.8)
             tray.update_command("dev help")
             continue
 
@@ -320,6 +324,7 @@ def main() -> None:
                         log.error("Error processing chain step '%s': %s", part, exc, exc_info=True)
                         speaker.say("Something went wrong with that step. Skipping.")
                     time.sleep(0.8)  # Small delay between steps
+                listener.mute(0.8)  # prevent last chain response echo
                 continue
 
         # Single command
@@ -330,6 +335,8 @@ def main() -> None:
             log.error("Error processing command '%s': %s", text, exc, exc_info=True)
             speaker.say("Sorry, something went wrong. Please try again.")
             tray.update_result(f"Error: {type(exc).__name__}")
+        # Mute mic briefly after any response so TTS echo doesn't re-trigger
+        listener.mute(0.8)
 
     log.info("VARNA v%s shut down cleanly.", VERSION)
     print(f"\n👋  VARNA v{VERSION} has shut down.\n")

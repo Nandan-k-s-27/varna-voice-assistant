@@ -6,12 +6,123 @@ Never accepts raw user text — all input must pass through the Parser first.
 Supports:
   - Single command execution (v1.0 compatible)
   - Sequential chain execution (v1.1)
+  - Robust app-launch fallback (v2.4): tries PATH → common install dirs
 """
 
 import subprocess
+import re
 from utils.logger import get_logger
 
 log = get_logger(__name__)
+
+# Common install locations searched as fallback when Start-Process fails.
+# The placeholder {app} is replaced with the target exe name.
+_APP_FALLBACK_PATHS = [
+    r"C:\Program Files\{app}\{app}.exe",
+    r"C:\Program Files (x86)\{app}\{app}.exe",
+    r"C:\Users\{username}\AppData\Local\{app}\{app}.exe",
+    r"C:\Users\{username}\AppData\Roaming\{app}\{app}.exe",
+]
+
+# Map of well-known exe names → common absolute paths (prioritised lookup)
+_KNOWN_PATHS: dict[str, list[str]] = {
+    "chrome": [
+        r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+        r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+    ],
+    "firefox": [
+        r"C:\Program Files\Mozilla Firefox\firefox.exe",
+        r"C:\Program Files (x86)\Mozilla Firefox\firefox.exe",
+    ],
+    "msedge": [
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+    ],
+    "code": [
+        r"C:\Users\{username}\AppData\Local\Programs\Microsoft VS Code\Code.exe",
+        r"C:\Program Files\Microsoft VS Code\Code.exe",
+    ],
+    "spotify": [
+        r"C:\Users\{username}\AppData\Roaming\Spotify\Spotify.exe",
+    ],
+    "discord": [
+        r"C:\Users\{username}\AppData\Local\Discord\Update.exe",
+        r"C:\Users\{username}\AppData\Local\Discord\app-*/Discord.exe",
+    ],
+    "steam": [
+        r"C:\Program Files (x86)\Steam\steam.exe",
+        r"C:\Program Files\Steam\steam.exe",
+    ],
+    "slack": [
+        r"C:\Users\{username}\AppData\Local\slack\slack.exe",
+    ],
+    "zoom": [
+        r"C:\Users\{username}\AppData\Roaming\Zoom\bin\Zoom.exe",
+    ],
+    "teams": [
+        r"C:\Users\{username}\AppData\Local\Microsoft\Teams\Update.exe",
+        r"C:\Program Files\Microsoft\Teams\current\Teams.exe",
+    ],
+    "vlc": [
+        r"C:\Program Files\VideoLAN\VLC\vlc.exe",
+        r"C:\Program Files (x86)\VideoLAN\VLC\vlc.exe",
+    ],
+    "winrar": [
+        r"C:\Program Files\WinRAR\WinRAR.exe",
+        r"C:\Program Files (x86)\WinRAR\WinRAR.exe",
+    ],
+    "7zip": [
+        r"C:\Program Files\7-Zip\7zFM.exe",
+        r"C:\Program Files (x86)\7-Zip\7zFM.exe",
+    ],
+    "obs": [
+        r"C:\Program Files\obs-studio\bin\64bit\obs64.exe",
+    ],
+}
+
+# Regex to extract the target exe name from a Start-Process command
+_START_PROCESS_RE = re.compile(
+    r"Start-Process\s+(?:-FilePath\s+)?['\"]?([A-Za-z0-9_\-\.]+)['\"]?",
+    re.IGNORECASE,
+)
+
+
+def _build_robust_launch(command: str) -> str:
+    """
+    Wrap a Start-Process command into a script that:
+      1. Tries the bare name (works if the app is on PATH).
+      2. Falls back to known absolute paths if that fails.
+      3. Returns a meaningful error if nothing works.
+    """
+    m = _START_PROCESS_RE.search(command)
+    if not m:
+        return command  # can't improve it, return as-is
+
+    app_name = m.group(1).lower().rstrip(".exe")
+    known = _KNOWN_PATHS.get(app_name, [])
+
+    if not known:
+        # Just add -ErrorAction Stop so failures are visible
+        return command.replace("Start-Process", "Start-Process", 1)  # unchanged
+
+    # Build a PowerShell try-chain
+    known_str = ", ".join(f"'{p}'" for p in known)
+    ps_script = (
+        f"$appName = '{app_name}';\n"
+        f"$knownPaths = @({known_str});\n"
+        f"$launched = $false;\n"
+        f"# Try PATH first\n"
+        f"try {{ Start-Process '{app_name}' -ErrorAction Stop; $launched = $true }} catch {{}}\n"
+        f"# Try known install paths\n"
+        f"if (-not $launched) {{\n"
+        f"  foreach ($p in $knownPaths) {{\n"
+        f"    $expanded = [System.Environment]::ExpandEnvironmentVariables($p -replace '{{username}}', $env:USERNAME);\n"
+        f"    if (Test-Path $expanded) {{ Start-Process $expanded; $launched = $true; break }}\n"
+        f"  }}\n"
+        f"}}\n"
+        f"if (-not $launched) {{ Write-Error \"Could not find '$appName' on this system.\" }}"
+    )
+    return ps_script
 
 
 class Executor:
@@ -32,7 +143,11 @@ class Executor:
             log.warning("Empty command — skipping execution.")
             return False, "No command provided."
 
-        log.info("Executing: %s", command)
+        # Upgrade bare Start-Process commands to use fallback path resolution
+        if "Start-Process" in command and "\n" not in command:
+            command = _build_robust_launch(command)
+
+        log.info("Executing: %s", command[:200])
 
         try:
             result = subprocess.run(

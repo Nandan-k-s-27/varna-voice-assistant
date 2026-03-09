@@ -5,6 +5,7 @@ with offline STT (Whisper/Vosk) or Google fallback.
 """
 
 import json
+import time
 from pathlib import Path
 import speech_recognition as sr
 from utils.logger import get_logger
@@ -52,7 +53,16 @@ class Listener:
         self.recogniser = sr.Recognizer()
         self.recogniser.energy_threshold = energy_threshold
         self.recogniser.pause_threshold = pause_threshold
-        self.recogniser.dynamic_energy_threshold = True   # auto-adjust to ambient noise
+        # Disable dynamic threshold — TTS output causes it to spike and then
+        # the subsequent listen picks up echoes of VARNA's own speech.
+        self.recogniser.dynamic_energy_threshold = False
+
+        # Post-TTS mute: prevent picking up echo from speakers.
+        self._muted_until: float = 0.0
+
+        # Dedup: skip re-processing the identical phrase within a short window.
+        self._last_heard_text: str = ""
+        self._last_heard_time: float = 0.0
 
         # Verify that a microphone is available
         try:
@@ -63,6 +73,17 @@ class Listener:
             raise RuntimeError(
                 "Microphone not found. Please connect a microphone and try again."
             ) from exc
+
+    # ------------------------------------------------------------------ #
+    def mute(self, seconds: float = 1.0) -> None:
+        """
+        Block the listener for `seconds` after TTS output.
+
+        Call this immediately after every speaker.say() to prevent the
+        microphone from picking up speaker echo and re-processing it.
+        """
+        self._muted_until = time.time() + seconds
+        log.debug("Mic muted for %.1f s to prevent TTS echo", seconds)
 
     # ------------------------------------------------------------------ #
     def calibrate(self, duration: float = 1.0) -> None:
@@ -134,6 +155,13 @@ class Listener:
         Returns:
             Lowercase transcribed string, or None on failure.
         """
+        # --- Post-TTS mute: wait out the echo window ---
+        remaining = self._muted_until - time.time()
+        if remaining > 0:
+            log.debug("Mic muted — skipping listen (%.2f s remaining)", remaining)
+            time.sleep(min(remaining, timeout))
+            return None
+
         log.info("Listening …")
         try:
             with self.mic as source:
@@ -145,6 +173,15 @@ class Listener:
             text = self._recognize_audio(audio)
             if text:
                 text = text.lower().strip()
+
+                # --- Dedup: drop exact repeat within 2 seconds ---
+                now = time.time()
+                if text == self._last_heard_text and (now - self._last_heard_time) < 2.0:
+                    log.debug("Dedup: ignoring repeated phrase '%s'", text)
+                    return None
+                self._last_heard_text = text
+                self._last_heard_time = now
+
                 log.info("Recognised: \"%s\"", text)
             return text
 

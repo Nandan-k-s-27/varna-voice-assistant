@@ -1,439 +1,439 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VARNA — Voice Assistant for Windows</title>
-    <meta name="description" content="VARNA is a free, offline voice assistant for Windows. Control your PC with natural speech — no internet required.">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background: #07071a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-        a { color: #e94560; text-decoration: none; }
-        a:hover { text-decoration: underline; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VARNA — Voice Assistant for Windows</title>
+  <meta name="description" content="VARNA is a free, fully offline voice assistant for Windows. Control your PC with natural speech — no internet, no cloud, no data collection.">
+  <meta property="og:title" content="VARNA — Voice Assistant for Windows">
+  <meta property="og:description" content="Free, offline, private voice control for your Windows PC.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png">
 
-        /* Hero */
-        .hero {
-            text-align: center;
-            padding: 90px 20px 70px;
-            background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,69,96,0.13) 0%, transparent 70%),
-                        linear-gradient(160deg, #0a0a1e 0%, #14143a 50%, #0a0a1e 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23e94560' fill-opacity='0.03'%3E%3Ccircle cx='30' cy='30' r='1.5'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-            pointer-events: none;
-        }
-        .hero .logo {
-            font-size: 88px;
-            margin-bottom: 18px;
-            display: block;
-            filter: drop-shadow(0 0 30px rgba(233,69,96,0.4));
-            animation: float 4s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-        .hero h1 {
-            font-size: 3.4rem;
-            font-weight: 900;
-            letter-spacing: -1px;
-            background: linear-gradient(90deg, #e94560 0%, #f5a623 50%, #e94560 100%);
-            background-size: 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 14px;
-            animation: shimmer 4s linear infinite;
-        }
-        @keyframes shimmer {
-            0% { background-position: 0%; }
-            100% { background-position: 200%; }
-        }
-        .hero .tagline {
-            font-size: 1.2rem;
-            color: #b0b0c8;
-            max-width: 640px;
-            margin: 0 auto 32px;
-        }
-        .hero .badges { margin-bottom: 36px; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-        .hero .badges img { border-radius: 4px; height: 22px; }
+  <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png">
+  <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png">
 
-        /* Download Buttons Group */
-        .download-group {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 14px;
-            margin-bottom: 20px;
-        }
-        .btn-download {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            padding: 16px 32px;
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-            background: linear-gradient(135deg, #e94560, #c73650);
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            text-decoration: none;
-        }
-        .btn-download:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 32px rgba(233, 69, 96, 0.45);
-            text-decoration: none;
-        }
-        .btn-download.btn-zip {
-            background: linear-gradient(135deg, #6c47d9, #4e2fa8);
-        }
-        .btn-download.btn-zip:hover {
-            box-shadow: 0 10px 32px rgba(108, 71, 217, 0.45);
-        }
-        .btn-download.btn-tar {
-            background: linear-gradient(135deg, #1a8c6e, #0f6b52);
-        }
-        .btn-download.btn-tar:hover {
-            box-shadow: 0 10px 32px rgba(26, 140, 110, 0.45);
-        }
-        .btn-download .badge {
-            font-size: 0.72rem;
-            background: rgba(255,255,255,0.18);
-            padding: 2px 7px;
-            border-radius: 6px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-top: 4px;
-            padding: 10px 28px;
-            font-size: 0.95rem;
-            color: #e94560;
-            border: 2px solid #e94560;
-            border-radius: 10px;
-            transition: background 0.2s;
-        }
-        .btn-secondary:hover { background: rgba(233,69,96,0.1); text-decoration: none; }
-        .download-note {
-            font-size: 0.8rem;
-            color: #666;
-            margin-top: 6px;
-        }
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #07071a; --bg2: #0d0d24; --card: #11112a;
+      --accent: #e94560; --accent2: #f5a623; --purple: #6c47d9;
+      --cyan: #00d2d3; --green: #55efc4; --text: #eaeaef;
+      --dim: #8888aa; --border: rgba(255,255,255,0.07);
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; overflow-x: hidden; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
 
-        /* Sections */
-        section { max-width: 1000px; margin: 0 auto; padding: 64px 24px; }
-        section h2 {
-            font-size: 2rem;
-            margin-bottom: 36px;
-            text-align: center;
-            color: #fff;
-            position: relative;
-            display: inline-block;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        section h2::after {
-            content: '';
-            display: block;
-            width: 52px;
-            height: 3px;
-            background: linear-gradient(90deg, #e94560, #f5a623);
-            border-radius: 2px;
-            margin: 10px auto 0;
-        }
+    /* Navbar */
+    nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 14px 40px; background: rgba(7,7,26,0.85); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); transition: padding 0.3s, background 0.3s; }
+    .nav-brand { display: flex; align-items: center; gap: 10px; font-size: 1.2rem; font-weight: 800; color: var(--text); text-decoration: none; }
+    .nav-brand img { width: 32px; height: 32px; border-radius: 6px; }
+    .nav-brand span { color: var(--accent); }
+    .nav-links { display: flex; gap: 28px; }
+    .nav-links a { font-size: 0.9rem; color: var(--dim); transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-btn { background: linear-gradient(135deg, var(--accent), #c73650); color: #fff !important; font-weight: 700; font-size: 0.88rem; padding: 8px 20px; border-radius: 8px; transition: transform 0.2s, box-shadow 0.2s !important; }
+    .nav-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(233,69,96,0.4); text-decoration: none !important; }
+    @media (max-width: 700px) { .nav-links { display: none; } nav { padding: 12px 20px; } }
 
-        /* section divider */
-        .divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #2a2a4a, transparent);
-            max-width: 960px;
-            margin: 0 auto;
-        }
+    /* Particles */
+    #particle-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; opacity: 0.45; }
 
-        /* Features Grid */
-        .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .feature-card {
-            background: linear-gradient(145deg, #12122a, #0e0e22);
-            border: 1px solid #2a2a4a;
-            border-radius: 18px;
-            padding: 28px;
-            transition: border-color 0.3s, transform 0.25s, box-shadow 0.25s;
-        }
-        .feature-card:hover {
-            border-color: #e94560;
-            transform: translateY(-5px);
-            box-shadow: 0 12px 36px rgba(233, 69, 96, 0.12);
-        }
-        .feature-card .icon { font-size: 2rem; margin-bottom: 12px; }
-        .feature-card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 8px; }
-        .feature-card p { color: #8888aa; font-size: 0.92rem; line-height: 1.6; }
+    /* Hero */
+    .hero { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 120px 20px 80px; position: relative; z-index: 1; background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,69,96,0.12) 0%, transparent 70%), radial-gradient(ellipse 50% 40% at 80% 90%, rgba(108,71,217,0.08) 0%, transparent 60%); }
+    .hero-logo { width: 120px; height: 120px; border-radius: 28px; margin-bottom: 28px; filter: drop-shadow(0 0 40px rgba(233,69,96,0.5)); animation: float 4s ease-in-out infinite; }
+    @keyframes float { 0%,100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(1deg); } }
+    .hero h1 { font-size: clamp(3rem,8vw,5.5rem); font-weight: 900; letter-spacing: -2px; background: linear-gradient(90deg, #e94560 0%, #f5a623 40%, #e94560 100%); background-size: 200%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; animation: shimmer 4s linear infinite; line-height: 1.05; margin-bottom: 8px; }
+    .hero .hero-sub { font-size: clamp(1rem,2.5vw,1.3rem); font-weight: 300; color: var(--dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 20px; }
+    @keyframes shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+    .hero .tagline { font-size: clamp(1rem,2vw,1.2rem); color: #b0b0c8; max-width: 580px; margin: 0 auto 36px; }
+    .badge-row { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 40px; }
+    .badge-row img { height: 22px; border-radius: 4px; }
+    .waveform { display: flex; align-items: center; gap: 4px; height: 36px; margin-bottom: 36px; }
+    .waveform .bar { width: 4px; background: var(--accent); border-radius: 2px; opacity: 0.7; }
+    .download-group { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-bottom: 16px; }
+    .btn-download { display: inline-flex; align-items: center; gap: 10px; padding: 16px 32px; font-size: 1rem; font-weight: 700; color: #fff; background: linear-gradient(135deg, #e94560, #c73650); border: none; border-radius: 14px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; text-decoration: none; position: relative; overflow: hidden; }
+    .btn-download:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(233,69,96,0.45); text-decoration: none; }
+    .btn-download.btn-zip { background: linear-gradient(135deg, #6c47d9, #4e2fa8); }
+    .btn-download.btn-zip:hover { box-shadow: 0 12px 36px rgba(108,71,217,0.45); }
+    .btn-download.btn-tar { background: linear-gradient(135deg, #1a8c6e, #0f6b52); }
+    .btn-download.btn-tar:hover { box-shadow: 0 12px 36px rgba(26,140,110,0.45); }
+    .btn-download .badge { font-size: 0.7rem; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 6px; font-weight: 700; letter-spacing: 0.5px; }
+    .btn-secondary { display: inline-flex; align-items: center; gap: 8px; padding: 11px 28px; font-size: 0.95rem; color: var(--accent); border: 2px solid rgba(233,69,96,0.5); border-radius: 10px; transition: background 0.2s, border-color 0.2s; }
+    .btn-secondary:hover { background: rgba(233,69,96,0.08); border-color: var(--accent); text-decoration: none; }
+    .download-note { font-size: 0.8rem; color: #555; margin-top: 10px; }
 
-        /* How It Works */
-        .pipeline {
-            background: linear-gradient(145deg, #0e0e22, #13132e);
-            border: 1px solid #2a2a4a;
-            border-radius: 18px;
-            padding: 36px 40px;
-            font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.92rem;
-            color: #7777aa;
-            white-space: pre-line;
-            line-height: 2;
-            text-align: center;
-        }
-        .pipeline span { color: #e94560; font-weight: bold; }
+    /* Trust strip */
+    .trust-strip { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px; padding: 20px 40px 28px; position: relative; z-index: 1; }
+    .trust-item { text-align: center; }
+    .trust-item .num { font-size: 2rem; font-weight: 900; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .trust-item .lbl { font-size: 0.78rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; }
 
-        /* Comparison Table */
-        .table-wrap { border-radius: 16px; overflow: hidden; border: 1px solid #2a2a4a; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 15px 22px; text-align: left; border-bottom: 1px solid #1e1e3e; }
-        th { color: #e94560; font-weight: 700; background: #0e0e22; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { color: #ccc; font-size: 0.95rem; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(233,69,96,0.04); }
+    /* Demo */
+    .demo-section { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 0 24px 80px; }
+    .section-title { font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 800; text-align: center; margin-bottom: 12px; color: #fff; }
+    .section-title span { background: linear-gradient(90deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .section-sub { text-align: center; color: var(--dim); font-size: 0.95rem; margin-bottom: 36px; }
+    .terminal { background: #090920; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; box-shadow: 0 24px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(233,69,96,0.1); }
+    .terminal-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: #0d0d25; border-bottom: 1px solid var(--border); }
+    .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .terminal-title { flex: 1; text-align: center; font-size: 0.8rem; color: var(--dim); }
+    .terminal-body { padding: 24px; min-height: 260px; font-family: 'Cascadia Code','Fira Code','Consolas',monospace; font-size: 0.9rem; }
+    .t-line { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+    .t-prompt { color: var(--accent); flex-shrink: 0; }
+    .t-user { color: #fff; }
+    .t-resp { color: var(--cyan); }
+    .t-result { color: var(--green); }
+    .t-dim { color: var(--dim); }
+    .t-cursor { display: inline-block; width: 2px; height: 1.1em; background: var(--accent); margin-left: 2px; animation: blink 1s step-end infinite; vertical-align: text-bottom; }
+    @keyframes blink { 0%,100%{opacity:1}50%{opacity:0} }
+    .cmd-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; justify-content: center; }
+    .cmd-chip { padding: 8px 18px; background: rgba(233,69,96,0.08); border: 1px solid rgba(233,69,96,0.25); border-radius: 20px; font-size: 0.85rem; color: #ddd; cursor: pointer; transition: background 0.2s, border-color 0.2s, transform 0.15s; font-family: 'Cascadia Code','Consolas',monospace; }
+    .cmd-chip:hover { background: rgba(233,69,96,0.18); border-color: var(--accent); transform: translateY(-2px); }
+    .cmd-chip.active { background: rgba(233,69,96,0.25); border-color: var(--accent); color: #fff; }
 
-        /* Requirements */
-        .req-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; text-align: center; }
-        .req-item {
-            background: linear-gradient(145deg, #12122a, #0e0e22);
-            border: 1px solid #2a2a4a;
-            border-radius: 14px;
-            padding: 22px 16px;
-            transition: border-color 0.3s, transform 0.2s;
-        }
-        .req-item:hover { border-color: #e94560; transform: translateY(-3px); }
-        .req-item .icon { font-size: 2rem; }
-        .req-item .label { color: #7777aa; font-size: 0.82rem; margin-top: 6px; }
-        .req-item .value { color: #fff; font-weight: 700; font-size: 1rem; margin-top: 4px; }
+    /* Sections */
+    section { max-width: 1060px; margin: 0 auto; padding: 72px 24px; position: relative; z-index: 1; }
+    .section-header { text-align: center; margin-bottom: 48px; }
+    .section-header h2 { font-size: clamp(1.6rem,4vw,2.2rem); font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .section-header h2::after { content: ''; display: block; width: 50px; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; margin: 10px auto 0; }
+    .section-header p { color: var(--dim); font-size: 0.95rem; }
+    .divider { height: 1px; max-width: 960px; margin: 0 auto; background: linear-gradient(90deg, transparent, #1e1e40, transparent); }
 
-        /* Footer */
-        footer {
-            text-align: center;
-            padding: 48px 20px;
-            color: #555;
-            background: linear-gradient(0deg, #060614, #07071a);
-            border-top: 1px solid #14142e;
-            font-size: 0.92rem;
-        }
-        footer a { color: #e94560; }
-        footer strong { color: #aaa; }
+    /* Feature cards */
+    .features { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card { background: linear-gradient(145deg, #13132e, #0e0e22); border: 1px solid var(--border); border-radius: 20px; padding: 28px; transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s; cursor: default; position: relative; overflow: hidden; }
+    .feature-card::before { content: ''; position: absolute; inset: -1px; border-radius: 20px; background: linear-gradient(135deg, rgba(233,69,96,0.15), transparent 60%); opacity: 0; transition: opacity 0.3s; }
+    .feature-card:hover::before { opacity: 1; }
+    .feature-card:hover { border-color: rgba(233,69,96,0.4); transform: translateY(-6px) scale(1.01); box-shadow: 0 16px 48px rgba(233,69,96,0.12); }
+    .feature-card .icon { font-size: 2.2rem; margin-bottom: 14px; }
+    .feature-card h3 { font-size: 1.1rem; color: #fff; margin-bottom: 8px; }
+    .feature-card p { color: var(--dim); font-size: 0.9rem; line-height: 1.65; }
+    .feature-card .tag { display: inline-block; margin-top: 12px; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); background: rgba(233,69,96,0.1); padding: 3px 10px; border-radius: 4px; }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 2.2rem; }
-            .hero .tagline { font-size: 1rem; }
-            .download-group { flex-direction: column; align-items: center; }
-            .btn-download { width: 260px; justify-content: center; }
-        }
-    </style>
+    /* Pipeline */
+    .pipeline-wrap { background: linear-gradient(145deg, #0e0e22, #13132e); border: 1px solid var(--border); border-radius: 20px; padding: 36px; }
+    .pipeline-steps { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; font-size: 0.9rem; }
+    .pipe-step { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 20px; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 12px; min-width: 100px; text-align: center; transition: background 0.3s, border-color 0.3s, transform 0.3s; }
+    .pipe-step:hover { background: rgba(233,69,96,0.07); border-color: rgba(233,69,96,0.3); transform: translateY(-3px); }
+    .pipe-step .pipe-icon { font-size: 1.6rem; }
+    .pipe-step .pipe-label { font-size: 0.75rem; color: var(--accent); font-weight: 700; }
+    .pipe-step .pipe-sub { font-size: 0.7rem; color: var(--dim); }
+    .pipe-arrow { font-size: 1.2rem; color: #333; }
+    @media (max-width: 600px) { .pipeline-steps { flex-direction: column; } .pipe-arrow { transform: rotate(90deg); } }
+
+    /* Compare */
+    .table-wrap { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 16px 24px; text-align: left; border-bottom: 1px solid #14143a; }
+    th { color: var(--accent); font-weight: 700; background: #0b0b20; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    td { color: #ccc; font-size: 0.95rem; }
+    td:first-child { color: var(--text); font-weight: 500; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(233,69,96,0.03); }
+    .tick { color: var(--green); } .cross { color: #e74c3c; } .warn { color: var(--accent2); }
+
+    /* Requirements */
+    .req-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+    .req-item { background: linear-gradient(145deg, #13132e, #0e0e22); border: 1px solid var(--border); border-radius: 16px; padding: 24px 16px; text-align: center; transition: border-color 0.3s, transform 0.2s; }
+    .req-item:hover { border-color: rgba(233,69,96,0.4); transform: translateY(-3px); }
+    .req-item .icon { font-size: 2rem; } .req-item .label { color: var(--dim); font-size: 0.78rem; margin-top: 6px; } .req-item .value { color: #fff; font-weight: 700; font-size: 1rem; margin-top: 4px; }
+
+    /* Quickstart */
+    .quickstart { background: linear-gradient(145deg, #0e0e22, #13132e); border: 1px solid var(--border); border-radius: 20px; padding: 36px 40px; }
+    .qs-step { display: flex; align-items: flex-start; gap: 18px; padding: 18px 0; border-bottom: 1px solid var(--border); }
+    .qs-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .qs-num { flex-shrink: 0; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--accent), #c73650); border-radius: 50%; font-weight: 800; font-size: 0.9rem; color: #fff; }
+    .qs-content h4 { color: #fff; font-size: 0.95rem; margin-bottom: 4px; }
+    .qs-content p { color: var(--dim); font-size: 0.85rem; }
+    .qs-content code { font-family: 'Cascadia Code','Consolas',monospace; font-size: 0.82rem; background: rgba(255,255,255,0.06); padding: 2px 8px; border-radius: 4px; color: var(--accent2); }
+
+    /* FAQ */
+    .faq-item { background: linear-gradient(145deg, #11112a, #0e0e22); border: 1px solid var(--border); border-radius: 14px; margin-bottom: 12px; overflow: hidden; }
+    .faq-q { padding: 18px 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-weight: 600; color: var(--text); font-size: 0.95rem; transition: background 0.2s; }
+    .faq-q:hover { background: rgba(255,255,255,0.03); }
+    .faq-q .faq-arrow { width: 20px; height: 20px; border-radius: 50%; background: rgba(233,69,96,0.15); color: var(--accent); display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; transition: transform 0.3s; }
+    .faq-item.open .faq-arrow { transform: rotate(180deg); }
+    .faq-a { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s; color: var(--dim); font-size: 0.9rem; line-height: 1.7; padding: 0 24px; }
+    .faq-item.open .faq-a { max-height: 200px; padding: 4px 24px 18px; }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Footer */
+    footer { text-align: center; padding: 56px 24px; color: #444; background: linear-gradient(0deg, #040410, #07071a); border-top: 1px solid #10103a; position: relative; z-index: 1; }
+    footer .footer-logo { width: 48px; height: 48px; border-radius: 10px; margin: 0 auto 16px; display: block; opacity: 0.7; }
+    footer p { font-size: 0.9rem; margin-bottom: 8px; }
+    footer strong { color: #888; }
+    footer a { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      .hero h1 { letter-spacing: -1px; }
+      .download-group { flex-direction: column; align-items: center; }
+      .btn-download { width: min(280px, 90vw); justify-content: center; }
+      .quickstart { padding: 24px 20px; }
+      section { padding: 52px 16px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Hero Section -->
-<div class="hero">
-    <div class="logo">🌻</div>
-    <h1>VARNA</h1>
-    <p class="tagline">
-        A free, fully offline voice assistant for Windows.<br>
-        Control your PC with natural speech — no internet, no cloud, no data collection.
-    </p>
-    <div class="badges">
-        <img src="https://img.shields.io/badge/Version-2.3-e94560?style=flat-square" alt="v2.3">
-        <img src="https://img.shields.io/badge/Windows-10%2F11-0078d4?style=flat-square&logo=windows" alt="Windows">
-        <img src="https://img.shields.io/badge/Python-3.8+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
-        <img src="https://img.shields.io/badge/Offline-100%25-28a745?style=flat-square" alt="Offline">
-        <img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="MIT">
-    </div>
+<canvas id="particle-canvas"></canvas>
 
-    <!-- Direct download buttons — each links to a specific GitHub release asset -->
-    <div class="download-group">
-        <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_Setup_v2.3.exe"
-           class="btn-download" download>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Windows Installer
-            <span class="badge">.exe</span>
-        </a>
-        <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_v2.3-windows.zip"
-           class="btn-download btn-zip" download>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Portable ZIP
-            <span class="badge">.zip</span>
-        </a>
-        <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_v2.3-windows.tar.gz"
-           class="btn-download btn-tar" download>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Source Archive
-            <span class="badge">.tar.gz</span>
-        </a>
-    </div>
-    <p class="download-note">v2.3 · Windows 10/11 · 100% offline · No admin required for ZIP</p>
-    <br>
-    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant" class="btn-secondary">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.7 18 5 18 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
-        View Source on GitHub
+<nav id="navbar">
+  <a href="#" class="nav-brand">
+    <img src="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png" alt="VARNA Logo" onerror="this.style.display='none'">
+    <span>VARNA</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#compare">Compare</a>
+    <a href="#faq">FAQ</a>
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant" class="nav-btn">GitHub</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <img class="hero-logo"
+       src="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png"
+       alt="VARNA Logo"
+       onerror="this.outerHTML='<div style=\'font-size:90px;margin-bottom:24px;filter:drop-shadow(0 0 30px rgba(233,69,96,0.5))\'>&#127908;</div>'">
+  <h1>VARNA</h1>
+  <p class="hero-sub">Voice Assistant for Windows</p>
+  <p class="tagline">100% offline voice control for your PC.<br>No internet. No cloud. No data collection. Just your voice.</p>
+  <div class="badge-row">
+    <img src="https://img.shields.io/badge/Version-2.3-e94560?style=flat-square" alt="v2.3">
+    <img src="https://img.shields.io/badge/Windows-10%2F11-0078d4?style=flat-square&logo=windows" alt="Windows">
+    <img src="https://img.shields.io/badge/Python-3.8+-3776ab?style=flat-square&logo=python&logoColor=white" alt="Python">
+    <img src="https://img.shields.io/badge/Offline-100%25-28a745?style=flat-square" alt="Offline">
+    <img src="https://img.shields.io/badge/License-MIT-22c55e?style=flat-square" alt="MIT">
+  </div>
+  <div class="waveform" id="waveform" aria-hidden="true"></div>
+  <div class="download-group">
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_Setup_v2.3.exe" class="btn-download" download>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Windows Installer <span class="badge">.exe</span>
     </a>
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_v2.3-windows.zip" class="btn-download btn-zip" download>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Portable ZIP <span class="badge">.zip</span>
+    </a>
+    <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant/releases/latest/download/VARNA_v2.3-windows.tar.gz" class="btn-download btn-tar" download>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Source Archive <span class="badge">.tar.gz</span>
+    </a>
+  </div>
+  <p class="download-note">v2.3 &nbsp;&middot;&nbsp; Windows 10/11 &nbsp;&middot;&nbsp; 100% Offline &nbsp;&middot;&nbsp; No admin required for ZIP</p>
+  <br>
+  <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant" class="btn-secondary">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.5-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17 4.7 18 5 18 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
+    View Source on GitHub
+  </a>
 </div>
 
-<!-- Features -->
-<section>
-    <h2>What Can VARNA Do?</h2>
-    <div class="features">
-        <div class="feature-card">
-            <div class="icon">📦</div>
-            <h3>Open & Close Any App</h3>
-            <p>"open whatsapp", "close spotify" — scans your entire PC, handles typos like "watsapp" automatically.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">🪟</div>
-            <h3>Window Intelligence</h3>
-            <p>"switch to chrome", "minimize vscode", "maximize edge" — smart restore, focus, and launch.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">⌨️</div>
-            <h3>Voice Typing</h3>
-            <p>"type hello world" — types in any active app. 40+ key commands: undo, copy, paste, enter.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">🔍</div>
-            <h3>Smart Search</h3>
-            <p>"search React hooks" — searches in active browser or opens new tab. YouTube search built-in.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">🧠</div>
-            <h3>Natural Language</h3>
-            <p>"can you help me open notepad" → just works. 60+ filler phrases understood. Handles accents.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">🔒</div>
-            <h3>100% Offline & Secure</h3>
-            <p>Voice never leaves your PC. Whitelist-only execution. 4-gate safety architecture.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">⚡</div>
-            <h3>Custom Macros</h3>
-            <p>"whenever I say focus mode, open vscode and open chrome" — chain multiple commands.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">🗂️</div>
-            <h3>Drive & Folder Navigation</h3>
-            <p>"go to D drive", "go to downloads", "go back" — navigate your entire filesystem.</p>
-        </div>
-        <div class="feature-card">
-            <div class="icon">📸</div>
-            <h3>Screenshots & Clipboard</h3>
-            <p>"screenshot as Bug1", "read clipboard", "paste 3rd item" — all managed by voice.</p>
-        </div>
-    </div>
-</section>
-
+<div class="trust-strip reveal">
+  <div class="trust-item"><div class="num count-up" data-target="1150">0</div><div class="lbl">Voice Commands</div></div>
+  <div class="trust-item"><div class="num count-up" data-target="100">0</div><div class="lbl">% Offline</div></div>
+  <div class="trust-item"><div class="num count-up" data-target="4">0</div><div class="lbl">Safety Gates</div></div>
+  <div class="trust-item"><div class="num" style="font-size:2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">~1s</div><div class="lbl">Response Time</div></div>
+  <div class="trust-item"><div class="num" style="font-size:2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">MIT</div><div class="lbl">Open Source</div></div>
+</div>
 <div class="divider"></div>
 
-<!-- How It Works -->
-<section>
-    <h2>How It Works</h2>
-    <div class="pipeline">
-        🎤 <span>Microphone</span> → 📝 <span>Whisper STT</span> (offline) → 🧹 <span>NLP Pipeline</span> (4 layers)
-        → 🧠 <span>Parser</span> → 🛡️ <span>Safety Check</span> → ⚡ <span>Execute</span> → 🔊 <span>Voice Response</span>
+<div class="demo-section reveal" id="demo">
+  <p class="section-title">Try It <span>Live</span></p>
+  <p class="section-sub">Click any command chip below to see VARNA in action</p>
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot" style="background:#ff5f57"></div>
+      <div class="terminal-dot" style="background:#febc2e"></div>
+      <div class="terminal-dot" style="background:#28c840"></div>
+      <div class="terminal-title">VARNA v2.3 &mdash; Voice Assistant</div>
     </div>
-</section>
-
+    <div class="terminal-body" id="terminal-body">
+      <div class="t-line"><span class="t-prompt">VARNA&gt;</span><span class="t-resp">Ready. Say a command or click a chip below.</span></div>
+      <div class="t-line" id="demo-line" style="display:none"><span class="t-prompt">You&gt;</span><span class="t-user" id="demo-user"></span></div>
+      <div class="t-line" id="demo-processing" style="display:none"><span class="t-prompt">VARNA&gt;</span><span class="t-dim" id="demo-proc-text">Processing...</span></div>
+      <div class="t-line" id="demo-result" style="display:none"><span class="t-prompt">VARNA&gt;</span><span class="t-result" id="demo-result-text"></span></div>
+      <div class="t-line"><span class="t-prompt">...</span><span class="t-dim"><span class="t-cursor"></span></span></div>
+    </div>
+  </div>
+  <div class="cmd-chips">
+    <div class="cmd-chip" data-cmd="open notepad" data-resp="Launching Notepad..." data-res="&#10004; Notepad opened">open notepad</div>
+    <div class="cmd-chip" data-cmd="what time is it" data-resp="Reading system clock..." data-res="&#9200; It is 10:42 AM">what time is it</div>
+    <div class="cmd-chip" data-cmd="search react hooks" data-resp="Opening browser tab..." data-res="&#10004; Searching &quot;react hooks&quot; in Chrome">search react hooks</div>
+    <div class="cmd-chip" data-cmd="take a screenshot" data-resp="Capturing screen..." data-res="&#10004; Screenshot saved as Screenshot_1.png">take a screenshot</div>
+    <div class="cmd-chip" data-cmd="minimize vs code" data-resp="Finding VS Code window..." data-res="&#10004; VS Code minimized">minimize vs code</div>
+    <div class="cmd-chip" data-cmd="type hello world" data-resp="Activating voice typing..." data-res="&#10004; Typed: &quot;hello world&quot;">type hello world</div>
+    <div class="cmd-chip" data-cmd="battery status" data-resp="Checking battery..." data-res="&#128267; Battery at 82%, charging">battery status</div>
+    <div class="cmd-chip" data-cmd="open file explorer" data-resp="Launching explorer..." data-res="&#10004; File Explorer opened">open file explorer</div>
+  </div>
+</div>
 <div class="divider"></div>
 
-<!-- Comparison -->
-<section>
-    <h2>Why Choose VARNA?</h2>
-    <div class="table-wrap">
-        <table>
-            <tr><th>Feature</th><th>VARNA</th><th>Cloud Assistants</th></tr>
-            <tr><td>Privacy</td><td>✅ 100% offline</td><td>❌ Sends audio to servers</td></tr>
-            <tr><td>Internet Required</td><td>✅ No</td><td>❌ Yes</td></tr>
-            <tr><td>Cost</td><td>✅ Free forever</td><td>❌ Subscription / data</td></tr>
-            <tr><td>Custom Commands</td><td>✅ Full control</td><td>❌ Limited API</td></tr>
-            <tr><td>Security</td><td>✅ Whitelist-only</td><td>❌ Black-box</td></tr>
-            <tr><td>Latency</td><td>✅ ~1-2s local</td><td>⚠️ Network-dependent</td></tr>
-        </table>
-    </div>
+<section id="features">
+  <div class="section-header reveal"><h2>What Can VARNA Do?</h2><p>1150+ commands across every area of Windows control</p></div>
+  <div class="features">
+    <div class="feature-card reveal"><div class="icon">&#128230;</div><h3>Open &amp; Close Any App</h3><p>"open whatsapp", "close spotify" &mdash; scans your entire PC, handles typos like "watsapp" automatically.</p><span class="tag">Smart Fuzzy Match</span></div>
+    <div class="feature-card reveal"><div class="icon">&#129695;</div><h3>Window Intelligence</h3><p>"switch to chrome", "minimize vscode", "maximize edge" &mdash; smart restore, focus, and launch.</p><span class="tag">Win32 API</span></div>
+    <div class="feature-card reveal"><div class="icon">&#9000;&#65039;</div><h3>Voice Typing</h3><p>"type hello world" &mdash; types in any active app. 40+ key commands: undo, copy, paste, enter.</p><span class="tag">PyAutoGUI</span></div>
+    <div class="feature-card reveal"><div class="icon">&#128269;</div><h3>Smart Search</h3><p>"search React hooks" &mdash; searches the active browser or opens a new tab. YouTube search built-in.</p><span class="tag">Browser-Aware</span></div>
+    <div class="feature-card reveal"><div class="icon">&#129504;</div><h3>Natural Language</h3><p>"can you help me open notepad" &rarr; just works. 60+ filler phrases understood. Handles accents.</p><span class="tag">4-Layer NLP</span></div>
+    <div class="feature-card reveal"><div class="icon">&#128274;</div><h3>100% Offline &amp; Private</h3><p>Voice never leaves your PC. Whitelist-only command execution. 4-gate safety architecture.</p><span class="tag">Zero Cloud</span></div>
+    <div class="feature-card reveal"><div class="icon">&#9889;</div><h3>Custom Macros</h3><p>"whenever I say focus mode, open vscode and open chrome" &mdash; chain any sequence of commands.</p><span class="tag">Macro Engine</span></div>
+    <div class="feature-card reveal"><div class="icon">&#128194;</div><h3>Drive &amp; Folder Navigation</h3><p>"go to D drive", "go to downloads", "go back" &mdash; navigate your entire filesystem by voice.</p><span class="tag">Explorer</span></div>
+    <div class="feature-card reveal"><div class="icon">&#128248;</div><h3>Screenshots &amp; Clipboard</h3><p>"screenshot as Bug1", "read clipboard", "paste 3rd item" &mdash; managed entirely by voice.</p><span class="tag">Clipboard AI</span></div>
+  </div>
 </section>
-
 <div class="divider"></div>
 
-<!-- Requirements -->
-<section>
-    <h2>Requirements</h2>
-    <div class="req-grid">
-        <div class="req-item">
-            <div class="icon">💻</div>
-            <div class="value">Windows 10/11</div>
-            <div class="label">Operating System</div>
-        </div>
-        <div class="req-item">
-            <div class="icon">🐍</div>
-            <div class="value">Python 3.8+</div>
-            <div class="label">Runtime (bundled)</div>
-        </div>
-        <div class="req-item">
-            <div class="icon">🎤</div>
-            <div class="value">Microphone</div>
-            <div class="label">Built-in or External</div>
-        </div>
-        <div class="req-item">
-            <div class="icon">💾</div>
-            <div class="value">4 GB RAM</div>
-            <div class="label">8 GB Recommended</div>
-        </div>
-        <div class="req-item">
-            <div class="icon">🖥️</div>
-            <div class="value">500 MB Disk</div>
-            <div class="label">For installer + models</div>
-        </div>
+<section id="how-it-works">
+  <div class="section-header reveal"><h2>How It Works</h2><p>Seven intelligent layers transform speech into action in under a second</p></div>
+  <div class="pipeline-wrap reveal">
+    <div class="pipeline-steps">
+      <div class="pipe-step"><div class="pipe-icon">&#127908;</div><div class="pipe-label">Microphone</div><div class="pipe-sub">Ambient calibration</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#128221;</div><div class="pipe-label">Whisper STT</div><div class="pipe-sub">Offline transcription</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#129529;</div><div class="pipe-label">NLP Pipeline</div><div class="pipe-sub">4 normalisation layers</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#129504;</div><div class="pipe-label">Parser</div><div class="pipe-sub">Intent detection</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#128737;&#65039;</div><div class="pipe-label">Safety Gate</div><div class="pipe-sub">Whitelist check</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#9889;</div><div class="pipe-label">Execute</div><div class="pipe-sub">PowerShell / Win32</div></div>
+      <div class="pipe-arrow">&rarr;</div>
+      <div class="pipe-step"><div class="pipe-icon">&#128266;</div><div class="pipe-label">TTS Response</div><div class="pipe-sub">Offline pyttsx3</div></div>
     </div>
+  </div>
 </section>
-
 <div class="divider"></div>
 
-<!-- Install -->
+<section id="compare">
+  <div class="section-header reveal"><h2>Why Choose VARNA?</h2><p>The only voice assistant built for privacy-first Windows power users</p></div>
+  <div class="table-wrap reveal">
+    <table>
+      <tr><th>Feature</th><th>VARNA</th><th>Siri / Cortana</th><th>Cloud Assistants</th></tr>
+      <tr><td>Privacy</td><td><span class="tick">&#10004;</span> 100% offline</td><td><span class="cross">&#10008;</span> Sends to Apple/MS</td><td><span class="cross">&#10008;</span> Cloud-first</td></tr>
+      <tr><td>Internet Required</td><td><span class="tick">&#10004;</span> Never</td><td><span class="cross">&#10008;</span> Yes</td><td><span class="cross">&#10008;</span> Always</td></tr>
+      <tr><td>Custom Commands</td><td><span class="tick">&#10004;</span> Full control (JSON)</td><td><span class="warn">~</span> Limited Shortcuts</td><td><span class="cross">&#10008;</span> Locked API</td></tr>
+      <tr><td>Cost</td><td><span class="tick">&#10004;</span> Free forever</td><td><span class="warn">~</span> OS bundled</td><td><span class="cross">&#10008;</span> Subscription / data</td></tr>
+      <tr><td>Security</td><td><span class="tick">&#10004;</span> Whitelist execution</td><td><span class="warn">~</span> Sandboxed</td><td><span class="cross">&#10008;</span> Black-box</td></tr>
+      <tr><td>Response Latency</td><td><span class="tick">&#10004;</span> ~1&ndash;2 s local</td><td><span class="warn">~</span> 1&ndash;3 s network</td><td><span class="cross">&#10008;</span> Network-dependent</td></tr>
+      <tr><td>Open Source</td><td><span class="tick">&#10004;</span> MIT License</td><td><span class="cross">&#10008;</span> Closed source</td><td><span class="cross">&#10008;</span> Closed source</td></tr>
+    </table>
+  </div>
+</section>
+<div class="divider"></div>
+
 <section>
-    <h2>Quick Start</h2>
-    <div class="pipeline" style="text-align: left; font-size: 0.95rem; line-height: 2.4;">
-        <strong style="color:#e94560;">Option 1 — Installer (Recommended):</strong>
-        &nbsp; Download <code style="color:#f5a623;">VARNA_Setup_v2.3.exe</code> → run it → launch from Start Menu or Desktop
-        <strong style="color:#6c47d9;">Option 2 — Portable ZIP:</strong>
-        &nbsp; Extract ZIP → run <code style="color:#f5a623;">VARNA.exe</code> directly, no installation needed
-        <strong style="color:#1a8c6e;">Option 3 — From Source:</strong>
-        <code style="color:#7777aa;">git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git</code>
-        <code style="color:#7777aa;">cd varna-voice-assistant</code>
-        <code style="color:#7777aa;">pip install -r requirements.txt</code>
-        <code style="color:#7777aa;">python main.py</code>
-    </div>
+  <div class="section-header reveal"><h2>Requirements</h2><p>Runs on any modern Windows machine &mdash; no GPU needed</p></div>
+  <div class="req-grid">
+    <div class="req-item reveal"><div class="icon">&#128187;</div><div class="value">Windows 10/11</div><div class="label">Operating System</div></div>
+    <div class="req-item reveal"><div class="icon">&#128013;</div><div class="value">Python 3.8+</div><div class="label">Runtime (bundled)</div></div>
+    <div class="req-item reveal"><div class="icon">&#127908;</div><div class="value">Microphone</div><div class="label">Built-in or External</div></div>
+    <div class="req-item reveal"><div class="icon">&#128190;</div><div class="value">4 GB RAM</div><div class="label">8 GB Recommended</div></div>
+    <div class="req-item reveal"><div class="icon">&#128421;&#65039;</div><div class="value">500 MB Disk</div><div class="label">Installer + Models</div></div>
+    <div class="req-item reveal"><div class="icon">&#128683;</div><div class="value">No GPU</div><div class="label">CPU inference only</div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<section>
+  <div class="section-header reveal"><h2>Quick Start</h2><p>Up and running in under 2 minutes</p></div>
+  <div class="quickstart reveal">
+    <div class="qs-step"><div class="qs-num">1</div><div class="qs-content"><h4>Download the Installer</h4><p>Click <strong>Windows Installer</strong> above to download <code>VARNA_Setup_v2.3.exe</code></p></div></div>
+    <div class="qs-step"><div class="qs-num">2</div><div class="qs-content"><h4>Run the Setup</h4><p>Double-click the installer, follow the wizard &mdash; no admin rights needed. It creates desktop &amp; Start Menu shortcuts.</p></div></div>
+    <div class="qs-step"><div class="qs-num">3</div><div class="qs-content"><h4>Launch VARNA</h4><p>Click the desktop shortcut. VARNA calibrates your microphone automatically (takes ~2 s).</p></div></div>
+    <div class="qs-step"><div class="qs-num">4</div><div class="qs-content"><h4>Speak a Command</h4><p>Say something like <code>"open chrome"</code> or <code>"what time is it"</code> &mdash; VARNA responds instantly.</p></div></div>
+    <div class="qs-step"><div class="qs-num" style="background:linear-gradient(135deg,#6c47d9,#4e2fa8);">*</div><div class="qs-content"><h4>Alternative: From Source</h4><p><code>git clone https://github.com/Nandan-k-s-27/varna-voice-assistant.git</code><br><code>pip install -r requirements.txt</code>&nbsp;&nbsp;<code>python main.py</code></p></div></div>
+  </div>
+</section>
+<div class="divider"></div>
+
+<section id="faq">
+  <div class="section-header reveal"><h2>Frequently Asked Questions</h2><p>Everything you need to know before downloading</p></div>
+  <div class="reveal">
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does VARNA send my voice to the internet?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">Never. VARNA uses the Faster-Whisper model locally on your CPU. All speech recognition happens on your machine. No microphone audio, transcriptions, or commands are transmitted anywhere.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I add my own custom commands?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">Yes. Open <code>commands.json</code> in the install folder and add key-value pairs. You can also say <em>"whenever I say [macro name], [commands]"</em> to create voice macros on the fly.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Which apps can VARNA open?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">VARNA scans your entire PC at startup and builds an app index. It can open virtually any installed application, including those not in the system PATH. It handles typos and accented pronunciations using fuzzy matching.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is VARNA free? Is it open source?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">Completely free, forever, under the MIT license. The full source code is available on GitHub. Fork it, modify it, or contribute back &mdash; all welcome.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does it work without a GPU?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">Yes. VARNA uses the small Faster-Whisper model which runs efficiently on CPU. On a mid-range modern PC you get ~1-2 s transcription time, which is perfectly responsive for real-time use.</div></div>
+    <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What happens if VARNA mishears a command?<span class="faq-arrow">&#9660;</span></div><div class="faq-a">VARNA uses a 4-gate safety architecture. Fuzzy matches below the confidence threshold trigger a voice confirmation ("Did you mean X? Say yes or no"). Dangerous system commands always require explicit confirmation before execution.</div></div>
+  </div>
 </section>
 
-<!-- Footer -->
 <footer>
-    <p style="font-size: 1.4rem; margin-bottom: 12px;">🌻</p>
-    <p><strong>VARNA v2.3</strong> — Your voice, your control, your privacy.</p>
-    <p style="margin-top: 10px; font-size: 0.82rem; color: #444;">
-        Made with ❤️ by <a href="https://github.com/Nandan-k-s-27">Nandan K S</a>
-        &nbsp;·&nbsp;
-        <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant">GitHub</a>
-        &nbsp;·&nbsp;
-        MIT License
-    </p>
+  <img class="footer-logo" src="https://raw.githubusercontent.com/Nandan-k-s-27/varna-voice-assistant/main/assets/varna_logo.png" alt="VARNA" onerror="this.style.display='none'">
+  <p><strong>VARNA v2.3</strong> &mdash; Your voice, your control, your privacy.</p>
+  <p style="margin-top:10px;font-size:0.82rem;">Made with &#10084;&#65039; by <a href="https://github.com/Nandan-k-s-27">Nandan K S</a> &nbsp;&middot;&nbsp; <a href="https://github.com/Nandan-k-s-27/varna-voice-assistant">GitHub</a> &nbsp;&middot;&nbsp; MIT License</p>
 </footer>
 
+<script>
+(function() {
+  var canvas = document.getElementById('particle-canvas');
+  var ctx = canvas.getContext('2d');
+  var W, H, particles = [];
+  function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function Particle() { this.reset(); }
+  Particle.prototype.reset = function() { this.x = Math.random()*W; this.y = Math.random()*H; this.r = Math.random()*1.4+0.3; this.vx = (Math.random()-0.5)*0.3; this.vy = (Math.random()-0.5)*0.3; this.alpha = Math.random()*0.5+0.1; this.color = Math.random()>0.6?'#e94560':'#6c47d9'; };
+  Particle.prototype.update = function() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>W||this.y<0||this.y>H) this.reset(); };
+  for(var i=0;i<90;i++) particles.push(new Particle());
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    for(var i=0;i<particles.length;i++) for(var j=i+1;j<particles.length;j++) { var dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y,d=Math.sqrt(dx*dx+dy*dy); if(d<120){ctx.strokeStyle='rgba(233,69,96,'+(0.07*(1-d/120))+')';ctx.lineWidth=0.5;ctx.beginPath();ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke();}}
+    particles.forEach(function(p){ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();});
+    ctx.globalAlpha=1; particles.forEach(function(p){p.update();}); requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+(function() {
+  var wf = document.getElementById('waveform'); if(!wf) return;
+  var style = document.createElement('style');
+  style.textContent = '@keyframes waveBar{from{height:4px;opacity:0.3}to{height:30px;opacity:0.9}}';
+  document.head.appendChild(style);
+  for(var i=0;i<28;i++){var b=document.createElement('div');b.className='bar';b.style.animation='waveBar '+(0.6+Math.random()*0.8)+'s ease-in-out '+(Math.random()*0.5)+'s infinite alternate';wf.appendChild(b);}
+})();
+
+(function() {
+  var els = document.querySelectorAll('.reveal');
+  var io = new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}});},{threshold:0.1});
+  els.forEach(function(el){io.observe(el);});
+})();
+
+(function() {
+  var els = document.querySelectorAll('.count-up');
+  var io = new IntersectionObserver(function(entries){entries.forEach(function(e){if(!e.isIntersecting)return;var target=parseInt(e.target.dataset.target,10),current=0,step=Math.ceil(target/60);var t=setInterval(function(){current=Math.min(current+step,target);e.target.textContent=current.toLocaleString();if(current>=target)clearInterval(t);},16);io.unobserve(e.target);});},{threshold:0.5});
+  els.forEach(function(el){io.observe(el);});
+})();
+
+(function() {
+  var chips = document.querySelectorAll('.cmd-chip'), busy = false;
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      if(busy) return; busy=true;
+      chips.forEach(function(c){c.classList.remove('active');}); this.classList.add('active');
+      var cmd=this.dataset.cmd, resp=this.dataset.resp, res=this.dataset.res;
+      var lineUser=document.getElementById('demo-line'), userSpan=document.getElementById('demo-user');
+      var lineProc=document.getElementById('demo-processing'), procSpan=document.getElementById('demo-proc-text');
+      var lineRes=document.getElementById('demo-result'), resSpan=document.getElementById('demo-result-text');
+      lineRes.style.display='none'; lineProc.style.display='none';
+      lineUser.style.display='flex'; userSpan.textContent='';
+      var i=0; var t=setInterval(function(){userSpan.textContent+=cmd[i++];if(i>=cmd.length)clearInterval(t);},35);
+      setTimeout(function(){lineProc.style.display='flex';procSpan.textContent=resp;},cmd.length*35+250);
+      setTimeout(function(){lineProc.style.display='none';lineRes.style.display='flex';resSpan.textContent=res;busy=false;},cmd.length*35+1200);
+    });
+  });
+})();
+
+function toggleFaq(el){var item=el.closest('.faq-item'),isOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(function(i){i.classList.remove('open');});if(!isOpen)item.classList.add('open');}
+
+window.addEventListener('scroll',function(){var nav=document.getElementById('navbar');if(window.scrollY>60){nav.style.padding='8px 40px';nav.style.background='rgba(7,7,26,0.97)';}else{nav.style.padding='14px 40px';nav.style.background='rgba(7,7,26,0.85)';}});
+</script>
 </body>
 </html>
