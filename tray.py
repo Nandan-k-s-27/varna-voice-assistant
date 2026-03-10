@@ -1,19 +1,18 @@
 """
-VARNA v2.3 - Floating Overlay Tray UI
-A premium, freely-draggable floating widget that expands into a
+VARNA v2.3 - Sunflower Tray UI
+A polished, self-contained floating sunflower that expands into a
 status panel on click.
 
 Default state:
-  - Small VARNA logo icon floating at the bottom-right of the screen.
-  - Always on top, fully draggable anywhere on screen, no title bar.
+  - Small sunflower icon floating at the bottom-right of the screen.
+  - Always on top, draggable, no title bar.
 
 Expanded state:
-  - Logo enlarges; a dark glass card slides open beside it showing
+  - Sunflower enlarges; a dark card slides open beside it showing
     VARNA v2.3 header, status, recognised speech, command, and result.
-  - Click the logo again (or the close button) to collapse.
-  - Window position is preserved across expand/collapse.
+  - Click the sunflower again (or the close button) to collapse.
 
-No emojis used in the UI chrome — all labels are plain text.
+No emojis are used in the UI chrome — all labels are plain text.
 Runs in a background thread alongside the main voice loop.
 """
 
@@ -55,18 +54,17 @@ _GREEN      = "#55efc4"
 _TEXT_MAIN  = "#eaeaef"
 _TEXT_DIM   = "#8888aa"
 _BORDER     = "#2a2a4a"
-_LOGO_SIZE_SMALL  = 52
-_LOGO_SIZE_LARGE  = 72
-_CARD_WIDTH       = 300
-_CARD_HEIGHT      = 195
+_SUNFLOWER_SIZE_SMALL  = 52
+_SUNFLOWER_SIZE_LARGE  = 72
+_CARD_WIDTH            = 300
+_CARD_HEIGHT           = 195
 
 
 class TrayUI:
     """
-    VARNA floating overlay + system tray icon.
+    Sunflower floating overlay + system tray icon.
 
     Thread-safe: call update_*() methods from any thread.
-    Fully draggable — position is preserved across expand/collapse.
     """
 
     def __init__(self):
@@ -93,13 +91,8 @@ class TrayUI:
 
         # Widget refs
         self._card_frame: tk.Frame | None = None
-        self._logo_label: tk.Label | None = None
+        self._sunflower_label: tk.Label | None = None
         self._pulse_after_id: str | None = None
-
-        # Drag state
-        self._drag_x: int = 0
-        self._drag_y: int = 0
-        self._drag_moved: bool = False
 
     # ================================================================ #
     # Public API
@@ -155,15 +148,15 @@ class TrayUI:
         # Transparent background (Windows-specific)
         self._root.attributes("-transparentcolor", _BG)
 
-        # Load VARNA logo images
+        # Load sunflower images
         self._load_images()
 
         # Position: bottom-right, small initially
         sw = self._root.winfo_screenwidth()
         sh = self._root.winfo_screenheight()
         pad = 24
-        init_w = _LOGO_SIZE_SMALL + 12
-        init_h = _LOGO_SIZE_SMALL + 12
+        init_w = _SUNFLOWER_SIZE_SMALL + 12
+        init_h = _SUNFLOWER_SIZE_SMALL + 12
         x = sw - init_w - pad
         y = sh - init_h - 60
         self._root.geometry(f"{init_w}x{init_h}+{x}+{y}")
@@ -172,21 +165,20 @@ class TrayUI:
         self._container = tk.Frame(self._root, bg=_BG)
         self._container.pack(fill=tk.BOTH, expand=True)
 
-        # VARNA logo button
-        self._logo_label = tk.Label(
+        # Sunflower button
+        self._sunflower_label = tk.Label(
             self._container,
             image=self._img_small,
             bg=_BG,
-            cursor="fleur",   # move cursor so user knows it's draggable
+            cursor="hand2",
         )
-        self._logo_label.pack(side=tk.RIGHT, anchor="ne", padx=2, pady=2)
+        self._sunflower_label.pack(side=tk.RIGHT, anchor="ne", padx=2, pady=2)
+        self._sunflower_label.bind("<Button-1>", self._toggle_expand)
+        self._sunflower_label.bind("<Button-3>", self._on_right_click)
 
-        # Drag bindings on logo (ButtonPress starts drag, B1-Motion moves,
-        # Button-1 release fires toggle ONLY if no drag occurred)
-        self._logo_label.bind("<ButtonPress-1>", self._start_drag)
-        self._logo_label.bind("<B1-Motion>", self._do_drag)
-        self._logo_label.bind("<ButtonRelease-1>", self._on_click_release)
-        self._logo_label.bind("<Button-3>", self._on_right_click)
+        # Dragging on sunflower
+        self._sunflower_label.bind("<ButtonPress-1>", self._start_drag, add="+")
+        self._sunflower_label.bind("<B1-Motion>", self._do_drag)
 
         # Build the card (hidden initially)
         self._build_card()
@@ -198,25 +190,25 @@ class TrayUI:
         # Start subtle pulse animation
         self._start_pulse()
 
-        log.info("VARNA overlay created at (%d, %d)", x, y)
+        log.info("Sunflower overlay created at (%d, %d)", x, y)
         self._root.mainloop()
 
     # ─────────────────────────────────────────────────────────────────── #
     def _load_images(self):
-        """Load & resize the VARNA logo PNG for small and large states."""
+        """Load & resize the sunflower PNG for small and large states."""
         try:
             logo_path = _resolve_asset("varna_logo.png")
             pil_img = Image.open(str(logo_path)).convert("RGBA")
             small = pil_img.resize(
-                (_LOGO_SIZE_SMALL, _LOGO_SIZE_SMALL), Image.LANCZOS
+                (_SUNFLOWER_SIZE_SMALL, _SUNFLOWER_SIZE_SMALL), Image.LANCZOS
             )
             large = pil_img.resize(
-                (_LOGO_SIZE_LARGE, _LOGO_SIZE_LARGE), Image.LANCZOS
+                (_SUNFLOWER_SIZE_LARGE, _SUNFLOWER_SIZE_LARGE), Image.LANCZOS
             )
             self._img_small = ImageTk.PhotoImage(small)
             self._img_large = ImageTk.PhotoImage(large)
         except Exception as exc:
-            log.warning("Could not load VARNA logo image: %s — using fallback", exc)
+            log.warning("Could not load sunflower image: %s — using fallback", exc)
             self._img_small = None
             self._img_large = None
 
@@ -227,9 +219,17 @@ class TrayUI:
                                      highlightbackground=_BORDER)
         # Don't pack yet — shown on expand
 
+        # Make card draggable
+        self._card_frame.bind("<ButtonPress-1>", self._start_drag)
+        self._card_frame.bind("<B1-Motion>", self._do_drag)
+
         # Inner content with padding
         inner = tk.Frame(self._card_frame, bg=_BG_CARD, padx=16, pady=12)
         inner.pack(fill=tk.BOTH, expand=True)
+
+        # Make inner frame draggable too
+        inner.bind("<ButtonPress-1>", self._start_drag)
+        inner.bind("<B1-Motion>", self._do_drag)
 
         # ── Header row ──
         hdr_frame = tk.Frame(inner, bg=_BG_CARD)
@@ -241,8 +241,8 @@ class TrayUI:
         ).pack(side=tk.LEFT)
         tk.Label(
             hdr_frame, text="v2.3", font=("Segoe UI", 10),
-            fg=_TEXT_DIM, bg=_BG_CARD, anchor="w", padx=(4, 0)
-        ).pack(side=tk.LEFT, pady=(4, 0))
+            fg=_TEXT_DIM, bg=_BG_CARD, anchor="w", padx=4
+        ).pack(side=tk.LEFT, pady=4)
 
         # Close button
         close_btn = tk.Label(
@@ -314,65 +314,59 @@ class TrayUI:
     def _expand(self):
         self._expanded = True
 
-        # Enlarge logo
-        if self._img_large:
-            self._logo_label.config(image=self._img_large)
+        # Hide sunflower — only the card should be visible
+        self._sunflower_label.pack_forget()
 
-        # Show card to the left of logo
-        self._card_frame.pack(side=tk.LEFT, padx=(0, 6), pady=2, fill=tk.BOTH)
+        # Show card
+        self._card_frame.pack(side=tk.LEFT, padx=4, pady=2, fill=tk.BOTH)
 
-        # Resize window — keep current top-left position so dragged position is preserved
-        total_w = _CARD_WIDTH + _LOGO_SIZE_LARGE + 24
-        total_h = max(_CARD_HEIGHT, _LOGO_SIZE_LARGE + 12)
+        # Resize window to card only (no sunflower)
+        total_w = _CARD_WIDTH + 16
+        total_h = _CARD_HEIGHT + 8
 
-        cur_x = self._root.winfo_x()
-        cur_y = self._root.winfo_y()
-        # Ensure card doesn't go off the left edge of the screen
         sw = self._root.winfo_screenwidth()
-        new_x = max(0, min(cur_x, sw - total_w - 4))
-        self._root.geometry(f"{total_w}x{total_h}+{new_x}+{cur_y}")
+        sh = self._root.winfo_screenheight()
+        x = sw - total_w - 24
+        y = sh - total_h - 60
+        self._root.geometry(f"{total_w}x{total_h}+{x}+{y}")
 
-        log.debug("Panel expanded")
+        log.debug("Panel expanded (flower hidden)")
 
     def _collapse(self):
         self._expanded = False
 
-        # Shrink logo
-        if self._img_small:
-            self._logo_label.config(image=self._img_small)
-
         # Hide card
         self._card_frame.pack_forget()
 
-        # Resize window back — keep current position
-        w = _LOGO_SIZE_SMALL + 12
-        h = _LOGO_SIZE_SMALL + 12
-        cur_x = self._root.winfo_x()
-        cur_y = self._root.winfo_y()
-        self._root.geometry(f"{w}x{h}+{cur_x}+{cur_y}")
+        # Show sunflower again
+        if self._img_small:
+            self._sunflower_label.config(image=self._img_small)
+        self._sunflower_label.pack(side=tk.RIGHT, anchor="ne", padx=2, pady=2)
 
-        log.debug("Panel collapsed")
+        # Resize window back to flower only
+        w = _SUNFLOWER_SIZE_SMALL + 12
+        h = _SUNFLOWER_SIZE_SMALL + 12
+        sw = self._root.winfo_screenwidth()
+        sh = self._root.winfo_screenheight()
+        x = sw - w - 24
+        y = sh - h - 60
+        self._root.geometry(f"{w}x{h}+{x}+{y}")
+
+        log.debug("Panel collapsed (flower restored)")
 
     # ================================================================ #
-    # Dragging — fixed: toggle only fires when no drag occurred
+    # Dragging
     # ================================================================ #
     def _start_drag(self, event):
-        """Record start position; reset moved flag."""
         self._drag_x = event.x_root - self._root.winfo_x()
         self._drag_y = event.y_root - self._root.winfo_y()
         self._drag_moved = False
 
     def _do_drag(self, event):
-        """Move the window while dragging; mark that a drag happened."""
         x = event.x_root - self._drag_x
         y = event.y_root - self._drag_y
         self._root.geometry(f"+{x}+{y}")
         self._drag_moved = True
-
-    def _on_click_release(self, event):
-        """Toggle expand/collapse ONLY when the mouse was not dragged."""
-        if not self._drag_moved:
-            self._toggle_expand()
 
     # ================================================================ #
     # Pulse animation (subtle glow on the status dot)
@@ -436,16 +430,16 @@ class TrayUI:
 
     @staticmethod
     def _load_tray_icon() -> "Image.Image":
-        """Load VARNA logo PNG for the system tray icon (64x64)."""
+        """Use the actual sunflower PNG for the tray icon (resized to 64x64)."""
         try:
             logo_path = _resolve_asset("varna_logo.png")
             img = Image.open(str(logo_path)).convert("RGBA")
             return img.resize((64, 64), Image.LANCZOS)
         except Exception:
-            # Fallback: draw a clean accent circle
+            # Fallback: draw a simple one
             img = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
             draw = ImageDraw.Draw(img)
-            draw.ellipse([2, 2, 62, 62], fill="#e94560")
+            draw.ellipse([4, 4, 60, 60], fill="#e94560")
             return img
 
     def _show_overlay(self, *_):

@@ -468,6 +468,12 @@ def _process_single(text: str, parser: Parser, executor: Executor,
         _handle_typing(result, speaker, tray)
         return
 
+    # --- Volume control (v2.3 fix: native, no PowerShell) ---
+    if result.is_volume:
+        _handle_volume(result, speaker, tray)
+        context.update_after_command(result.matched_key, "")
+        return
+
     # --- Key press (v1.5 polish) ---
     if result.is_key_press:
         _handle_key_press(result, speaker, tray)
@@ -1037,6 +1043,47 @@ def _post_cleanup():
     if _HAS_AUTO:
         time.sleep(0.08)
         pyautogui.press("escape")
+
+
+# ====================================================================== #
+# Volume control — native handler (v2.3 fix)
+# Sends a single keybd_event via ctypes, bypassing PowerShell subprocess
+# and unreliable COM-object SendKeys. This eliminates the volume-jump bug
+# where spawning PowerShell + WScript.Shell caused multiple key events.
+# ====================================================================== #
+import ctypes
+
+_VK_VOLUME_MUTE = 0xAD
+_VK_VOLUME_DOWN = 0xAE
+_VK_VOLUME_UP   = 0xAF
+_KEYEVENTF_KEYUP = 0x0002
+
+
+def _handle_volume(result: ParseResult, speaker: Speaker, tray: TrayUI):
+    """Handle volume up/down/mute natively — no PowerShell needed."""
+    action = result.volume_action
+
+    if action == "up":
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_UP, 0, 0, 0)
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_UP, 0, _KEYEVENTF_KEYUP, 0)
+        speaker.say("Volume up.")
+        tray.update_result("Volume up")
+    elif action == "down":
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_DOWN, 0, 0, 0)
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_DOWN, 0, _KEYEVENTF_KEYUP, 0)
+        speaker.say("Volume down.")
+        tray.update_result("Volume down")
+    elif action == "mute":
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_MUTE, 0, 0, 0)
+        ctypes.windll.user32.keybd_event(_VK_VOLUME_MUTE, 0, _KEYEVENTF_KEYUP, 0)
+        speaker.say("Toggled mute.")
+        tray.update_result("Mute toggled")
+    else:
+        speaker.say("Unknown volume action.")
+        tray.update_result("Unknown volume action")
+
+    tray.update_command(result.matched_key or "volume")
+    log.info("Volume action: %s (native keybd_event)", action)
 
 
 # Commands that should NOT get ESC focus reset (ESC itself, or commands that open dialogs)

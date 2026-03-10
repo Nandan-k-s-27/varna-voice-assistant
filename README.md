@@ -105,6 +105,7 @@ It uses **OpenAI Whisper** for accurate speech-to-text, a **layered NLP pipeline
 
 ### System & Security
 - **System Info** — `"what time is it"`, `"battery status"`, `"system info"`
+- **Media Control** — `"volume up"`, `"volume down"`, `"mute"` — native, precise volume control
 - **Process Monitor** — `"monitor chrome memory usage"` with background alerts
 - **Task Scheduler** — `"schedule shutdown at 10 PM"`
 - **4-Gate Safety** — Risk assessment, phonetic safeguards, confirmation prompts
@@ -198,6 +199,8 @@ Speak commands naturally — VARNA understands flexible language.
 | **Screenshot** | `"screenshot as Bug1"` | Saves `Bug1.png` to Desktop |
 | **Key Press** | `"press enter"` / `"undo"` | Press Enter / Ctrl+Z |
 | **System** | `"battery status"` | Reports battery percentage |
+| **Volume** | `"volume up"` / `"volume down"` | Adjusts system volume (native, reliable) |
+| **Volume** | `"mute"` / `"unmute"` | Toggles system mute |
 | **System** | `"shutdown system"` | Shuts down (with confirmation) |
 | **Macro** | `"whenever I say X do Y"` | Creates a custom macro |
 | **Context** | `"close it"` / `"repeat"` | Closes last app / repeats last command |

@@ -88,6 +88,9 @@ class ParseResult:
     close_target: str | None = None        # app name to close
     is_key_press: bool = False             # press a keyboard key
     key_name: str | None = None            # "enter" | "escape" | "tab" | "backspace" | "delete"
+    # v2.3 fix
+    is_volume: bool = False                # native volume control
+    volume_action: str | None = None       # "up" | "down" | "mute"
     # v1.5 polish
     is_selection: bool = False             # text selection command
     selection_action: str | None = None    # "select_word_name" | "select_line" | "select_word" | "select_next" | "go_to_line"
@@ -541,6 +544,11 @@ class Parser:
 
         def _is_voice_reply(ps_cmd: str) -> bool:
             return any(p.lower() in ps_cmd.lower() for p in _VOICE_REPLY_PATTERNS)
+
+        # 1.5. Volume commands — handle natively (v2.3 fix)
+        _vol_result = self._match_volume(text)
+        if _vol_result:
+            return _vol_result
 
         # 2. Exact match — static
         if text in self.static:
@@ -1506,6 +1514,31 @@ class Parser:
             return ParseResult(matched_key=f"{key} {raw_query}", commands=[command])
 
         return ParseResult()
+
+    # ------------------------------------------------------------------ #
+    # Volume command sets (v2.3 fix: handle natively, not via PowerShell)
+    _VOLUME_UP_PHRASES = frozenset({
+        "increase volume", "volume up", "louder", "turn up volume",
+        "raise volume", "up volume", "more volume", "make it louder",
+    })
+    _VOLUME_DOWN_PHRASES = frozenset({
+        "decrease volume", "volume down", "quieter", "turn down volume",
+        "lower volume", "down volume", "less volume", "make it quieter",
+    })
+    _VOLUME_MUTE_PHRASES = frozenset({
+        "mute volume", "mute", "silence", "mute sound", "turn off sound",
+        "mute audio", "unmute",
+    })
+
+    def _match_volume(self, text: str) -> ParseResult | None:
+        """Match volume control commands for native handling (v2.3 fix)."""
+        if text in self._VOLUME_UP_PHRASES:
+            return ParseResult(matched_key=text, is_volume=True, volume_action="up")
+        if text in self._VOLUME_DOWN_PHRASES:
+            return ParseResult(matched_key=text, is_volume=True, volume_action="down")
+        if text in self._VOLUME_MUTE_PHRASES:
+            return ParseResult(matched_key=text, is_volume=True, volume_action="mute")
+        return None
 
     # ------------------------------------------------------------------ #
     def _match_chain(self, text: str) -> ParseResult:
